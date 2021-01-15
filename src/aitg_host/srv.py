@@ -40,7 +40,7 @@ def gen_route():
     opt_length_penalty: float = get_req_opt(req_json, 'length_penalty', 1.0)
     opt_no_repeat_ngram_size: int = get_req_opt(req_json, 'no_repeat_ngram_size', 0)
 
-    logger.debug(f'requesting generation for prompt {prompt}')
+    logger.debug(f'requesting generation for prompt: {prompt}')
 
     # generate
     start = time.time()

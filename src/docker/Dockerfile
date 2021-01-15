@@ -77,5 +77,3 @@ RUN "ls"
 
 EXPOSE 6000
 ENTRYPOINT [ "python", "-m" ]
-# "aitg_host.cli"
-# "aitg_host.srv"
