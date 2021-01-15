@@ -19,4 +19,4 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry.scripts]
 aitg_host_cli = "aitg_host.cli:main"
-aitg_host_srv = "aitg_host.server:main"
+aitg_host_srv = "aitg_host.srv:main"

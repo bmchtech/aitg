@@ -74,4 +74,8 @@ ENV MODEL=/app/model
 
 WORKDIR /app
 RUN "ls"
-CMD [ "python", "-m", "aitg_host.cli" ]
+
+EXPOSE 6000
+ENTRYPOINT [ "python", "-m" ]
+# "aitg_host.cli"
+# "aitg_host.srv"
