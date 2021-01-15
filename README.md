@@ -12,7 +12,7 @@ poetry install
 ## run
 
 ```sh
-poetry run aitg_host
+MODEL=/path/to/your_model poetry run aitg_host
 ```
 
 ## docker
