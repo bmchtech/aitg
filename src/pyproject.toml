@@ -8,6 +8,8 @@ authors = ["xdrie <xdrie@alt.icu>"]
 python = "^3.8"
 aitextgen = "^0.3.0"
 typer = "^0.3.2"
+bottle = "^0.12.19"
+loguru = "^0.5.3"
 
 [tool.poetry.dev-dependencies]
 
@@ -17,3 +19,4 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry.scripts]
 aitg_host_cli = "aitg_host.cli:main"
+aitg_host_srv = "aitg_host.server:main"
