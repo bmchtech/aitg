@@ -3,7 +3,7 @@
 
 ## setup
 
-put model in `models/` and update path to model
+enter `src/`
 
 ```sh
 poetry install
