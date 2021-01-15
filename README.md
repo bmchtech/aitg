@@ -19,10 +19,10 @@ MODEL=/path/to/your_model poetry run aitg_host
 
 build
 ```sh
-docker build --pull -t aitg_host/base -f Dockerfile .
+docker build --pull -t aitg_host/cli -f Dockerfile .
 ```
 
-run
+run cli
 ```sh
-docker run -it --rm -v $(pwd)/models/YOUR_MODEL:/app/model aitg_host/base
+docker run -it --rm -v $(pwd)/models/YOUR_MODEL:/app/model aitg_host/cli
 ```
