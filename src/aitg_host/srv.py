@@ -18,7 +18,7 @@ def get_req_opt(req, name, default):
     else:
         return default
 
-@route('/gen', method='POST')
+@route('/gen', method='GET')
 def gen_route():
     req_json = request.json
 
