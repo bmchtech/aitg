@@ -16,6 +16,7 @@ poetry install
 ### model
 
 next, you need to grab a pytorch model.
+for more info on how to train/fine-tune, see [my blog post](https://blog.rie.icu/post/microfinetuning_gpt2/).
 
 if you don't have your own yet, you can use a sample model:
 + [DistilGPT2-S Base](https://github.com/xdrie/aitextgen_host/releases/download/v1.0.0/PT_DistilGPT2_ATG.7z)
