@@ -57,7 +57,7 @@ def gen_route():
     )
     gen_txt_size = len(gen_txt)
     logger.debug(f'model output: {gen_txt}')
-    logger.info(f"generated {gen_txt_size} chars in: {time.time() - start}s")
+    logger.info(f"generated {gen_txt_size} chars in: {time.time() - start:.2f}s")
 
     # success
     response.headers['Content-Type'] = 'application/json'
@@ -73,11 +73,11 @@ def prepare_model(optimize: bool):
     logger.info("initializing...")
     from aitg_host.model import load_model
 
-    logger.info(f"init in: {time.time() - start}s")
+    logger.info(f"init in: {time.time() - start:.2f}s")
     start = time.time()
     logger.info("loading model...")
     ai = load_model(MODEL_DIR, optimize)
-    logger.info(f"finished loading in: {time.time() - start}s")
+    logger.info(f"finished loading in: {time.time() - start:.2f}s")
 
     return ai
 

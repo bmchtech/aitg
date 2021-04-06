@@ -20,11 +20,11 @@ def cli(
     print("initializing...")
     from aitg_host.model import load_model
 
-    print(f"[dbg] init in: {time.time() - start}s")
+    print(f"[dbg] init in: {time.time() - start:.2f}s")
     start = time.time()
     print("loading model...")
     ai = load_model(MODEL_DIR, optimize)
-    print(f"[dbg] finished loading in: {time.time() - start}s")
+    print(f"[dbg] finished loading in: {time.time() - start:.2f}s")
 
     # prompt
     while True:
@@ -45,7 +45,7 @@ def cli(
             no_repeat_ngram_size=no_repeat_ngram_size,
         )
         print(gen_txt)
-        print(f"[dbg] generated in: {time.time() - start}s")
+        print(f"[dbg] generated in: {time.time() - start:.2f}s")
 
 
 def main():
