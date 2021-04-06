@@ -6,7 +6,7 @@ authors = ["xdrie <xdrie@alt.icu>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-aitextgen = "^0.3.0"
+aitextgen = "^0.4.1"
 typer = "^0.3.2"
 bottle = "^0.12.19"
 loguru = "^0.5.3"
