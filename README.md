@@ -40,3 +40,6 @@ MODEL=/path/to/your_model KEY=secret poetry run aitg_host_srv
 by default, the quantization optimization is applied to the model on initialization. this generally sacrifices a bit of accuracy, while providing about a 20% speedup. to disable, pass `--no-optimize`.
 
 see [instructions](doc/docker.md) for running in Docker.
+
+### cli tips
+press Ctrl+D (sometimes twice) to send an EOF after entering your prompt, and then the model will generate text.
