@@ -6,7 +6,7 @@ def load_model(path, optimize):
         raise OSError(f'model path is not a valid directory: {path}')
 
     # load model
-    ai = aitextgen(model=path+'/pytorch_model.bin', config=path+'/config.json')
+    ai = aitextgen(model_folder=path)
 
     if optimize:
         # optimize

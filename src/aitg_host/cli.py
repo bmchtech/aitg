@@ -9,6 +9,8 @@ MODEL_DIR = os.environ["MODEL"]
 def cli(
     temp: float = 0.9,
     max_length: int = 256,
+    min_length: int = 0,
+    seed: int = None,
     top_p: float = 0.9,
     top_k: int = 0,
     repetition_penalty: float = 1.0,
@@ -36,6 +38,8 @@ def cli(
         start = time.time()
         gen_txt = ai.generate_one(
             max_length=max_length,
+            min_length=min_length,
+            seed=seed,
             prompt=prompt,
             temperature=temp,
             top_p=top_p,

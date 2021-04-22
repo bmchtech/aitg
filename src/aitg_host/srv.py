@@ -34,6 +34,8 @@ def gen_route():
     # get params
     opt_temp: float = get_req_opt(req_json, 'temp', 0.9)
     opt_max_length: int = get_req_opt(req_json, 'max_length', 256)
+    opt_min_length: int = get_req_opt(req_json, 'min_length', 0)
+    opt_seed: int = get_req_opt(req_json, 'seed', None)
     opt_top_p: float = get_req_opt(req_json, 'top_p', 0.9)
     opt_top_k: int = get_req_opt(req_json, 'top_k', 0)
     opt_repetition_penalty: float = get_req_opt(req_json, 'repetition_penalty', 1.0)
