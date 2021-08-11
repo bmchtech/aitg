@@ -2,6 +2,8 @@ import time
 import os
 from aitg_host.util import multiline_in
 import typer
+import colorama
+from colorama import Fore, Back, Style
 
 MODEL_DIR = os.environ["MODEL"]
 
@@ -18,22 +20,24 @@ def cli(
     no_repeat_ngram_size: int = 0,
     optimize: bool = True,
 ):
-    start = time.time()
-    print("initializing...")
-    from aitg_host.model import load_model
+    colorama.init()
 
-    print(f"[dbg] init in: {time.time() - start:.2f}s")
     start = time.time()
-    print("loading model...")
+    print(Style.NORMAL + Fore.CYAN + "initializing...")
+    from aitg_host.model import load_model
+    print(Style.DIM + f"[dbg] init in: {time.time() - start:.2f}s")
+
+    start = time.time()
+    print(Style.NORMAL + Fore.CYAN + "loading model...")
     ai = load_model(MODEL_DIR, optimize)
-    print(f"[dbg] finished loading in: {time.time() - start:.2f}s")
+    print(Style.DIM + f"[dbg] finished loading in: {time.time() - start:.2f}s")
 
     # prompt
     while True:
-        print("\n\n")
-        print("prompt: (multi-line, send EOF to end)")
+        print(Style.NORMAL + Fore.GREEN + "\nprompt:")
         prompt = multiline_in()
-        print("\ngenerating...\n===\n")
+        print(Style.NORMAL + Fore.GREEN + "□\n――――――――――")
+        print(Style.DIM + Fore.RESET + "generating...", end='')
 
         start = time.time()
         gen_txt = ai.generate_one(
@@ -48,8 +52,9 @@ def cli(
             length_penalty=length_penalty,
             no_repeat_ngram_size=no_repeat_ngram_size,
         )
-        print(gen_txt)
-        print(f"[dbg] generated in: {time.time() - start:.2f}s")
+        print(Style.DIM + Fore.RESET + f"({time.time() - start:.2f}s)")
+        print(Style.NORMAL + Fore.WHITE + gen_txt)
+        print('\n')
 
 
 def main():
