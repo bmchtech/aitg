@@ -1,17 +1,17 @@
-from aitg_host.util import multiline_in, count_prompt_tokens, str_to_ids, ids_to_toks, str_to_toks, toks_to_str
 from math import floor
 from aitg_host.raw_generator import raw_generate
+from aitg_host.base_generator import BaseGenerator
 
-class SlidingGenerator:
+class SlidingGenerator(BaseGenerator):
     def __init__(self, ai):
-        self.ai = ai
+        super().__init__(ai)
         self.token_log = []
 
     def next_context(self, max_length, context_amount):
         # context
         context_len = floor(max_length * context_amount)
         context_tokens = self.token_log[-context_len:].copy()
-        context_prompt = toks_to_str(self.ai, context_tokens)
+        context_prompt = self.toks_to_str(context_tokens)
 
         return context_prompt, context_tokens
     
@@ -45,7 +45,7 @@ class SlidingGenerator:
         # full prompt
         full_prompt = context_prompt + prompt
 
-        prompt_tokens = str_to_toks(self.ai, full_prompt)
+        prompt_tokens = self.str_to_toks(full_prompt)
         # self.token_log.extend(prompt_tokens)
 
         # gen
@@ -97,7 +97,7 @@ class SlidingGenerator:
 
         # no more new, extract the log
         all_round_tokens = self.token_log.copy()
-        all_round_output = toks_to_str(self.ai, all_round_tokens)
+        all_round_output = self.toks_to_str(all_round_tokens)
 
         return all_round_output, all_round_tokens
 

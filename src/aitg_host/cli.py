@@ -1,6 +1,6 @@
 import time
 import os
-from aitg_host.util import multiline_in, count_prompt_tokens, str_to_ids, ids_to_toks, str_to_toks, toks_to_str
+from aitg_host.util import multiline_in, count_tokens, str_to_ids, ids_to_toks, str_to_toks, toks_to_str
 from math import floor
 import typer
 import colorama
