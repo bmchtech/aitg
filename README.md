@@ -22,30 +22,18 @@ if you don't have your own yet, you can use a sample model:
 + [DistilGPT2-S Base](https://github.com/xdrie/aitextgen_host/releases/download/v1.0.0/PT_DistilGPT2_ATG.7z)
 + [GPT2-S Philosophical Babbler](https://github.com/xdrie/aitextgen_host/releases/download/v1.0.0/PhilBabble_ATG_20201201_071644__snap6k.7z)
 
-a model directory should contain `config.json` and `pytorch_model.bin`.
+## cli usage
 
-## run
-
-finally, point your host to a model and run. to use huggingface, use `@` like this: `@EleutherAI/gpt-neo-2.7B`
+point your host to a model and run; usually this is a model directory with `config.json` and `pytorch_model.bin`. to use huggingface, use `@` like this: `@EleutherAI/gpt-neo-2.7B`
 
 cli:
 ```sh
 MODEL=/path/to/your_model poetry run aitg_host_cli
 ```
 
-server:
-```sh
-MODEL=/path/to/your_model KEY=secret poetry run aitg_host_srv
-```
+once it's done loading, it will ask you for a prompt. when you're done typing the prompt, press Ctrl+D (sometimes twice) to send an EOF after entering your prompt, and then the model will generate text.
 
 ~~by default, the quantization optimization is applied to the model on initialization. this generally sacrifices a bit of accuracy, while providing about a 20% speedup. to disable, pass `--no-optimize`.~~
-
-see [instructions](doc/docker.md) for running in Docker.
-
-### cli tips
-press Ctrl+D (sometimes twice) to send an EOF after entering your prompt, and then the model will generate text.
-
-#### usage
 
 ```
 Usage: aitg_host_cli [OPTIONS]
@@ -70,11 +58,21 @@ Options:
   --help                          Show this message and exit.
 ```
 
-## server api
+## server usage
+
+run the server with:
+
+```sh
+MODEL=/path/to/your_model KEY=secret poetry run aitg_host_srv
+```
+
+then
+
+`GET /gen` with a JSON request body like the following:
 
 ```json
 {
-    "key": "example",
+    "key": "secret",
     "prompt": "The quick brown",
     "temp": 0.9,
     "max_length": 256,
@@ -86,14 +84,8 @@ Options:
     "length_penalty": 1.0,
     "no_repeat_ngram_size": 0,
 }
- # get params
-    opt_temp: float = get_req_opt(req_json, 'temp', 0.9)
-    opt_max_length: int = get_req_opt(req_json, 'max_length', 256)
-    opt_min_length: int = get_req_opt(req_json, 'min_length', 0)
-    opt_seed: int = get_req_opt(req_json, 'seed', None)
-    opt_top_p: float = get_req_opt(req_json, 'top_p', 0.9)
-    opt_top_k: int = get_req_opt(req_json, 'top_k', 0)
-    opt_repetition_penalty: float = get_req_opt(req_json, 'repetition_penalty', 1.0)
-    opt_length_penalty: float = get_req_opt(req_json, 'length_penalty', 1.0)
-    opt_no_repeat_ngram_size: int = get_req_opt(req_json, 'no_repeat_ngram_size', 0)
 ```
+
+## docker usage
+
+see [instructions](doc/docker.md) for running in Docker.
