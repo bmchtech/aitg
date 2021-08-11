@@ -23,6 +23,7 @@ if you don't have your own yet, you can use a sample model:
 + [GPT2-S Philosophical Babbler](https://github.com/xdrie/aitextgen_host/releases/download/v1.0.0/PhilBabble_ATG_20201201_071644__snap6k.7z)
 
 a model directory should contain `config.json` and `pytorch_model.bin`.
+
 ## run
 
 finally, point your host to a model and run. to use huggingface, use `@` like this: `@EleutherAI/gpt-neo-2.7B`
@@ -37,9 +38,34 @@ server:
 MODEL=/path/to/your_model KEY=secret poetry run aitg_host_srv
 ```
 
-by default, the quantization optimization is applied to the model on initialization. this generally sacrifices a bit of accuracy, while providing about a 20% speedup. to disable, pass `--no-optimize`.
+~~by default, the quantization optimization is applied to the model on initialization. this generally sacrifices a bit of accuracy, while providing about a 20% speedup. to disable, pass `--no-optimize`.~~
 
 see [instructions](doc/docker.md) for running in Docker.
 
 ### cli tips
 press Ctrl+D (sometimes twice) to send an EOF after entering your prompt, and then the model will generate text.
+
+#### usage
+
+```
+Usage: aitg_host_cli [OPTIONS]
+
+Options:
+  --temp FLOAT                    [default: 0.9]
+  --max-length INTEGER            [default: 256]
+  --min-length INTEGER            [default: 0]
+  --seed INTEGER
+  --top-p FLOAT                   [default: 0.9]
+  --top-k INTEGER                 [default: 0]
+  --repetition-penalty FLOAT      [default: 1.0]
+  --length-penalty FLOAT          [default: 1.0]
+  --no-repeat-ngram-size INTEGER  [default: 0]
+  --optimize / --no-optimize      [default: True]
+  --install-completion [bash|zsh|fish|powershell|pwsh]
+                                  Install completion for the specified shell.
+  --show-completion [bash|zsh|fish|powershell|pwsh]
+                                  Show completion for the specified shell, to
+                                  copy it or customize the installation.
+
+  --help                          Show this message and exit.
+```
