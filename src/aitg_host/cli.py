@@ -15,6 +15,7 @@ def cli(
     temp: float = 0.9,
     max_length: int = 256,
     min_length: int = 0,
+    context_amount: float = 0.5,
     seed: int = None,
     top_p: float = 0.9,
     top_k: int = 0,
@@ -36,7 +37,7 @@ def cli(
     print(Style.DIM + Fore.RESET + f"[dbg] finished loading in: {time.time() - start:.2f}s")
 
     # prompt
-    slidegen = SlidingGenerator(ai, max_length, 0.5)
+    slidegen = SlidingGenerator(ai, max_length, context_amount)
     while True:
         print(Style.NORMAL + Fore.WHITE + "\nprompt" + Fore.GREEN + ':')
         prompt = multiline_in()
@@ -46,7 +47,8 @@ def cli(
         if prompt == '' and len(slidegen.token_log) > 0:
             gen_type = 'continuing'
             is_fresh = False
-            print(f'using context: {slidegen.next_context()}')
+            context, context_toks = slidegen.next_context()
+            print(Style.DIM + Fore.RESET + f'context: {context}')
 
         print(Style.NORMAL + Fore.WHITE + "□\n――――――――――")
         print(Style.DIM + Fore.RESET + f"{gen_type}...", end='')
@@ -79,6 +81,7 @@ def cli(
         )
 
         print(Style.DIM + Fore.RESET + f"[{len(gen_toks)}] ({time.time() - start:.2f}s)")
+        # print(Style.NORMAL + Fore.MAGENTA + f"{gen_txt}")
         if (gen_type == 'continuing'):
             print(Style.NORMAL + Fore.MAGENTA + f"{toks_to_str(ai, slidegen.token_log)}")
         else:

@@ -15,7 +15,7 @@ class SlidingGenerator:
         context_tokens = self.token_log[-context_len:].copy()
         context_prompt = toks_to_str(self.ai, context_tokens)
 
-        return context_prompt
+        return context_prompt, context_tokens
     
     def generate(
         self,
@@ -36,16 +36,18 @@ class SlidingGenerator:
         skip_special_tokens: bool = True,
         **kwargs
     ):
+        context_prompt = ''
+        context_toks = []
         if fresh:
             self.token_log = []
-        
-        context_prompt = self.next_context()
+        else:
+            context_prompt, context_toks = self.next_context()
 
         # full prompt
         full_prompt = context_prompt + prompt
 
         prompt_tokens = str_to_toks(self.ai, full_prompt)
-        self.token_log.extend(prompt_tokens)
+        # self.token_log.extend(prompt_tokens)
 
         # gen
         gen_txt, gen_toks = raw_generate(self.ai, 
@@ -57,5 +59,7 @@ class SlidingGenerator:
             **kwargs,
         )
 
-        self.token_log.extend(gen_toks)
+        # add the input+output sequence from the model
+        # exclude context tokens (because they already are included)
+        self.token_log.extend(gen_toks[len(context_toks):])
         return gen_txt, gen_toks
