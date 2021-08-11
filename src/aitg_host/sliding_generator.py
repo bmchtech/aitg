@@ -87,7 +87,7 @@ class SlidingGenerator(BaseGenerator):
             prompt = '' # clear prompt
             if num_new == 0:
                 break
-            print(f'round {rounds}: {text}')
+            # print(f'round {rounds}: {text}')
             rounds += 1
             if (rounds >= max_rounds):
                 break
