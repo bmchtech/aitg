@@ -1,6 +1,6 @@
 import time
 import os
-from aitg_host.util import multiline_in, count_prompt_tokens
+from aitg_host.util import multiline_in, count_prompt_tokens, str_to_ids, ids_to_toks, toks_to_str
 import typer
 import colorama
 from colorama import Fore, Back, Style
@@ -67,8 +67,23 @@ def cli(
             no_repeat_ngram_size=no_repeat_ngram_size,
         )
 
-        print(Style.DIM + Fore.RESET + f"[{len(gen_toks[0])}] ({time.time() - start:.2f}s)")
+        print(Style.DIM + Fore.RESET + f"[{len(gen_toks)}] ({time.time() - start:.2f}s)")
         print(Style.NORMAL + Fore.MAGENTA + f"{gen_txt}")
+
+        # print half of tokens
+        half_toks = gen_toks.copy()
+        half_toks = half_toks[:(len(half_toks) // 2)]
+        print(gen_toks)
+        print(half_toks)
+        print(toks_to_str(ai, half_toks))
+
+        # print tokenized result
+        res_ids = str_to_ids(ai, gen_txt)
+        print(f"res ids: {res_ids}")
+        res_toks = ids_to_toks(ai, res_ids)
+        print(f"res toks: {res_toks}")
+        print(f"res outstr: {toks_to_str(ai, res_toks)}")
+
         print('\n')
 
 

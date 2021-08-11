@@ -49,7 +49,6 @@ def raw_generate(
         normalize_key: bool = True,
         use_cache: bool = True,
         lstrip: bool = True,
-        nonempty_output: bool = True,
         skip_special_tokens: bool = True,
         **kwargs,
     ) -> Optional[str]:
@@ -100,6 +99,8 @@ def raw_generate(
                 use_cache=use_cache,
                 **kwargs,
             )
+
+            # since num_return_sequences=1, we KNOW there is only 1 sequence
         
             # manual decode
             gen_texts = []
@@ -118,14 +119,6 @@ def raw_generate(
             if lstrip:
                 gen_texts = [re.sub(r"^\s+", "", text) for text in gen_texts]
 
-            if nonempty_output:
-                if min_length:
-                    gen_texts = list(
-                        filter(lambda x: len(x) > min_length, gen_texts)
-                    )
-                else:
-                    gen_texts = list(filter(lambda x: len(x) > 0, gen_texts))
-
             # if there is no generated text after cleanup, try again.
             if len(gen_texts) == 0:
                 continue
@@ -135,4 +128,4 @@ def raw_generate(
                 reset_seed()
 
             # print('beep4')
-            return gen_texts, gen_tokens
+            return gen_texts[0], gen_tokens[0]
