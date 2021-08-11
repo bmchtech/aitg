@@ -3,15 +3,13 @@ from math import floor
 from aitg_host.raw_generator import raw_generate
 
 class SlidingGenerator:
-    def __init__(self, ai, max_length, context_amount):
+    def __init__(self, ai):
         self.ai = ai
-        self.max_length = max_length
-        self.context_amount = context_amount
         self.token_log = []
 
-    def next_context(self):
+    def next_context(self, max_length, context_amount):
         # context
-        context_len = floor(self.max_length * self.context_amount)
+        context_len = floor(max_length * context_amount)
         context_tokens = self.token_log[-context_len:].copy()
         context_prompt = toks_to_str(self.ai, context_tokens)
 
@@ -21,6 +19,7 @@ class SlidingGenerator:
         self,
         prompt: str = "",
         fresh: bool = True,
+        context_amount: float = 0.5,
         prepend_bos: bool = None,
         min_length: int = None,
         max_length: int = 256,
@@ -41,7 +40,7 @@ class SlidingGenerator:
         if fresh:
             self.token_log = []
         else:
-            context_prompt, context_toks = self.next_context()
+            context_prompt, context_toks = self.next_context(max_length, context_amount)
 
         # full prompt
         full_prompt = context_prompt + prompt

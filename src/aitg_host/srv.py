@@ -7,10 +7,13 @@ from bottle import run, route, request, response, abort
 import json
 from loguru import logger
 
+from aitg_host.sliding_generator import SlidingGenerator
+
 MODEL_DIR = os.environ["MODEL"]
 API_KEY = os.environ["KEY"]
 
 AI_INSTANCE = None
+GENERATOR = None
 
 def get_req_opt(req, name, default):
     if name in req:
@@ -46,8 +49,8 @@ def gen_route():
 
     # generate
     start = time.time()
-    global AI_INSTANCE
-    gen_txt = AI_INSTANCE.generate_one(
+    global AI_INSTANCE, GENERATOR
+    gen_txt = GENERATOR.generate_one(
         max_length=opt_max_length,
         prompt=prompt,
         temperature=opt_temp,
@@ -89,8 +92,9 @@ def server(
     debug: bool = False,
     optimize: bool = True,
 ):
-    global AI_INSTANCE
+    global AI_INSTANCE, GENERATOR
     AI_INSTANCE = prepare_model(optimize)
+    GENERATOR = SlidingGenerator(ai, max_length, context_amount)
 
     logger.info(f'starting server on {host}:{port}')
     run(host=host, port=port, debug=debug)
