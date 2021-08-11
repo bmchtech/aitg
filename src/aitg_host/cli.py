@@ -1,6 +1,6 @@
 import time
 import os
-from aitg_host.util import multiline_in
+from aitg_host.util import multiline_in, count_prompt_tokens
 import typer
 import colorama
 from colorama import Fore, Back, Style
@@ -38,6 +38,7 @@ def cli(
         prompt = multiline_in()
         print(Style.NORMAL + Fore.WHITE + "□\n――――――――――")
         print(Style.DIM + Fore.RESET + "generating...", end='')
+        num_tokens = count_prompt_tokens(ai, prompt)
 
         start = time.time()
         gen_txt = ai.generate_one(
