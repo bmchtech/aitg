@@ -1,6 +1,7 @@
 import time
 import os
-from aitg_host.util import multiline_in, count_prompt_tokens, str_to_ids, ids_to_toks, toks_to_str
+from aitg_host.util import multiline_in, count_prompt_tokens, str_to_ids, ids_to_toks, str_to_toks, toks_to_str
+from math import floor
 import typer
 import colorama
 from colorama import Fore, Back, Style
@@ -34,12 +35,24 @@ def cli(
     print(Style.DIM + Fore.RESET + f"[dbg] finished loading in: {time.time() - start:.2f}s")
 
     # prompt
+    token_log = []
     while True:
         print(Style.NORMAL + Fore.WHITE + "\nprompt" + Fore.GREEN + ':')
         prompt = multiline_in()
+        gen_type = 'generating'
+
+        if prompt == '' and len(token_log) > 0:
+            gen_type = 'continuing'
+            context_portion = 0.5
+            context_len = floor(max_length * context_portion)
+            context_tokens = token_log[-context_len:].copy()
+            print(f'using context[{context_len}]: {toks_to_str(ai, context_tokens)}')
+            prompt = toks_to_str(ai, context_tokens)
+
         print(Style.NORMAL + Fore.WHITE + "□\n――――――――――")
-        print(Style.DIM + Fore.RESET + "generating...", end='')
-        num_tokens = count_prompt_tokens(ai, prompt)
+        print(Style.DIM + Fore.RESET + f"{gen_type}...", end='')
+        prompt_tokens = str_to_toks(ai, prompt)
+        token_log.extend(prompt_tokens)
 
         start = time.time()
         # gen_txt = ai.generate_one(
@@ -69,6 +82,9 @@ def cli(
 
         print(Style.DIM + Fore.RESET + f"[{len(gen_toks)}] ({time.time() - start:.2f}s)")
         print(Style.NORMAL + Fore.MAGENTA + f"{gen_txt}")
+        token_log.extend(gen_toks)
+
+        # print(token_log)
 
         # # print half of tokens
         # half_toks = gen_toks.copy()
