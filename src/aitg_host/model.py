@@ -18,8 +18,8 @@ def load_model(path, optimize):
         # load model
         ai = aitextgen(model_folder=path)
 
-    if optimize:
-        # optimize
-        ai.quantize()
+    # if optimize:
+    #     # optimize
+    #     ai.quantize()
 
     return ai
