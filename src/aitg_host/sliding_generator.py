@@ -65,3 +65,40 @@ class SlidingGenerator:
         # count how many new toks were added (to see if we're at the end)
         num_new_toks = len(gen_toks) - len(prompt_tokens)
         return gen_txt, gen_toks, num_new_toks
+
+    def generate_rounds(self,
+        max_rounds: int = 0,
+        prompt: str = "",
+        min_length: int = None,
+        max_length: int = 256,
+        temperature: float = 0.7,
+        **kwargs
+    ):
+        # first reset log
+        self.token_log = []
+
+        # now do a bunch of rounds
+        rounds = 0
+        while True:
+            text, tokens, num_new = self.generate(
+                prompt=prompt,
+                fresh=False,
+                min_length=min_length,
+                max_length=max_length,
+                temperature=temperature,
+                **kwargs
+            )
+            prompt = '' # clear prompt
+            if num_new == 0:
+                break
+            print(f'round {rounds}: {text}')
+            rounds += 1
+            if (rounds >= max_rounds):
+                break
+
+        # no more new, extract the log
+        all_round_tokens = self.token_log.copy()
+        all_round_output = toks_to_str(self.ai, all_round_tokens)
+
+        return all_round_output, all_round_tokens
+

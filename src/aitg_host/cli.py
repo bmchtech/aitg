@@ -55,18 +55,26 @@ def cli(
 
         start = time.time()
         
-        gen_txt, gen_toks, num_new = slidegen.generate(
-            prompt,
-            fresh=is_fresh,
+        # gen_txt, gen_toks, num_new = slidegen.generate(
+        #     prompt,
+        #     fresh=is_fresh,
+        #     min_length=min_length,
+        #     max_length=max_length,
+        #     seed=seed,
+        #     temperature=temp,
+        #     top_p=top_p,
+        #     top_k=top_k,
+        #     repetition_penalty=repetition_penalty,
+        #     length_penalty=length_penalty,
+        #     no_repeat_ngram_size=no_repeat_ngram_size
+        # )
+
+        gen_txt, gen_toks = slidegen.generate_rounds(
+            max_rounds = 4,
+            prompt=prompt,
             min_length=min_length,
             max_length=max_length,
-            seed=seed,
             temperature=temp,
-            top_p=top_p,
-            top_k=top_k,
-            repetition_penalty=repetition_penalty,
-            length_penalty=length_penalty,
-            no_repeat_ngram_size=no_repeat_ngram_size
         )
 
         print(Style.DIM + Fore.RESET + f"[{len(gen_toks)}] ({time.time() - start:.2f}s)")
@@ -76,9 +84,6 @@ def cli(
         else:
             print(Style.NORMAL + Fore.MAGENTA + f"{toks_to_str(ai, slidegen.token_log)}", end='')
         print(Style.DIM + Fore.RESET + "□")
-        if (num_new == 0):
-            # no more tokens
-            print(Style.DIM + Fore.RED + '□ □ □')
         print('\n')
 
 def main():
