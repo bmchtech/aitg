@@ -67,8 +67,7 @@ def cli(
             no_repeat_ngram_size=no_repeat_ngram_size,
         )
 
-        # print(gen_toks)
-        print(Style.DIM + Fore.RESET + f"({time.time() - start:.2f}s)")
+        print(Style.DIM + Fore.RESET + f"[{len(gen_toks[0])}] ({time.time() - start:.2f}s)")
         print(Style.NORMAL + Fore.MAGENTA + f"{gen_txt}")
         print('\n')
 
