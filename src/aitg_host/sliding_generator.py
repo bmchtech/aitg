@@ -24,13 +24,7 @@ class SlidingGenerator(BaseGenerator):
         min_length: int = None,
         max_length: int = 256,
         temperature: float = 0.7,
-        do_sample: bool = True,
-        return_as_list: bool = False,
         seed: int = None,
-        pad_token_id: str = None,
-        schema: str = False,
-        normalize_key: bool = True,
-        use_cache: bool = True,
         lstrip: bool = True,
         skip_special_tokens: bool = True,
         **kwargs
@@ -55,6 +49,9 @@ class SlidingGenerator(BaseGenerator):
             seed=seed,
             prompt=full_prompt,
             temperature=temperature,
+            prepend_bos=prepend_bos,
+            lstrip=lstrip,
+            skip_special_tokens=skip_special_tokens,
             **kwargs,
         )
 
