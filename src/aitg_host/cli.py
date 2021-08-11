@@ -43,13 +43,11 @@ def cli(
         prompt = multiline_in()
         gen_type = 'generating'
         is_fresh = True
-        num_prompt_tokens = len(str_to_toks(ai, prompt))
 
         if prompt == '' and len(slidegen.token_log) > 0:
             gen_type = 'continuing'
             is_fresh = False
             context, context_toks = slidegen.next_context()
-            num_prompt_tokens += len(context_toks)
             print(Style.DIM + Fore.RESET + f'context[{len(context_toks)}]: {context}', end='')
 
         print(Style.NORMAL + Fore.WHITE + "□\n――――――――――")
@@ -57,7 +55,7 @@ def cli(
 
         start = time.time()
         
-        gen_txt, gen_toks = slidegen.generate(
+        gen_txt, gen_toks, num_new = slidegen.generate(
             prompt,
             fresh=is_fresh,
             min_length=min_length,
@@ -78,7 +76,7 @@ def cli(
         else:
             print(Style.NORMAL + Fore.MAGENTA + f"{toks_to_str(ai, slidegen.token_log)}", end='')
         print(Style.DIM + Fore.RESET + "□")
-        if (num_prompt_tokens == len(gen_toks)):
+        if (num_new == 0):
             # no more tokens
             print(Style.DIM + Fore.RED + '□ □ □')
         print('\n')
