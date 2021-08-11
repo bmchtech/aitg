@@ -8,13 +8,13 @@ class BaseGenerator:
         return count_tokens(self.ai, text)
 
     def str_to_ids(self, text):
-        return count_tokens(self.ai, text)
+        return str_to_ids(self.ai, text)
 
     def ids_to_toks(self, ids, skip_special_tokens=True):
-        return count_tokens(self.ai, ids, skip_special_tokens=skip_special_tokens)
+        return ids_to_toks(self.ai, ids, skip_special_tokens=skip_special_tokens)
 
     def str_to_toks(self, text):
-        return count_tokens(self.ai, text)
+        return str_to_toks(self.ai, text)
 
     def toks_to_str(self, toks):
-        return count_tokens(self.ai, toks)
+        return toks_to_str(self.ai, toks)

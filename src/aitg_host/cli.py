@@ -1,6 +1,6 @@
 import time
 import os
-from aitg_host.util import multiline_in, count_tokens, str_to_ids, ids_to_toks, str_to_toks, toks_to_str
+from aitg_host.util import multiline_in
 from math import floor
 import typer
 import colorama
@@ -82,7 +82,7 @@ def cli(
         if (is_fresh):
             print(Style.NORMAL + Fore.MAGENTA + f"{gen_txt}", end='')
         else:
-            print(Style.NORMAL + Fore.MAGENTA + f"{toks_to_str(ai, slidegen.token_log)}", end='')
+            print(Style.NORMAL + Fore.MAGENTA + f"{slidegen.toks_to_str(slidegen.token_log)}", end='')
         print(Style.DIM + Fore.RESET + "□")
         if (num_new == 0):
             # no more tokens
