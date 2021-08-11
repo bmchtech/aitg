@@ -25,18 +25,18 @@ def cli(
     start = time.time()
     print(Style.NORMAL + Fore.CYAN + "initializing...")
     from aitg_host.model import load_model
-    print(Style.DIM + f"[dbg] init in: {time.time() - start:.2f}s")
+    print(Style.DIM + Fore.RESET + f"[dbg] init in: {time.time() - start:.2f}s")
 
     start = time.time()
     print(Style.NORMAL + Fore.CYAN + "loading model...")
     ai = load_model(MODEL_DIR, optimize)
-    print(Style.DIM + f"[dbg] finished loading in: {time.time() - start:.2f}s")
+    print(Style.DIM + Fore.RESET + f"[dbg] finished loading in: {time.time() - start:.2f}s")
 
     # prompt
     while True:
-        print(Style.NORMAL + Fore.GREEN + "\nprompt:")
+        print(Style.NORMAL + Fore.WHITE + "\nprompt" + Fore.GREEN + ':')
         prompt = multiline_in()
-        print(Style.NORMAL + Fore.GREEN + "□\n――――――――――")
+        print(Style.NORMAL + Fore.WHITE + "□\n――――――――――")
         print(Style.DIM + Fore.RESET + "generating...", end='')
 
         start = time.time()
@@ -53,7 +53,7 @@ def cli(
             no_repeat_ngram_size=no_repeat_ngram_size,
         )
         print(Style.DIM + Fore.RESET + f"({time.time() - start:.2f}s)")
-        print(Style.NORMAL + Fore.WHITE + gen_txt)
+        print(Style.NORMAL + Fore.MAGENTA + gen_txt)
         print('\n')
 
 
