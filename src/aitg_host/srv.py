@@ -35,6 +35,11 @@ def gen_route():
         abort(400, f'missing field {ke}')
 
     # get params
+    # mode params
+    opt_use_rounds: bool = get_req_opt(req_json, 'use_rounds', False)
+    opt_max_rounds: int = get_req_opt(req_json, 'max_rounds', 4)
+    # option params
+    opt_context_amount: float = get_req_opt(req_json, 'context_amount', 0.5)
     opt_temp: float = get_req_opt(req_json, 'temp', 0.9)
     opt_max_length: int = get_req_opt(req_json, 'max_length', 256)
     opt_min_length: int = get_req_opt(req_json, 'min_length', 0)
@@ -49,17 +54,40 @@ def gen_route():
 
     # generate
     start = time.time()
+    
     global AI_INSTANCE, GENERATOR
-    gen_txt = GENERATOR.generate_one(
-        max_length=opt_max_length,
-        prompt=prompt,
-        temperature=opt_temp,
-        top_p=opt_top_p,
-        top_k=opt_top_k,
-        repetition_penalty=opt_repetition_penalty,
-        length_penalty=opt_length_penalty,
-        no_repeat_ngram_size=opt_no_repeat_ngram_size,
-    )
+
+    if opt_use_rounds:
+        gen_txt, gen_toks = GENERATOR.generate_rounds(
+            prompt=prompt,
+            max_rounds=opt_max_rounds,
+            context_amount=opt_context_amount,
+            temperature=opt_temp,
+            max_length=opt_max_length,
+            min_length=opt_min_length,
+            seed=opt_seed,
+            top_p=opt_top_p,
+            top_k=opt_top_k,
+            repetition_penalty=opt_repetition_penalty,
+            length_penalty=opt_length_penalty,
+            no_repeat_ngram_size=opt_no_repeat_ngram_size,
+        )
+        num_new = 0
+    else:
+        # standard generate
+        gen_txt, gen_toks, num_new = GENERATOR.generate(
+            prompt=prompt,
+            fresh=True,
+            temperature=opt_temp,
+            max_length=opt_max_length,
+            min_length=opt_min_length,
+            seed=opt_seed,
+            top_p=opt_top_p,
+            top_k=opt_top_k,
+            repetition_penalty=opt_repetition_penalty,
+            length_penalty=opt_length_penalty,
+            no_repeat_ngram_size=opt_no_repeat_ngram_size,
+        )
     gen_txt_size = len(gen_txt)
     logger.debug(f'model output: {gen_txt}')
     logger.info(f"generated {gen_txt_size} chars in: {time.time() - start:.2f}s")
@@ -70,6 +98,9 @@ def gen_route():
         {
             'text': gen_txt,
             'text_length': gen_txt_size,
+            'text_tokens': gen_toks,
+            'text_token_count': len(gen_toks),
+            'text_new': num_new,
         }
     )
 
@@ -93,8 +124,8 @@ def server(
     optimize: bool = True,
 ):
     global AI_INSTANCE, GENERATOR
-    AI_INSTANCE = prepare_model(optimize)
-    GENERATOR = SlidingGenerator(ai, max_length, context_amount)
+    AI_INSTANCE = ai = prepare_model(optimize)
+    GENERATOR = SlidingGenerator(ai)
 
     logger.info(f'starting server on {host}:{port}')
     run(host=host, port=port, debug=debug)
