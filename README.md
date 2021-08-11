@@ -25,7 +25,7 @@ if you don't have your own yet, you can use a sample model:
 a model directory should contain `config.json` and `pytorch_model.bin`.
 ## run
 
-finally, point your host to a model and run.
+finally, point your host to a model and run. to use huggingface, use `@` like this: `@EleutherAI/gpt-neo-2.7B`
 
 cli:
 ```sh
