@@ -89,7 +89,6 @@ def raw_generate(
         max_length = min(gen_max_length, max_length)
 
         while True:
-            print('beep1')
             outputs = ai.model.generate(
                 input_ids=input_ids,
                 min_length=min_length,
@@ -102,21 +101,16 @@ def raw_generate(
                 **kwargs,
             )
         
-            print(f'beep2: {outputs}')
             # manual decode
+            gen_texts = []
             for seq in outputs:
                 decoded_sequence = ai.tokenizer.decode(seq, skip_special_tokens=skip_special_tokens)
-                print(f'decoded: {seq} -> {decoded_sequence}')
+                # print(f'decoded: {seq} -> {decoded_sequence}')
                 # convert token by token
                 filtered_tokens = ai.tokenizer.convert_ids_to_tokens(seq, skip_special_tokens=skip_special_tokens)
                 strred_tokens = ai.tokenizer.convert_tokens_to_string(filtered_tokens)
-                print(f'convtok: {filtered_tokens} -> {strred_tokens}')
-    
-            gen_texts = ai.tokenizer.batch_decode(
-                outputs, skip_special_tokens=skip_special_tokens
-            )
-
-            print('beep3')
+                # print(f'convtok: {filtered_tokens} -> {strred_tokens}')
+                gen_texts.append(decoded_sequence)
 
             # Handle stripping tokenization spaces w/ regex
             if lstrip:
@@ -138,5 +132,5 @@ def raw_generate(
             if seed:
                 reset_seed()
 
-            print('beep4')
+            # print('beep4')
             return gen_texts
