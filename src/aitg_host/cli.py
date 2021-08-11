@@ -80,9 +80,12 @@ def cli(
             no_repeat_ngram_size=no_repeat_ngram_size,
         )
 
-        print(Style.DIM + Fore.RESET + f"[{len(gen_toks)}] ({time.time() - start:.2f}s)")
-        print(Style.NORMAL + Fore.MAGENTA + f"{gen_txt}")
         token_log.extend(gen_toks)
+        print(Style.DIM + Fore.RESET + f"[{len(gen_toks)}] ({time.time() - start:.2f}s)")
+        if (gen_type == 'continuing'):
+            print(Style.NORMAL + Fore.MAGENTA + f"{toks_to_str(ai, token_log)}")
+        else:
+            print(Style.NORMAL + Fore.MAGENTA + f"{gen_txt}")
 
         # print(token_log)
 
