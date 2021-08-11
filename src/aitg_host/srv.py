@@ -21,15 +21,52 @@ def get_req_opt(req, name, default):
     else:
         return default
 
+def verify_key(req):
+    req_key = req['key']
+    if req_key != API_KEY:
+        abort(401)
+
+@route('/encode', method=['GET', 'POST'])
+def encode_route():
+    req_json = request.json
+    try:
+        verify_key(req_json)
+        text = req_json['text']
+    except KeyError as ke:
+        abort(400, f'missing field {ke}')
+
+    global GENERATOR
+    tokens = GENERATOR.str_to_toks(text)
+
+    return json.dumps(
+        {
+            'tokens': tokens
+        }
+    )
+
+@route('/decode', method=['GET', 'POST'])
+def decode_route():
+    req_json = request.json
+    try:
+        verify_key(req_json)
+        tokens = req_json['tokens']
+    except KeyError as ke:
+        abort(400, f'missing field {ke}')
+
+    global GENERATOR
+    text = GENERATOR.toks_to_str(tokens)
+
+    return json.dumps(
+        {
+            'text': text
+        }
+    )
+
 @route('/gen', method=['GET', 'POST'])
 def gen_route():
     req_json = request.json
-
     try:
-        # required stuff
-        req_key = req_json['key']
-        if req_key != API_KEY:
-            abort(401)
+        verify_key(req_json)
         prompt = req_json['prompt']
     except KeyError as ke:
         abort(400, f'missing field {ke}')
