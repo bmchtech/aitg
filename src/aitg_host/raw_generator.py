@@ -103,14 +103,16 @@ def raw_generate(
         
             # manual decode
             gen_texts = []
+            gen_tokens = []
             for seq in outputs:
                 decoded_sequence = ai.tokenizer.decode(seq, skip_special_tokens=skip_special_tokens)
+                gen_texts.append(decoded_sequence)
                 # print(f'decoded: {seq} -> {decoded_sequence}')
                 # convert token by token
                 filtered_tokens = ai.tokenizer.convert_ids_to_tokens(seq, skip_special_tokens=skip_special_tokens)
-                strred_tokens = ai.tokenizer.convert_tokens_to_string(filtered_tokens)
+                gen_tokens.append(filtered_tokens)
+                # strred_tokens = ai.tokenizer.convert_tokens_to_string(filtered_tokens)
                 # print(f'convtok: {filtered_tokens} -> {strred_tokens}')
-                gen_texts.append(decoded_sequence)
 
             # Handle stripping tokenization spaces w/ regex
             if lstrip:
@@ -133,4 +135,4 @@ def raw_generate(
                 reset_seed()
 
             # print('beep4')
-            return gen_texts
+            return gen_texts, gen_tokens

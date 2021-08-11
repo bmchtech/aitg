@@ -41,8 +41,6 @@ def cli(
         print(Style.DIM + Fore.RESET + "generating...", end='')
         num_tokens = count_prompt_tokens(ai, prompt)
 
-        print('bee\'s beans')
-
         start = time.time()
         # gen_txt = ai.generate_one(
         #     max_length=max_length,
@@ -56,7 +54,7 @@ def cli(
         #     length_penalty=length_penalty,
         #     no_repeat_ngram_size=no_repeat_ngram_size,
         # )
-        gen_txt = raw_generate(ai, 
+        gen_txt, gen_toks = raw_generate(ai, 
             max_length=max_length,
             min_length=min_length,
             seed=seed,
@@ -69,6 +67,7 @@ def cli(
             no_repeat_ngram_size=no_repeat_ngram_size,
         )
 
+        print(gen_toks)
         print(Style.DIM + Fore.RESET + f"({time.time() - start:.2f}s)")
         print(Style.NORMAL + Fore.MAGENTA + f"{gen_txt}")
         print('\n')
