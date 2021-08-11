@@ -4,6 +4,7 @@ from aitg_host.util import multiline_in, count_prompt_tokens
 import typer
 import colorama
 from colorama import Fore, Back, Style
+from aitg_host.raw_generator import raw_generate
 
 MODEL_DIR = os.environ["MODEL"]
 
@@ -40,8 +41,22 @@ def cli(
         print(Style.DIM + Fore.RESET + "generating...", end='')
         num_tokens = count_prompt_tokens(ai, prompt)
 
+        print('bee\'s beans')
+
         start = time.time()
-        gen_txt = ai.generate_one(
+        # gen_txt = ai.generate_one(
+        #     max_length=max_length,
+        #     min_length=min_length,
+        #     seed=seed,
+        #     prompt=prompt,
+        #     temperature=temp,
+        #     top_p=top_p,
+        #     top_k=top_k,
+        #     repetition_penalty=repetition_penalty,
+        #     length_penalty=length_penalty,
+        #     no_repeat_ngram_size=no_repeat_ngram_size,
+        # )
+        gen_txt = raw_generate(ai, 
             max_length=max_length,
             min_length=min_length,
             seed=seed,
@@ -53,8 +68,9 @@ def cli(
             length_penalty=length_penalty,
             no_repeat_ngram_size=no_repeat_ngram_size,
         )
+
         print(Style.DIM + Fore.RESET + f"({time.time() - start:.2f}s)")
-        print(Style.NORMAL + Fore.MAGENTA + gen_txt)
+        print(Style.NORMAL + Fore.MAGENTA + f"{gen_txt}")
         print('\n')
 
 
