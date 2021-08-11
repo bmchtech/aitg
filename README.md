@@ -69,3 +69,31 @@ Options:
 
   --help                          Show this message and exit.
 ```
+
+## server api
+
+```json
+{
+    "key": "example",
+    "prompt": "The quick brown",
+    "temp": 0.9,
+    "max_length": 256,
+    "min_length": 0,
+    "seed": null,
+    "top_p": 0.9,
+    "top_k": 0,
+    "repetition_penalty": 1.0,
+    "length_penalty": 1.0,
+    "no_repeat_ngram_size": 0,
+}
+ # get params
+    opt_temp: float = get_req_opt(req_json, 'temp', 0.9)
+    opt_max_length: int = get_req_opt(req_json, 'max_length', 256)
+    opt_min_length: int = get_req_opt(req_json, 'min_length', 0)
+    opt_seed: int = get_req_opt(req_json, 'seed', None)
+    opt_top_p: float = get_req_opt(req_json, 'top_p', 0.9)
+    opt_top_k: int = get_req_opt(req_json, 'top_k', 0)
+    opt_repetition_penalty: float = get_req_opt(req_json, 'repetition_penalty', 1.0)
+    opt_length_penalty: float = get_req_opt(req_json, 'length_penalty', 1.0)
+    opt_no_repeat_ngram_size: int = get_req_opt(req_json, 'no_repeat_ngram_size', 0)
+```
