@@ -23,6 +23,7 @@ def cli(
     length_penalty: float = 1.0,
     no_repeat_ngram_size: int = 0,
     optimize: bool = True,
+    reuse_session: bool = False,
 ):
     colorama.init()
 
@@ -43,6 +44,10 @@ def cli(
         prompt = multiline_in()
         gen_type = 'generating'
         is_fresh = True
+        
+        # if reuse enabled, go not fresh by default
+        if reuse_session:
+            is_fresh = False
 
         if prompt == '' and len(slidegen.token_log) > 0:
             gen_type = 'continuing'
