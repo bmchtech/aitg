@@ -1,6 +1,6 @@
 import time
 import os
-from aitg_host.util import multiline_in
+from aitg_host.util import compute_device
 import typer
 
 from bottle import run, route, request, response, abort
@@ -143,7 +143,7 @@ def gen_route():
 
 def prepare_model(optimize: bool):
     start = time.time()
-    logger.info("initializing...")
+    print(Style.NORMAL + Fore.CYAN + f"initializing[{compute_device()}]...")
     from aitg_host.model import load_model
 
     logger.info(f"init in: {time.time() - start:.2f}s")

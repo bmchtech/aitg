@@ -1,6 +1,6 @@
 import time
 import os
-from aitg_host.util import multiline_in
+from aitg_host.util import multiline_in, compute_device
 from math import floor
 import typer
 import colorama
@@ -28,7 +28,7 @@ def cli(
     colorama.init()
 
     start = time.time()
-    print(Style.NORMAL + Fore.CYAN + "initializing...")
+    print(Style.NORMAL + Fore.CYAN + f"initializing[{compute_device()}]...")
     from aitg_host.model import load_model
     print(Style.DIM + Fore.RESET + f"[dbg] init in: {time.time() - start:.2f}s")
 

@@ -1,4 +1,5 @@
 import sys
+import torch
 
 def multiline_in():
     return sys.stdin.read()
@@ -17,3 +18,7 @@ def str_to_toks(ai, text):
 
 def toks_to_str(ai, toks):
     return ai.tokenizer.convert_tokens_to_string(toks)
+
+def compute_device():
+    device = "gpu" if torch.cuda.is_available() else "cpu"
+    return device
