@@ -5,7 +5,7 @@ description = ""
 authors = ["xdrie <xdrie@alt.icu>"]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = ">=3.6.2"
 aitextgen = { git = "https://github.com/xdrie/aitextgen_inference" }
 typer = "^0.3.2"
 bottle = "^0.12.19"
