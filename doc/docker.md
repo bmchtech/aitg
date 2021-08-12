@@ -22,3 +22,8 @@ run server:
 ```sh
 docker run -it --rm -v $(pwd)/models/YOUR_MODEL:/app/model -e KEY=secret -p 6000:6000 aitg_host aitg_host.srv --host 0.0.0.0
 ```
+
+test the server:
+```sh
+printf '{"key": "secret", "prompt": "%s", "max_length": %d}' "The quick brown" 16 | http GET localhost:6000/gen 
+```
