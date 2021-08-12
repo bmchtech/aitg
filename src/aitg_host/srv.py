@@ -127,7 +127,9 @@ def gen_route():
         )
     gen_txt_size = len(gen_txt)
     logger.debug(f'model output: {gen_txt}')
-    logger.info(f"generated {gen_txt_size} chars in: {time.time() - start:.2f}s")
+    generation_time = time.time() - start
+    total_gen_num = len(gen_toks)
+    logger.info(f"generated [{num_new}/{total_gen_num}] ({generation_time:.2f}s/{(num_new/generation_time):.2f}tps)")
 
     # success
     response.headers['Content-Type'] = 'application/json'
