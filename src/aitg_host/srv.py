@@ -143,7 +143,7 @@ def gen_route():
 
 def prepare_model(optimize: bool):
     start = time.time()
-    print(Style.NORMAL + Fore.CYAN + f"initializing[{get_compute_device()}]...")
+    print(f"initializing[{get_compute_device()}]...")
     from aitg_host.model import load_model
 
     logger.info(f"init in: {time.time() - start:.2f}s")
