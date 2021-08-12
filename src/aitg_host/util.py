@@ -19,6 +19,10 @@ def str_to_toks(ai, text):
 def toks_to_str(ai, toks):
     return ai.tokenizer.convert_tokens_to_string(toks)
 
-def compute_device():
-    device = "gpu" if torch.cuda.is_available() else "cpu"
-    return device
+def get_compute_device():
+    if torch.cuda.is_available():
+        device = torch.device("cuda:0")
+        return "gpu"
+    else:
+        device = torch.device("cpu")
+        return "cpu"
