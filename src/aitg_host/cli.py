@@ -77,7 +77,9 @@ def cli(
         #     temperature=temp,
         # )
 
-        print(Style.DIM + Fore.RESET + f"[{len(gen_toks)}] ({time.time() - start:.2f}s)")
+        generation_time = time.time() - start
+        total_gen_num = len(gen_toks)
+        print(Style.DIM + Fore.RESET + f"[{num_new}/{total_gen_num}] ({generation_time:.2f}s/{(num_new/generation_time):.2f}tps)")
         # print(Style.NORMAL + Fore.MAGENTA + f"{gen_toks}")
         if (is_fresh):
             print(Style.NORMAL + Fore.MAGENTA + f"{gen_txt}", end='')
