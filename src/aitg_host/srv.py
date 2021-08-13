@@ -90,58 +90,64 @@ def gen_route():
     logger.debug(f'requesting generation for prompt: {prompt}')
 
     # generate
-    start = time.time()
-    
-    global AI_INSTANCE, GENERATOR
+    try:
+        start = time.time()
+        
+        global AI_INSTANCE, GENERATOR
 
-    if opt_use_rounds:
-        gen_txt, gen_toks = GENERATOR.generate_rounds(
-            prompt=prompt,
-            max_rounds=opt_max_rounds,
-            context_amount=opt_context_amount,
-            temperature=opt_temp,
-            max_length=opt_max_length,
-            min_length=opt_min_length,
-            seed=opt_seed,
-            top_p=opt_top_p,
-            top_k=opt_top_k,
-            repetition_penalty=opt_repetition_penalty,
-            length_penalty=opt_length_penalty,
-            no_repeat_ngram_size=opt_no_repeat_ngram_size,
-        )
-        num_new = 0
-    else:
-        # standard generate
-        gen_txt, gen_toks, num_new = GENERATOR.generate(
-            prompt=prompt,
-            fresh=True,
-            temperature=opt_temp,
-            max_length=opt_max_length,
-            min_length=opt_min_length,
-            seed=opt_seed,
-            top_p=opt_top_p,
-            top_k=opt_top_k,
-            repetition_penalty=opt_repetition_penalty,
-            length_penalty=opt_length_penalty,
-            no_repeat_ngram_size=opt_no_repeat_ngram_size,
-        )
-    gen_txt_size = len(gen_txt)
-    logger.debug(f'model output: {gen_txt}')
-    generation_time = time.time() - start
-    total_gen_num = len(gen_toks)
-    logger.info(f"generated [{num_new}/{total_gen_num}] ({generation_time:.2f}s/{(num_new/generation_time):.2f}tps)")
+        if opt_use_rounds:
+            gen_txt, gen_toks = GENERATOR.generate_rounds(
+                prompt=prompt,
+                max_rounds=opt_max_rounds,
+                context_amount=opt_context_amount,
+                temperature=opt_temp,
+                max_length=opt_max_length,
+                min_length=opt_min_length,
+                seed=opt_seed,
+                top_p=opt_top_p,
+                top_k=opt_top_k,
+                repetition_penalty=opt_repetition_penalty,
+                length_penalty=opt_length_penalty,
+                no_repeat_ngram_size=opt_no_repeat_ngram_size,
+            )
+            num_new = 0
+        else:
+            # standard generate
+            gen_txt, gen_toks, num_new = GENERATOR.generate(
+                prompt=prompt,
+                fresh=True,
+                temperature=opt_temp,
+                max_length=opt_max_length,
+                min_length=opt_min_length,
+                seed=opt_seed,
+                top_p=opt_top_p,
+                top_k=opt_top_k,
+                repetition_penalty=opt_repetition_penalty,
+                length_penalty=opt_length_penalty,
+                no_repeat_ngram_size=opt_no_repeat_ngram_size,
+            )
+        gen_txt_size = len(gen_txt)
+        logger.debug(f'model output: {gen_txt}')
+        generation_time = time.time() - start
+        total_gen_num = len(gen_toks)
+        gen_tps = num_new/generation_time
+        logger.info(f"generated [{num_new}/{total_gen_num}] ({generation_time:.2f}s/{(gen_tps):.2f}tps)")
 
-    # success
-    response.headers['Content-Type'] = 'application/json'
-    return json.dumps(
-        {
-            'text': gen_txt,
-            'text_length': gen_txt_size,
-            'text_tokens': gen_toks,
-            'text_token_count': len(gen_toks),
-            'text_new': num_new,
-        }
-    )
+        # success
+        response.headers['Content-Type'] = 'application/json'
+        return json.dumps(
+            {
+                'text': gen_txt,
+                'text_length': gen_txt_size,
+                'text_tokens': gen_toks,
+                'text_token_count': total_gen_num,
+                'gen_new': num_new,
+                'gen_tps': gen_tps,
+            }
+        )
+    except Exception as ex:
+        logger.error(f'error generating: {ex}')
+        abort(400, f'generation failed')
 
 def prepare_model(optimize: bool):
     start = time.time()
