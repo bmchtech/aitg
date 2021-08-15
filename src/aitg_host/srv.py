@@ -126,6 +126,7 @@ def gen_route():
                 length_penalty=opt_length_penalty,
                 no_repeat_ngram_size=opt_no_repeat_ngram_size,
             )
+        gen_txt = AI_INSTANCE.filter_text(gen_txt)
         gen_txt_size = len(gen_txt)
         logger.debug(f'model output: {gen_txt}')
         generation_time = time.time() - start
