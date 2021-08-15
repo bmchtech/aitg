@@ -142,6 +142,8 @@ def gen_route():
                 "text_tokens": gen_toks,
                 "text_token_count": total_gen_num,
                 "gen_new": num_new,
+                "gen_total": total_gen_num,
+                "gen_time": generation_time,
                 "gen_tps": gen_tps,
             }
         )
