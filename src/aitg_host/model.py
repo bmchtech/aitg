@@ -1,24 +1,41 @@
 from aitextgen import aitextgen
-from os.path import isdir
+from os.path import isdir, isfile, join
 from aitg_host.util import get_compute_device
+import importlib.util
 
-def load_model(path, optimize):
+def import_pymodule(module_name, module_path):
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    loaded_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(loaded_module)
+    return loaded_module
+
+def load_model(load_path, optimize):
     ai = None
     use_gpu = get_compute_device() == "gpu"
     # check if path is remote
-    if path.startswith('@'):
+    if load_path.startswith('@'):
         # this is a HUGGINGFACE model path (download from repo)
-        path = path[1:]
+        load_path = load_path[1:]
 
         # load model
-        ai = aitextgen(model=path, to_gpu=use_gpu)
+        ai = aitextgen(model=load_path, to_gpu=use_gpu)
+        ai.filter_text = lambda x: x # default
     else:
         # this is a LOCAL model path
-        if not isdir(path):
-            raise OSError(f'model path is not a valid directory: {path}')
+        if not isdir(load_path):
+            raise OSError(f'model path is not a valid directory: {load_path}')
 
         # load model
-        ai = aitextgen(model_folder=path, to_gpu=use_gpu)
+        ai = aitextgen(model_folder=load_path, to_gpu=use_gpu)
+
+        ai.filter_text = lambda x: x # default
+        # try loading filter
+        filter_module_path = join(load_path, 'filter.py')
+        if isfile(filter_module_path):
+            # load module func
+            filter_module = import_pymodule('aitg_model.filter', filter_module_path)
+            # print(filter_module.filter_text)
+            ai.filter_text = filter_module.filter_text
 
     # if optimize:
     #     # optimize

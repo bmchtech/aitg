@@ -87,9 +87,9 @@ def cli(
         print(Style.DIM + Fore.RESET + f"[{num_new}/{total_gen_num}] ({generation_time:.2f}s/{(num_new/generation_time):.2f}tps)")
         # print(Style.NORMAL + Fore.MAGENTA + f"{gen_toks}")
         if (is_fresh):
-            print(Style.NORMAL + Fore.MAGENTA + f"{gen_txt}", end='')
+            print(Style.NORMAL + Fore.MAGENTA + f"{ai.filter_text(gen_txt)}", end='')
         else:
-            print(Style.NORMAL + Fore.MAGENTA + f"{slidegen.toks_to_str(slidegen.token_log)}", end='')
+            print(Style.NORMAL + Fore.MAGENTA + f"{ai.filter_text(slidegen.toks_to_str(slidegen.token_log))}", end='')
         print(Style.DIM + Fore.RESET + "□")
         if (num_new == 0):
             # no more tokens
