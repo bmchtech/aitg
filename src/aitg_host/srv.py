@@ -24,10 +24,29 @@ def get_req_opt(req, name, default):
 
 
 def verify_key(req):
-    req_key = req["key"]
+    # ensure req exists
+    if not req:
+        abort(400, "key not provided") # bad
+    # ensure key provided
+    key_id = "key"
+    if key_id not in req:
+        abort(401, "key not provided")
+    # ensure key correct
+    req_key = req[key_id]
     if req_key != API_KEY:
         abort(401)
 
+@route("/info", method=["GET"])
+def info_route():
+    req_json = request.json
+    try:
+        verify_key(req_json)
+    except KeyError as ke:
+        abort(400, f"missing field {ke}")
+
+    global AI_INSTANCE
+
+    return json.dumps({"model": AI_INSTANCE.model_name})
 
 @route("/encode", method=["GET", "POST"])
 def encode_route():
@@ -154,14 +173,14 @@ def gen_route():
 
 def prepare_model(optimize: bool):
     start = time.time()
-    print(f"initializing[{get_compute_device()}]...")
+    logger.info(f"initializing[{get_compute_device()}]...")
     from aitg_host.model import load_model
-
     logger.info(f"init in: {time.time() - start:.2f}s")
     start = time.time()
     logger.info("loading model...")
     ai = load_model(MODEL_DIR, optimize)
     logger.info(f"finished loading in: {time.time() - start:.2f}s")
+    logger.info(f"model: {ai.model_name}")
 
     return ai
 

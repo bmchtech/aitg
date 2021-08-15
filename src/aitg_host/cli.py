@@ -36,6 +36,7 @@ def cli(
     print(Style.NORMAL + Fore.CYAN + "loading model...")
     ai = load_model(MODEL_DIR, optimize)
     print(Style.DIM + Fore.RESET + f"[dbg] finished loading in: {time.time() - start:.2f}s")
+    print(Style.DIM + Fore.RESET + f"[dbg] model: {ai.model_name}")
 
     # prompt
     slidegen = SlidingGenerator(ai)
