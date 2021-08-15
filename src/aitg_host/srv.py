@@ -123,7 +123,16 @@ def gen_route():
             # we use chunked max length instead of the fixed value
             # find out how many full buckets the prompt uses
             prompt_num_buckets = len(prompt_tokens) // opt_flex_max_length
-            opt_max_length = (prompt_num_buckets + 1) * opt_flex_max_length
+            auto_max_length = (prompt_num_buckets + 1) * opt_flex_max_length
+
+            # ensure it's within the limit
+            if opt_max_length > 0:
+                max_length_limit = opt_max_length
+
+            if auto_max_length > max_length_limit:
+                opt_max_length = max_length_limit
+            else:
+                opt_max_length = auto_max_length
 
         # standard generate
         gen_txt, gen_toks, num_new = GENERATOR.generate(
