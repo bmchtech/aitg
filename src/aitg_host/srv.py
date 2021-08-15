@@ -92,6 +92,7 @@ def gen_route():
     # opt_use_rounds: bool = get_req_opt(req_json, "use_rounds", False)
     # opt_max_rounds: int = get_req_opt(req_json, "max_rounds", 4)
     # opt_context_amount: float = get_req_opt(req_json, "context_amount", 0.5)
+    
     # option params
     opt_temp: float = get_req_opt(req_json, "temp", 0.9)
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
@@ -102,6 +103,8 @@ def gen_route():
     opt_repetition_penalty: float = get_req_opt(req_json, "repetition_penalty", 1.0)
     opt_length_penalty: float = get_req_opt(req_json, "length_penalty", 1.0)
     opt_no_repeat_ngram_size: int = get_req_opt(req_json, "no_repeat_ngram_size", 0)
+    # lv2 params
+    opt_flex_max_length: int = get_req_opt(req_json, "flex_max_length", 0)
 
     logger.debug(f"requesting generation for prompt: {prompt}")
 
@@ -110,6 +113,17 @@ def gen_route():
         start = time.time()
 
         global AI_INSTANCE, GENERATOR
+
+
+        # prompt
+        prompt_tokens = tokens = GENERATOR.str_to_toks(prompt)
+
+        # apply lv2 params
+        if opt_flex_max_length > 0:
+            # we use chunked max length instead of the fixed value
+            # find out how many full buckets the prompt uses
+            prompt_num_buckets = len(prompt_tokens) // opt_flex_max_length
+            opt_max_length = (prompt_num_buckets + 1) * opt_flex_max_length
 
         # standard generate
         gen_txt, gen_toks, num_new = GENERATOR.generate(
