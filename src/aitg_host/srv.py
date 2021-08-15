@@ -89,10 +89,10 @@ def gen_route():
 
     # get params
     # mode params
-    opt_use_rounds: bool = get_req_opt(req_json, "use_rounds", False)
-    opt_max_rounds: int = get_req_opt(req_json, "max_rounds", 4)
+    # opt_use_rounds: bool = get_req_opt(req_json, "use_rounds", False)
+    # opt_max_rounds: int = get_req_opt(req_json, "max_rounds", 4)
+    # opt_context_amount: float = get_req_opt(req_json, "context_amount", 0.5)
     # option params
-    opt_context_amount: float = get_req_opt(req_json, "context_amount", 0.5)
     opt_temp: float = get_req_opt(req_json, "temp", 0.9)
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
     opt_min_length: int = get_req_opt(req_json, "min_length", 0)
@@ -111,37 +111,21 @@ def gen_route():
 
         global AI_INSTANCE, GENERATOR
 
-        if opt_use_rounds:
-            gen_txt, gen_toks = GENERATOR.generate_rounds(
-                prompt=prompt,
-                max_rounds=opt_max_rounds,
-                context_amount=opt_context_amount,
-                temperature=opt_temp,
-                max_length=opt_max_length,
-                min_length=opt_min_length,
-                seed=opt_seed,
-                top_p=opt_top_p,
-                top_k=opt_top_k,
-                repetition_penalty=opt_repetition_penalty,
-                length_penalty=opt_length_penalty,
-                no_repeat_ngram_size=opt_no_repeat_ngram_size,
-            )
-            num_new = 0
-        else:
-            # standard generate
-            gen_txt, gen_toks, num_new = GENERATOR.generate(
-                prompt=prompt,
-                fresh=True,
-                temperature=opt_temp,
-                max_length=opt_max_length,
-                min_length=opt_min_length,
-                seed=opt_seed,
-                top_p=opt_top_p,
-                top_k=opt_top_k,
-                repetition_penalty=opt_repetition_penalty,
-                length_penalty=opt_length_penalty,
-                no_repeat_ngram_size=opt_no_repeat_ngram_size,
-            )
+        # standard generate
+        gen_txt, gen_toks, num_new = GENERATOR.generate(
+            prompt=prompt,
+            fresh=True,
+            temperature=opt_temp,
+            max_length=opt_max_length,
+            min_length=opt_min_length,
+            seed=opt_seed,
+            top_p=opt_top_p,
+            top_k=opt_top_k,
+            repetition_penalty=opt_repetition_penalty,
+            length_penalty=opt_length_penalty,
+            no_repeat_ngram_size=opt_no_repeat_ngram_size,
+        )
+            
         gen_txt = AI_INSTANCE.filter_text(gen_txt)
         gen_txt_size = len(gen_txt)
         logger.debug(f"model output: {gen_txt}")
