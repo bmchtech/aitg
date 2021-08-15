@@ -1,5 +1,5 @@
 from aitextgen import aitextgen
-from os.path import isdir, isfile, join
+import os.path
 from aitg_host.util import get_compute_device
 import importlib.util
 
@@ -20,18 +20,20 @@ def load_model(load_path, optimize):
         # load model
         ai = aitextgen(model=load_path, to_gpu=use_gpu)
         ai.filter_text = lambda x: x # default
+        ai.model_name = load_path.replace('/', '_')
     else:
         # this is a LOCAL model path
-        if not isdir(load_path):
+        if not os.path.isdir(load_path):
             raise OSError(f'model path is not a valid directory: {load_path}')
 
         # load model
         ai = aitextgen(model_folder=load_path, to_gpu=use_gpu)
+        ai.model_name = os.path.basename(load_path)
 
         ai.filter_text = lambda x: x # default
         # try loading filter
-        filter_module_path = join(load_path, 'filter.py')
-        if isfile(filter_module_path):
+        filter_module_path = os.path.join(load_path, 'filter.py')
+        if os.path.isfile(filter_module_path):
             # load module func
             filter_module = import_pymodule('aitg_model.filter', filter_module_path)
             # print(filter_module.filter_text)
