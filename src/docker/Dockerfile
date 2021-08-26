@@ -51,7 +51,7 @@ COPY poetry.lock pyproject.toml ./
 
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
 # RUN poetry install --no-dev
-RUN poetry export -f requirements.txt > requirements.txt
+RUN poetry export --without-hashes -f requirements.txt > requirements.txt
 
 # `development` image is used during development / testing
 FROM python-base as development
