@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aitg_host"
-version = "1.5.1"
+version = "1.5.2"
 description = ""
 authors = ["xdrie <xdrie@alt.icu>"]
 

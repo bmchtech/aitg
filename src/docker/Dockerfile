@@ -1,7 +1,7 @@
 # based on https://github.com/python-poetry/poetry/discussions/1879#discussioncomment-216865
 
 # `python-base` sets up all our shared environment variables
-FROM python:3.9.1-slim as python-base
+FROM python:3.9-alpine as python-base
 
 # set our variables for python tools
 ENV PYTHONUNBUFFERED=1 \
@@ -34,12 +34,15 @@ ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 
 # `builder-base` stage is used to build deps + create our virtual environment
 FROM python-base as builder-base
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
+RUN apk add --no-cache \
         # deps for installing poetry
         curl \
         # deps for building python deps
-        build-essential
+        alpine-sdk \
+        build-base \
+        linux-headers \
+        # tools
+        sed
 
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
@@ -63,7 +66,7 @@ ENV FASTAPI_ENV=development
 WORKDIR $PYSETUP_PATH
 
 # copy in our built poetry + venv
-COPY --from=builder-base $POETRY_HOME $POETRY_HOME
+# COPY --from=builder-base $POETRY_HOME $POETRY_HOME
 COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
 
 # quicker install as runtime deps are already installed
