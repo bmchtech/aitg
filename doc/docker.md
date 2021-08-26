@@ -8,7 +8,7 @@ build the cli image:
 docker build --pull -t aitg_host -f docker/Dockerfile .
 
 # optionally, save
-docker save -o /tmp/aitg_host_$(git describe --long --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g')__docker.tar aitg_host 
+docker save -o /tmp/aitg_host_$(git describe --long --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g')__docker.tar aitg_host
 ```
 
 ## run images
