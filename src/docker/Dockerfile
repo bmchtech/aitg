@@ -38,9 +38,7 @@ RUN apk add --no-cache \
         # deps for installing poetry
         curl \
         # deps for building python deps
-        alpine-sdk \
-        build-base \
-        linux-headers \
+        alpine-sdk build-base linux-headers rust \
         # tools
         sed
 
@@ -51,14 +49,16 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
 WORKDIR $PYSETUP_PATH
 COPY poetry.lock pyproject.toml ./
 
-# install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
-# RUN poetry install --no-dev
 # freeze dependencies to a requirements.txt
 RUN poetry export --without-hashes -f requirements.txt > requirements.txt
 
 # workaround to use torch cpu
 RUN sed -i 's/torch==1.9.0/torch==1.9.0+cpu/g' requirements.txt \
     && sed -i '/^torch==1.9.0.*/i -f https://download.pytorch.org/whl/torch_stable.html' requirements.txt
+
+# install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
+# RUN poetry install --no-dev
+RUN poetry run pip install -r requirements.txt
 
 # `development` image is used during development / testing
 FROM python-base as development
