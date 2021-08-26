@@ -50,6 +50,7 @@ COPY poetry.lock pyproject.toml ./
 
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
 # RUN poetry install --no-dev
+# freeze dependencies to a requirements.txt
 RUN poetry export --without-hashes -f requirements.txt > requirements.txt
 
 # workaround to use torch cpu
