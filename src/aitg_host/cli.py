@@ -21,6 +21,7 @@ def cli(
     top_k: int = 0,
     repetition_penalty: float = 1.0,
     length_penalty: float = 1.0,
+    max_time: float = None,
     no_repeat_ngram_size: int = 0,
     optimize: bool = True,
     reuse_session: bool = False,
@@ -73,6 +74,7 @@ def cli(
             top_k=top_k,
             repetition_penalty=repetition_penalty,
             length_penalty=length_penalty,
+            max_time=max_time,
             no_repeat_ngram_size=no_repeat_ngram_size
         )
 

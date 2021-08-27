@@ -9,6 +9,8 @@ from random import randint
 from typing import List, Optional, Union
 
 import torch
+import numpy as np
+import torch.nn.functional as F
 from pkg_resources import resource_filename
 from tqdm.auto import trange
 from transformers import (
@@ -56,13 +58,13 @@ def raw_generate(
         prompt_tensors = ai.tokenizer(text=prompt, return_tensors="pt")
 
         if prompt:
-            prompt_num_tokens = list(prompt_tensors["input_ids"].shape)[1]
+            prompt_num_tokens = list(prompt_tensors.input_ids.shape)[1]
             assert prompt_num_tokens < model_max_length(
                 ai.model.config
             ), f"The prompt is too large for the model. ({prompt_num_tokens} tokens)"
 
         input_ids = (
-            prompt_tensors["input_ids"].to(ai.get_device()) if prompt else None
+            prompt_tensors.input_ids.to(ai.get_device()) if prompt else None
         )
 
         if prepend_bos is None:
@@ -88,7 +90,7 @@ def raw_generate(
         max_length = min(gen_max_length, max_length)
 
         while True:
-            outputs = ai.model.generate(
+            model_output = ai.model.generate(
                 input_ids=input_ids,
                 min_length=min_length,
                 max_length=max_length,
@@ -97,15 +99,18 @@ def raw_generate(
                 num_return_sequences=1,
                 pad_token_id=pad_token_id,
                 use_cache=use_cache,
+                # for rich info
+                return_dict_in_generate = True,
+                output_scores = True,
+                # misc args
                 **kwargs,
             )
 
-            # since num_return_sequences=1, we KNOW there is only 1 sequence
-        
-            # manual decode
+            # manual decode the sequences
             gen_texts = []
             gen_tokens = []
-            for seq in outputs:
+            # since num_return_sequences=1, we KNOW there is only 1 sequence
+            for seq in model_output.sequences:
                 decoded_sequence = ai.tokenizer.decode(seq, skip_special_tokens=skip_special_tokens)
                 gen_texts.append(decoded_sequence)
                 # print(f'decoded: {seq} -> {decoded_sequence}')
@@ -122,6 +127,18 @@ def raw_generate(
             # if there is no generated text after cleanup, try again.
             if len(gen_texts) == 0:
                 continue
+
+            # now process the scores
+            # based on https://discuss.huggingface.co/t/generation-probabilities-how-to-compute-probabilities-of-output-scores-for-gpt2/3175
+            proc_gen_sequences = model_output.sequences[:, prompt_tensors.input_ids.shape[-1]:]
+            # let's stack the logits generated at each step to a tensor and transform
+            probs = torch.stack(model_output.scores, dim=1).softmax(-1) # logits to softmax probs
+            # now we need to collect the probability of the generated tokens
+            # we need to add a dummy dim in the end to make gather work
+            probs = F.pad(probs, pad=(0,0,1,0), value=0) # pad at the start of axis 1, for bos
+            # print('probs', np.asarray(probs).shape, probs)
+            gen_probs = torch.gather(probs, 2, proc_gen_sequences[:, :, None]).squeeze(-1)
+            print('gen_probs', np.asarray(gen_probs).shape, gen_probs)
 
             # Reset seed if used
             if seed:
