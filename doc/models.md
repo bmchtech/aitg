@@ -1,7 +1,7 @@
 
 # comparison of all released GPT models
 
-| Model         | LAMBADA ppl | LAMBADA acc |
+| MODEL         | LAMBADA PPL | LAMBADA ACC |
 |---------------|-------------|-------------|
 |               |             |             |
 | GPT-2-117M    | 35.130      | 45.99%      |
