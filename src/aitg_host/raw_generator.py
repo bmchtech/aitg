@@ -58,11 +58,10 @@ def raw_generate(
     prompt_text = prompt
     prompt_tensors = ai.tokenizer(text=prompt, return_tensors="pt")
 
-    if prompt:
-        prompt_num_tokens = list(prompt_tensors.input_ids.shape)[1]
-        assert prompt_num_tokens < model_max_length(
-            ai.model.config
-        ), f"The prompt is too large for the model. ({prompt_num_tokens} tokens)"
+    prompt_num_tokens = list(prompt_tensors.input_ids.shape)[1]
+    assert prompt_num_tokens < model_max_length(
+        ai.model.config
+    ), f"The prompt is too large for the model. ({prompt_num_tokens} tokens)"
 
     input_ids = prompt_tensors.input_ids.to(ai.get_device()) if prompt else None
 
@@ -122,6 +121,8 @@ def raw_generate(
             gen_tokens.append(filtered_tokens)
             # strred_tokens = ai.tokenizer.convert_tokens_to_string(filtered_tokens)
             # print(f'convtok: {filtered_tokens} -> {strred_tokens}')
+        
+        num_new_tokens = len(gen_tokens[0]) - prompt_num_tokens
 
         # Handle stripping tokenization spaces w/ regex
         if lstrip:
@@ -140,11 +141,21 @@ def raw_generate(
         probs = torch.stack(model_output.scores, dim=1).softmax(
             -1
         )  # logits to softmax probs
-        # pad at the start of axis 1, for bos, to make the token count match the sequence
-        probs = F.pad(probs, pad=(0, 0, 1, 0), value=0)
+        # handle empty prompts, which really are bos_token under the hood
+        if prompt_num_tokens == 0:
+            # we need padding for our probs
+            # pad axis 1, for bos, to make the token count match the sequence
+            probs = F.pad(probs, pad=(0, 0, 0, 1), value=0)
         # now we need to collect the probability of the generated tokens, adding a dummy dim
         gen_probs = torch.gather(probs, 2, proc_gen_sequences[:, :, None]).squeeze(-1)
         print("gen_probs", np.asarray(gen_probs).shape, gen_probs)
+
+        # print probability pairings
+        print(f"probs: {len(gen_probs[0])}, toks: {num_new_tokens}")
+        for i in range(num_new_tokens):
+            tok = gen_tokens[0][prompt_num_tokens + i]
+            prb = gen_probs[0][i]
+            print(f" prob[{i:03}]: {tok:<20} | {prb:<20}")
 
         # Reset seed if used
         if seed:
