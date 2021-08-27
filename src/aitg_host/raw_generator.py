@@ -146,6 +146,7 @@ def raw_generate(
             # we need padding for our probs
             # pad axis 1, for bos, to make the token count match the sequence
             probs = F.pad(probs, pad=(0, 0, 0, 1), value=0)
+        print("probs", np.asarray(probs).shape, probs)
         # now we need to collect the probability of the generated tokens, adding a dummy dim
         gen_probs = torch.gather(probs, 2, proc_gen_sequences[:, :, None]).squeeze(-1)
         print("gen_probs", np.asarray(gen_probs).shape, gen_probs)
