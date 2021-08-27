@@ -133,10 +133,9 @@ def raw_generate(
             proc_gen_sequences = model_output.sequences[:, prompt_tensors.input_ids.shape[-1]:]
             # let's stack the logits generated at each step to a tensor and transform
             probs = torch.stack(model_output.scores, dim=1).softmax(-1) # logits to softmax probs
-            # now we need to collect the probability of the generated tokens
-            # we need to add a dummy dim in the end to make gather work
-            probs = F.pad(probs, pad=(0,0,1,0), value=0) # pad at the start of axis 1, for bos
-            # print('probs', np.asarray(probs).shape, probs)
+            # pad at the start of axis 1, for bos, to make the token count match the sequence
+            probs = F.pad(probs, pad=(0,0,1,0), value=0)
+            # now we need to collect the probability of the generated tokens, adding a dummy dim
             gen_probs = torch.gather(probs, 2, proc_gen_sequences[:, :, None]).squeeze(-1)
             print('gen_probs', np.asarray(gen_probs).shape, gen_probs)
 
