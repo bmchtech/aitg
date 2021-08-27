@@ -26,7 +26,7 @@ def get_req_opt(req, name, default):
 def verify_key(req):
     # ensure req exists
     if not req:
-        abort(400, "key not provided") # bad
+        abort(400, "key not provided")  # bad
     # ensure key provided
     key_id = "key"
     if key_id not in req:
@@ -35,6 +35,7 @@ def verify_key(req):
     req_key = req[key_id]
     if req_key != API_KEY:
         abort(401)
+
 
 @route("/info", method=["GET"])
 def info_route():
@@ -47,6 +48,7 @@ def info_route():
     global AI_INSTANCE
 
     return json.dumps({"model": AI_INSTANCE.model_name})
+
 
 @route("/encode", method=["GET", "POST"])
 def encode_route():
@@ -92,7 +94,7 @@ def gen_route():
     # opt_use_rounds: bool = get_req_opt(req_json, "use_rounds", False)
     # opt_max_rounds: int = get_req_opt(req_json, "max_rounds", 4)
     # opt_context_amount: float = get_req_opt(req_json, "context_amount", 0.5)
-    
+
     # option params
     opt_temp: float = get_req_opt(req_json, "temp", 0.9)
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
@@ -113,7 +115,6 @@ def gen_route():
         start = time.time()
 
         global AI_INSTANCE, GENERATOR
-
 
         # prompt
         prompt_tokens = tokens = GENERATOR.str_to_toks(prompt)
@@ -148,7 +149,7 @@ def gen_route():
             length_penalty=opt_length_penalty,
             no_repeat_ngram_size=opt_no_repeat_ngram_size,
         )
-            
+
         gen_txt = AI_INSTANCE.filter_text(gen_txt)
         gen_txt_size = len(gen_txt)
         logger.debug(f"model output: {gen_txt}")
@@ -183,6 +184,7 @@ def prepare_model(optimize: bool):
     start = time.time()
     logger.info(f"initializing[{get_compute_device()}]...")
     from aitg_host.model import load_model
+
     logger.info(f"init in: {time.time() - start:.2f}s")
     start = time.time()
     logger.info("loading model...")

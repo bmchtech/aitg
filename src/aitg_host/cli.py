@@ -31,37 +31,45 @@ def cli(
     start = time.time()
     print(Style.NORMAL + Fore.CYAN + f"initializing[{get_compute_device()}]...")
     from aitg_host.model import load_model
+
     print(Style.DIM + Fore.RESET + f"[dbg] init in: {time.time() - start:.2f}s")
 
     start = time.time()
     print(Style.NORMAL + Fore.CYAN + "loading model...")
     ai = load_model(MODEL_DIR, optimize)
-    print(Style.DIM + Fore.RESET + f"[dbg] finished loading in: {time.time() - start:.2f}s")
+    print(
+        Style.DIM
+        + Fore.RESET
+        + f"[dbg] finished loading in: {time.time() - start:.2f}s"
+    )
     print(Style.DIM + Fore.RESET + f"[dbg] model: {ai.model_name}")
 
     # prompt
     slidegen = SlidingGenerator(ai)
     while True:
-        print(Style.NORMAL + Fore.WHITE + "\nprompt" + Fore.GREEN + ':')
+        print(Style.NORMAL + Fore.WHITE + "\nprompt" + Fore.GREEN + ":")
         prompt = multiline_in()
-        gen_type = 'generating'
+        gen_type = "generating"
         is_fresh = True
-        
+
         # if reuse enabled, go not fresh by default
         if reuse_session:
             is_fresh = False
 
-        if prompt == '' and len(slidegen.token_log) > 0:
-            gen_type = 'continuing'
+        if prompt == "" and len(slidegen.token_log) > 0:
+            gen_type = "continuing"
             is_fresh = False
             context, context_toks = slidegen.next_context(max_length, context_amount)
-            print(Style.DIM + Fore.RESET + f'context[{len(context_toks)}]: {context}', end='')
+            print(
+                Style.DIM + Fore.RESET + f"context[{len(context_toks)}]: {context}",
+                end="",
+            )
 
         print(Style.NORMAL + Fore.WHITE + "□\n――――――――――")
-        print(Style.DIM + Fore.RESET + f"{gen_type}...", end='')
+        print(Style.DIM + Fore.RESET + f"{gen_type}...", end="")
 
         start = time.time()
-        
+
         gen_txt, gen_toks, num_new = slidegen.generate(
             prompt=prompt,
             fresh=is_fresh,
@@ -75,7 +83,7 @@ def cli(
             repetition_penalty=repetition_penalty,
             length_penalty=length_penalty,
             max_time=max_time,
-            no_repeat_ngram_size=no_repeat_ngram_size
+            no_repeat_ngram_size=no_repeat_ngram_size,
         )
 
         # gen_txt, gen_toks = slidegen.generate_rounds(
@@ -87,17 +95,27 @@ def cli(
 
         generation_time = time.time() - start
         total_gen_num = len(gen_toks)
-        print(Style.DIM + Fore.RESET + f"[{num_new}/{total_gen_num}] ({generation_time:.2f}s/{(num_new/generation_time):.2f}tps)")
+        print(
+            Style.DIM
+            + Fore.RESET
+            + f"[{num_new}/{total_gen_num}] ({generation_time:.2f}s/{(num_new/generation_time):.2f}tps)"
+        )
         # print(Style.NORMAL + Fore.MAGENTA + f"{gen_toks}")
-        if (is_fresh):
-            print(Style.NORMAL + Fore.MAGENTA + f"{ai.filter_text(gen_txt)}", end='')
+        if is_fresh:
+            print(Style.NORMAL + Fore.MAGENTA + f"{ai.filter_text(gen_txt)}", end="")
         else:
-            print(Style.NORMAL + Fore.MAGENTA + f"{ai.filter_text(slidegen.toks_to_str(slidegen.token_log))}", end='')
+            print(
+                Style.NORMAL
+                + Fore.MAGENTA
+                + f"{ai.filter_text(slidegen.toks_to_str(slidegen.token_log))}",
+                end="",
+            )
         print(Style.DIM + Fore.RESET + "□")
-        if (num_new == 0):
+        if num_new == 0:
             # no more tokens
-            print(Style.DIM + Fore.RED + '□ □ □')
-        print('\n')
+            print(Style.DIM + Fore.RED + "□ □ □")
+        print("\n")
+
 
 def main():
     typer.run(cli)
