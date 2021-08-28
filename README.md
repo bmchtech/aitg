@@ -1,7 +1,9 @@
 
-# ai text generator host
+# aitg host
 
-host for running GPT-2/GPT-3 locally on the **command line** or as a **http server**
+aitg host ("ai text generator host")
+
+this project allows you to easily run GPT-2/GPT-3 locally on the **command line** or as a **http server**
 
 ## quickstart
 
