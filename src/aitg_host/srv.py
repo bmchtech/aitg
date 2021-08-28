@@ -4,8 +4,9 @@ from aitg_host.util import get_compute_device
 import typer
 
 from bottle import run, route, request, response, abort
-import json
 from loguru import logger
+import json
+import msgpack
 
 from aitg_host.textgen.sliding_generator import SlidingGenerator
 
@@ -40,12 +41,15 @@ def verify_key(req):
     if req_key != API_KEY:
         abort(401)
 
-def return_bundle(bundle, ext):
+def pack_bundle(bundle, ext):
     if ext == 'json':
         response.headers["Content-Type"] = "application/json"
         return json.dumps(bundle)
+    elif ext == 'mp':
+        response.headers["Content-Type"] = "application/x-msgpack"
+        return msgpack.dumps(bundle)
     else: # default
-        return
+        return None
 
 @route("/info.<ext>", method=["GET"])
 def info_route(ext):
@@ -57,7 +61,7 @@ def info_route(ext):
 
     global AI_INSTANCE
 
-    return return_bundle({"model": AI_INSTANCE.model_name}, ext)
+    return pack_bundle({"model": AI_INSTANCE.model_name}, ext)
 
 @route("/encode.<ext>", method=["GET", "POST"])
 def encode_route(ext):
@@ -71,7 +75,7 @@ def encode_route(ext):
     global GENERATOR
     tokens = GENERATOR.str_to_toks(text)
 
-    return_bundle({"tokens": tokens}, ext)
+    return pack_bundle({"tokens": tokens}, ext)
 
 @route("/decode.<ext>", method=["GET", "POST"])
 def decode_route(ext):
@@ -85,7 +89,7 @@ def decode_route(ext):
     global GENERATOR
     text = GENERATOR.toks_to_str(tokens)
 
-    return_bundle({"text": text}, ext)
+    return pack_bundle({"text": text}, ext)
 
 @route("/gen.<ext>", method=["GET", "POST"])
 def gen_route(ext):
@@ -186,7 +190,7 @@ def gen_route(ext):
         if opt_include_probs:
             resp_bundle["probs"] = output.probs
 
-        return_bundle(resp_bundle. ext)
+        return pack_bundle(resp_bundle, ext)
     except Exception as ex:
         logger.error(f"error generating: {ex}")
         abort(400, f"generation failed")
