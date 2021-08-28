@@ -192,15 +192,10 @@ def gen_route(ext):
         abort(400, f"generation failed")
 
 
-def prepare_model():
-    start = time.time()
-    logger.info(f"initializing[{get_compute_device()[1]}]...")
-    from aitg_host.model import load_bart_summarizer_model
-
-    logger.info(f"init in: {time.time() - start:.2f}s")
+def prepare_model(load_model_func):
     start = time.time()
     logger.info("loading model...")
-    ai = load_bart_summarizer_model(MODEL_DIR)
+    ai = load_model_func(MODEL_DIR)
     logger.info(f"finished loading in: {time.time() - start:.2f}s")
     logger.info(f"model: {ai.model_name}")
 
@@ -212,8 +207,14 @@ def server(
     port: int = 6000,
     debug: bool = False,
 ):
+    # first init
+    start = time.time()
+    logger.info(f"initializing[{get_compute_device()[1]}]...")
+    from aitg_host.model import load_bart_summarizer_model
+    logger.info(f"init in: {time.time() - start:.2f}s")
+
     global AI_INSTANCE, GENERATOR
-    AI_INSTANCE = ai = prepare_model()
+    AI_INSTANCE = ai = prepare_model(load_bart_summarizer_model)
     GENERATOR = SummaryGenerator(ai)
 
     logger.info(f"starting server on {host}:{port}")
