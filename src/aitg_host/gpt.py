@@ -37,8 +37,7 @@ from aitextgen.utils import (
 )
 import aitextgen
 
-
-def raw_generate(
+def generate(
     ai,
     prompt: str = "",
     prepend_bos: bool = None,
