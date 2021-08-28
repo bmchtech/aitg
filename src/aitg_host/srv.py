@@ -153,6 +153,7 @@ def gen_route():
 
         gen_txt = AI_INSTANCE.filter_text(output.text)
         gen_txt_size = len(gen_txt)
+        prompt_token_count = len(output.prompt_ids)
         logger.debug(f"model output: {gen_txt}")
         generation_time = time.time() - start
         total_gen_num = len(output.tokens)
@@ -168,6 +169,7 @@ def gen_route():
         resp_bundle = {
             "text": gen_txt,
             "text_length": gen_txt_size,
+            "prompt_token_count": prompt_token_count,
             "tokens": output.tokens,
             "token_count": total_gen_num,
             "num_new": output.num_new,
