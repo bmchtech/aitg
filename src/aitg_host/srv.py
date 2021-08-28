@@ -16,6 +16,7 @@ from aitg_host import __version__
 import aitg_host.model
 from aitg_host.gens.sliding_generator import SlidingGenerator
 from aitg_host.gens.summary_generator import SummaryGenerator
+from aitg_host.gens.classifier_generator import ClassifierGenerator
 
 MODEL_TYPE = None
 MODEL_DIR = os.environ["MODEL"]
@@ -126,7 +127,7 @@ def decode_route(ext):
 
 
 @route("/gen_gpt.<ext>", method=["GET", "POST"])
-def gen_route(ext):
+def gen_gpt_route(ext):
     req_json = req_as_json(request)
     try:
         verify_key(req_json)
@@ -233,7 +234,7 @@ def gen_route(ext):
 
 
 @route("/gen_bart_summarizer.<ext>", method=["GET", "POST"])
-def gen_route(ext):
+def gen_bart_summarizer_route(ext):
     req_json = req_as_json(request)
     try:
         verify_key(req_json)
@@ -261,6 +262,89 @@ def gen_route(ext):
 
         global AI_INSTANCE, GENERATOR, MODEL_TYPE
         ensure_model_type("bart_summarizer")
+
+        # prompt
+        prompt_tokens = tokens = GENERATOR.str_to_toks(opt_prompt)
+
+        # standard generate
+        output = GENERATOR.generate(
+            prompt=opt_prompt,
+            max_length=opt_max_length,
+            min_length=opt_min_length,
+            num_beams=opt_num_beams,
+            repetition_penalty=opt_repetition_penalty,
+            length_penalty=opt_length_penalty,
+            max_time=opt_max_time,
+            no_repeat_ngram_size=opt_no_repeat_ngram_size,
+        )
+
+        gen_txt = AI_INSTANCE.filter_text(output.text)
+        gen_txt_size = len(gen_txt)
+        prompt_token_count = len(output.prompt_ids)
+        logger.debug(f"model output: {gen_txt}")
+        generation_time = time.time() - start
+        total_gen_num = len(output.tokens)
+        gen_tps = output.num_new / generation_time
+        logger.info(
+            f"generated [{output.num_new}/{total_gen_num}] ({generation_time:.2f}s/{(gen_tps):.2f}tps)"
+        )
+
+        # done generating, now return the results over http
+
+        # create base response bundle
+        resp_bundle = {
+            "text": gen_txt,
+            "text_length": gen_txt_size,
+            "prompt_token_count": prompt_token_count,
+            "tokens": output.tokens,
+            "token_count": total_gen_num,
+            "num_new": output.num_new,
+            "num_total": total_gen_num,
+            "gen_time": generation_time,
+            "gen_tps": gen_tps,
+            "model": AI_INSTANCE.model_name,
+        }
+
+        # add optional sections
+        if opt_include_probs:
+            resp_bundle["probs"] = output.probs
+
+        return pack_bundle(resp_bundle, ext)
+    except Exception as ex:
+        raise ex
+        logger.error(f"error generating: {ex}")
+        abort(400, f"generation failed")
+
+
+@route("/gen_bart_classifier.<ext>", method=["GET", "POST"])
+def gen_bart_classifier_route(ext):
+    req_json = req_as_json(request)
+    try:
+        verify_key(req_json)
+        _ = req_json["prompt"]
+    except KeyError as ke:
+        abort(400, f"missing field {ke}")
+
+    # mode params
+    opt_include_probs: bool = get_req_opt(req_json, "include_probs", False)
+    # option params
+    opt_prompt: float = get_req_opt(req_json, "prompt", "")
+    opt_max_length: int = get_req_opt(req_json, "max_length", 256)
+    opt_min_length: int = get_req_opt(req_json, "min_length", 0)
+    opt_num_beams: int = get_req_opt(req_json, "num_beams", None)
+    opt_repetition_penalty: float = get_req_opt(req_json, "repetition_penalty", 1.0)
+    opt_length_penalty: float = get_req_opt(req_json, "length_penalty", 1.0)
+    opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
+    opt_no_repeat_ngram_size: int = get_req_opt(req_json, "no_repeat_ngram_size", 0)
+
+    logger.debug(f"requesting generation for prompt: {opt_prompt}")
+
+    # generate
+    try:
+        start = time.time()
+
+        global AI_INSTANCE, GENERATOR, MODEL_TYPE
+        ensure_model_type("bart_classifier")
 
         # prompt
         prompt_tokens = tokens = GENERATOR.str_to_toks(opt_prompt)
@@ -345,6 +429,9 @@ def server(
     elif model_type == "bart_summarizer":
         load_func = aitg_host.model.load_bart_summarizer_model
         generator_func = lambda ai: SummaryGenerator(ai)
+    elif model_type == "bart_classifier":
+        load_func = aitg_host.model.load_bart_classifier_model
+        generator_func = lambda ai: ClassifierGenerator(ai)
     else:
         # unknown
         raise Exception(f"unknown model_type: {model_type}")

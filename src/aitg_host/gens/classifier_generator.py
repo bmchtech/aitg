@@ -1,8 +1,9 @@
 import torch
 from aitg_host.gens.base import BaseGenerator
+from typing import List
 from types import SimpleNamespace
 
-class SummaryGenerator(BaseGenerator):
+class ClassifierGenerator(BaseGenerator):
     def __init__(self, ai):
         super().__init__(ai)
 
@@ -12,26 +13,26 @@ class SummaryGenerator(BaseGenerator):
 
     def generate(
         self,
-        prompt: str,
+        text: str,
+        classes: List[str],
         min_length: int = None,
         max_length: int = 256,
         lstrip: bool = True,
         **kwargs
     ):
         # encode
-        article = prompt
-        article_tensors = self.ai.tokenizer(
-            text=article, return_tensors="pt", max_length=self.ai.context_window, truncation=True
+        input_tensor = self.ai.tokenizer(
+            [text], return_tensors="pt", max_length=self.ai.context_window, truncation=True
         )
-        input_ids = article_tensors.input_ids.to(self.ai.device)
+        input_ids = input_tensor.input_ids.to(self.ai.device)
 
         # generate
-        output_ids = self.ai.model.generate(
-            input_ids,
-            min_length=min_length,
-            max_length=max_length,
+        model_output = self.ai.model(
+            **input_ids,
             **kwargs,
         )
+
+        print('classification out:', model_output)
 
         # decode
         output_seqs = [seq for seq in output_ids]
