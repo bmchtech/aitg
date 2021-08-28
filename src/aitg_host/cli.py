@@ -132,16 +132,25 @@ def main():
 def download_model():
     # download a model id from huggingface, and save to a local path
     def _download_model(model_id: str, path: str):
-        model_id = model_id.replace("@", "")
-        from transformers import AutoModel, AutoTokenizer
+        # ensure this is huggingface
+        if model_id.startswith('@'):
+            # this is a HUGGINGFACE model path (download from repo)
+            model_id = model_id[1:]
 
-        # grab both
-        model = AutoModel.from_pretrained(model_id)
-        tokenizer = AutoTokenizer.from_pretrained(model_id)
+            from transformers import AutoModel, AutoTokenizer
 
-        # save both
-        model.save_pretrained(save_directory=path)
-        tokenizer.save_pretrained(save_directory=path)
+            # grab both
+            print(f'getting model: {model_id}')
+            model = AutoModel.from_pretrained(model_id)
+            print(f'getting tokenizer: {model_id}')
+            tokenizer = AutoTokenizer.from_pretrained(model_id)
+
+            # save both
+            print(f'saving to: {path}')
+            model.save_pretrained(save_directory=path)
+            tokenizer.save_pretrained(save_directory=path)
+        else:
+            print('preface huggingface model id with @')
 
     typer.run(_download_model)
 
