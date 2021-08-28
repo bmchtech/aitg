@@ -132,7 +132,7 @@ def gen_route():
                 opt_max_length = auto_max_length
 
         # standard generate
-        gen_txt, gen_toks, num_new = GENERATOR.generate(
+        output = GENERATOR.generate(
             prompt=prompt,
             temperature=opt_temp,
             max_length=opt_max_length,
@@ -146,14 +146,14 @@ def gen_route():
             no_repeat_ngram_size=opt_no_repeat_ngram_size,
         )
 
-        gen_txt = AI_INSTANCE.filter_text(gen_txt)
+        gen_txt = AI_INSTANCE.filter_text(output.text)
         gen_txt_size = len(gen_txt)
         logger.debug(f"model output: {gen_txt}")
         generation_time = time.time() - start
-        total_gen_num = len(gen_toks)
-        gen_tps = num_new / generation_time
+        total_gen_num = len(output.tokens)
+        gen_tps = output.num_new / generation_time
         logger.info(
-            f"generated [{num_new}/{total_gen_num}] ({generation_time:.2f}s/{(gen_tps):.2f}tps)"
+            f"generated [{output.num_new}/{total_gen_num}] ({generation_time:.2f}s/{(gen_tps):.2f}tps)"
         )
 
         # success
@@ -162,9 +162,9 @@ def gen_route():
             {
                 "text": gen_txt,
                 "text_length": gen_txt_size,
-                "text_tokens": gen_toks,
+                "text_tokens": output.gen_toks,
                 "text_token_count": total_gen_num,
-                "gen_new": num_new,
+                "gen_new": output.num_new,
                 "gen_total": total_gen_num,
                 "gen_time": generation_time,
                 "gen_tps": gen_tps,
