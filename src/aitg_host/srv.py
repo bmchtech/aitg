@@ -66,10 +66,13 @@ def pack_bundle(bundle, ext):
     else:  # default
         return None
 
+
 def ensure_model_type(model_type):
     global MODEL_TYPE
     if MODEL_TYPE != model_type:
-        raise Exception(f'model type mismatch! expected {model_type}, but got {MODEL_TYPE}')
+        raise Exception(
+            f"model type mismatch! expected {model_type}, but got {MODEL_TYPE}"
+        )
 
 
 @route("/info.<ext>", method=["GET"])
@@ -103,7 +106,7 @@ def encode_route(ext):
     global GENERATOR
     tokens = GENERATOR.str_to_toks(text)
 
-    return pack_bundle({"tokens": tokens}, ext)
+    return pack_bundle({"tokens": tokens, "num_tokens": len(tokens)}, ext)
 
 
 @route("/decode.<ext>", method=["GET", "POST"])
@@ -154,7 +157,7 @@ def gen_route(ext):
         start = time.time()
 
         global AI_INSTANCE, GENERATOR, MODEL_TYPE
-        ensure_model_type('gpt')
+        ensure_model_type("gpt")
 
         # prompt
         prompt_tokens = tokens = GENERATOR.str_to_toks(opt_prompt)
@@ -256,7 +259,7 @@ def gen_route(ext):
         start = time.time()
 
         global AI_INSTANCE, GENERATOR, MODEL_TYPE
-        ensure_model_type('bart_summarizer')
+        ensure_model_type("bart_summarizer")
 
         # prompt
         prompt_tokens = tokens = GENERATOR.str_to_toks(opt_prompt)
