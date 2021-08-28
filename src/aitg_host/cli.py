@@ -5,11 +5,9 @@ from math import floor
 import typer
 import colorama
 from colorama import Fore, Back, Style
-from aitg_host.raw_generator import raw_generate
-from aitg_host.sliding_generator import SlidingGenerator
+from aitg_host.textgen.sliding_generator import SlidingGenerator
 
 MODEL_DIR = os.environ["MODEL"]
-
 
 def cli(
     temp: float = 0.9,

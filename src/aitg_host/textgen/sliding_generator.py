@@ -1,6 +1,6 @@
 from math import floor
-from aitg_host.raw_generator import raw_generate
-from aitg_host.base_generator import BaseGenerator
+from aitg_host.textgen.raw_generator import raw_generate
+from aitg_host.textgen.base_generator import BaseGenerator
 
 
 class SlidingGenerator(BaseGenerator):
