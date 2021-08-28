@@ -54,8 +54,8 @@ def info_route():
     return json.dumps({"model": AI_INSTANCE.model_name})
 
 
-@route("/encode", method=["GET", "POST"])
-def encode_route():
+@route("/encode.<ext>", method=["GET", "POST"])
+def encode_route(ext):
     req_json = req_as_json(request)
     try:
         verify_key(req_json)
@@ -66,7 +66,13 @@ def encode_route():
     global GENERATOR
     tokens = GENERATOR.str_to_toks(text)
 
-    return json.dumps({"tokens": tokens})
+    bundle = {"tokens": tokens}
+
+    if ext == 'json':
+        response.headers["Content-Type"] = "application/json"
+        return json.dumps(bundle)
+    else:
+        return
 
 
 @route("/decode", method=["GET", "POST"])
@@ -83,8 +89,8 @@ def decode_route():
 
     return json.dumps({"text": text})
 
-@route("/gen", method=["GET", "POST"])
-def gen_route():
+@route("/gen.<ext>", method=["GET", "POST"])
+def gen_route(ext):
     req_json = req_as_json(request)
     try:
         verify_key(req_json)
@@ -162,8 +168,7 @@ def gen_route():
             f"generated [{output.num_new}/{total_gen_num}] ({generation_time:.2f}s/{(gen_tps):.2f}tps)"
         )
 
-        # success
-        response.headers["Content-Type"] = "application/json"
+        # done generating, now return the results over http
 
         # create base response bundle
         resp_bundle = {
@@ -183,8 +188,11 @@ def gen_route():
         if opt_include_probs:
             resp_bundle["probs"] = output.probs
 
-        # return json
-        return json.dumps(resp_bundle)
+        if ext == 'json':
+            response.headers["Content-Type"] = "application/json"
+            return json.dumps(resp_bundle)
+        else:
+            return
     except Exception as ex:
         logger.error(f"error generating: {ex}")
         abort(400, f"generation failed")
