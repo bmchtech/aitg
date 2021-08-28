@@ -83,19 +83,19 @@ def decode_route():
 
     return json.dumps({"text": text})
 
-
 @route("/gen", method=["GET", "POST"])
 def gen_route():
     req_json = req_as_json(request)
     try:
         verify_key(req_json)
-        prompt = req_json["prompt"]
+        _ = req_json["prompt"]
     except KeyError as ke:
         abort(400, f"missing field {ke}")
 
     # mode params
     opt_include_probs: bool = get_req_opt(req_json, "include_probs", False)
     # option params
+    opt_prompt: float = get_req_opt(req_json, "prompt", "")
     opt_temp: float = get_req_opt(req_json, "temp", 0.9)
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
     opt_min_length: int = get_req_opt(req_json, "min_length", 0)
@@ -109,7 +109,7 @@ def gen_route():
     # lv2 params
     opt_flex_max_length: int = get_req_opt(req_json, "flex_max_length", 0)
 
-    logger.debug(f"requesting generation for prompt: {prompt}")
+    logger.debug(f"requesting generation for prompt: {opt_prompt}")
 
     # generate
     try:
@@ -118,7 +118,7 @@ def gen_route():
         global AI_INSTANCE, GENERATOR
 
         # prompt
-        prompt_tokens = tokens = GENERATOR.str_to_toks(prompt)
+        prompt_tokens = tokens = GENERATOR.str_to_toks(opt_prompt)
 
         # apply lv2 params
         if opt_flex_max_length > 0:
@@ -138,7 +138,7 @@ def gen_route():
 
         # standard generate
         output = GENERATOR.generate(
-            prompt=prompt,
+            prompt=opt_prompt,
             temperature=opt_temp,
             max_length=opt_max_length,
             min_length=opt_min_length,
