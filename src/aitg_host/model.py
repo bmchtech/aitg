@@ -21,7 +21,7 @@ def load_common_ext(ai, load_path):
     # try to load model name
     with open(os.path.join(load_path, "config.json")) as cfg_f:
         cfg_data = json.load(cfg_f)
-        
+
         # get model metadata
         ai.model_name = cfg_data.get("model_friendly_id", os.path.basename(load_path))
         ai.model_type = cfg_data.get("model_type", "unknown")
@@ -39,7 +39,6 @@ def load_common_ext(ai, load_path):
 def load_gpt_model(load_path):
     from aitextgen import aitextgen
 
-    ai = None
     use_gpu = get_compute_device()[1] == "gpu"
 
     ensure_model_dir(load_path)
@@ -55,23 +54,25 @@ def load_gpt_model(load_path):
 def load_bart_summarizer_model(load_path):
     from aitg_host.models.bart_summarizer import BartSummarizerAI
 
-    ai = None
-    device, device_type = get_compute_device()
-
     ensure_model_dir(load_path)
 
     # load model
-    ai = BartSummarizerAI(model_folder=load_path, to_device=device)
+    ai = BartSummarizerAI(model_folder=load_path, to_device=get_compute_device()[0])
 
     load_common_ext(ai, load_path)
 
     return ai
 
+
 import typer
 
+
 def download_model(
-    model_id: str = typer.Argument(..., help='the huggingface model id. usually looks like @organization/some-model'),
-    path: str = typer.Argument(..., help='the output path to save the model to'),
+    model_id: str = typer.Argument(
+        ...,
+        help="the huggingface model id. usually looks like @organization/some-model",
+    ),
+    path: str = typer.Argument(..., help="the output path to save the model to"),
 ):
     """
     download a model id from huggingface, and save to a local path
