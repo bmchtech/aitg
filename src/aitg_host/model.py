@@ -15,6 +15,12 @@ def ensure_model_dir(load_path):
     # this is a LOCAL model path
     if not os.path.isdir(load_path):
         raise OSError(f"model path is not a valid directory: {load_path}")
+    
+    # add checks to make sure the model files are there
+    if not os.path.exists(load_path + '/pytorch_model.bin'):
+        raise OSError(f"model directory is missing pytorch model")
+    if not os.path.exists(load_path + '/config.json'):
+        raise OSError(f"model directory is missing config file")
 
 
 def load_common_ext(ai, load_path):
