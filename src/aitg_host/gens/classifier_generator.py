@@ -21,14 +21,16 @@ class ClassifierGenerator(BaseGenerator):
         **kwargs
     ):
         # encode
+        premise = text
+        hypothesis = f'This example is {classes[0]}'
         input_tensor = self.ai.tokenizer(
-            [text], return_tensors="pt", max_length=self.ai.context_window, truncation=True
+            premise, hypothesis, return_tensors="pt", truncation_strategy='only_first'
         )
         input_ids = input_tensor.input_ids.to(self.ai.device)
 
         # generate
         model_output = self.ai.model(
-            **input_ids,
+            input_ids,
             **kwargs,
         )
 

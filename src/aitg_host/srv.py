@@ -321,7 +321,7 @@ def gen_bart_classifier_route(ext):
     req_json = req_as_json(request)
     try:
         verify_key(req_json)
-        _ = req_json["texts"]
+        _ = req_json["text"]
         _ = req_json["classes"]
     except KeyError as ke:
         abort(400, f"missing field {ke}")
@@ -329,7 +329,7 @@ def gen_bart_classifier_route(ext):
     # mode params
     opt_include_probs: bool = get_req_opt(req_json, "include_probs", False)
     # option params
-    opt_texts: float = get_req_opt(req_json, "texts", None)
+    opt_text: float = get_req_opt(req_json, "text", None)
     opt_classes: float = get_req_opt(req_json, "classes", None)
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
     opt_min_length: int = get_req_opt(req_json, "min_length", 0)
@@ -339,7 +339,7 @@ def gen_bart_classifier_route(ext):
     opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
     opt_no_repeat_ngram_size: int = get_req_opt(req_json, "no_repeat_ngram_size", 0)
 
-    logger.debug(f"requesting classification for texts: {opt_texts}, classes: {opt_classes}")
+    logger.debug(f"requesting classification for text: {opt_text}, classes: {opt_classes}")
 
     # generate
     try:
@@ -348,12 +348,9 @@ def gen_bart_classifier_route(ext):
         global AI_INSTANCE, GENERATOR, MODEL_TYPE
         ensure_model_type("bart_classifier")
 
-        # prompt
-        prompt_tokens = tokens = GENERATOR.str_to_toks(opt_prompt)
-
         # standard generate
         output = GENERATOR.generate(
-            texts=opt_texts,
+            text=opt_text,
             classes=opt_classes,
             # max_length=opt_max_length,
             # min_length=opt_min_length,
