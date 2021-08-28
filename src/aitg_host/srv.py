@@ -17,17 +17,20 @@ API_KEY = os.environ["KEY"]
 AI_INSTANCE = None
 GENERATOR = None
 
+
 def req_as_json(req):
     try:
         return request.json
     except:
         abort(400, f"invalid request json")
 
+
 def get_req_opt(req, name, default):
     if name in req:
         return req[name]
     else:
         return default
+
 
 def verify_key(req):
     # ensure req exists
@@ -42,18 +45,20 @@ def verify_key(req):
     if req_key != API_KEY:
         abort(401)
 
+
 def pack_bundle(bundle, ext):
-    if ext == 'json':
+    if ext == "json":
         response.headers["Content-Type"] = "application/json"
         return json.dumps(bundle)
-    elif ext == 'mp':
+    elif ext == "mp":
         response.headers["Content-Type"] = "application/x-msgpack"
         return msgpack.dumps(bundle)
-    elif ext == 'mpz':
+    elif ext == "mpz":
         response.headers["Content-Type"] = "application/octet-stream"
         return lz4.frame.compress(msgpack.dumps(bundle))
-    else: # default
+    else:  # default
         return None
+
 
 @route("/info.<ext>", method=["GET"])
 def info_route(ext):
@@ -66,6 +71,7 @@ def info_route(ext):
     global AI_INSTANCE
 
     return pack_bundle({"model": AI_INSTANCE.model_name}, ext)
+
 
 @route("/encode.<ext>", method=["GET", "POST"])
 def encode_route(ext):
@@ -81,6 +87,7 @@ def encode_route(ext):
 
     return pack_bundle({"tokens": tokens}, ext)
 
+
 @route("/decode.<ext>", method=["GET", "POST"])
 def decode_route(ext):
     req_json = req_as_json(request)
@@ -94,6 +101,7 @@ def decode_route(ext):
     text = GENERATOR.toks_to_str(tokens)
 
     return pack_bundle({"text": text}, ext)
+
 
 @route("/gen.<ext>", method=["GET", "POST"])
 def gen_route(ext):
