@@ -139,9 +139,9 @@ def raw_generate(
 
         # now process the scores
         # let's stack the logits generated at each step to a tensor
-        stacked_scores = torch.stack(model_output.scores, dim=1)
+        logprobs = torch.stack(model_output.scores, dim=1)
         # transform logits to softmax probs
-        probs = stacked_scores.softmax(-1)
+        probs = logprobs.softmax(-1)
 
         # handle empty prompts, which really are bos_token under the hood
         # if prompt_num_tokens == 0:
