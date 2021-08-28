@@ -15,6 +15,7 @@ def version_callback(value: bool):
         typer.echo(f"{__version__}")
         raise typer.Exit()
 
+
 def cli(
     version: Optional[bool] = typer.Option(
         None, "-v", "--version", callback=version_callback, is_eager=True
@@ -36,7 +37,7 @@ def cli(
     colorama.init()
 
     start = time.time()
-    print(Style.NORMAL + Fore.CYAN + f"initializing", end='')
+    print(Style.NORMAL + Fore.CYAN + f"initializing", end="")
 
     # imports here, because they're slow
     from aitg_host.model import load_model
@@ -127,6 +128,16 @@ def cli(
 
 def main():
     typer.run(cli)
+
+
+def download_model():
+    def _download_model(model_id: str, path: str):
+        model_id = model_id.replace("@", "")
+        from transformers import AutoModel
+
+        AutoModel.from_pretrained(model_id, cache_dir=path)
+
+    typer.run(_download_model)
 
 
 if __name__ == "__main__":
