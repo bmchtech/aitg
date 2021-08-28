@@ -18,11 +18,13 @@ class ClassifierGenerator(BaseGenerator):
         self,
         text: str,
         classes: List[str],
+        hypothesis_template = "This example is {}.",
         **kwargs,
     ):
         # encode
         premise = text
-        hypothesis = f"This example is {classes[0]}"
+        hypothesis = hypothesis_template.format(classes[0])
+        print('hypothesis', hypothesis)
         input_tensor = self.ai.tokenizer(
             premise, hypothesis, return_tensors="pt", truncation_strategy="only_first"
         )
