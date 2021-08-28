@@ -31,7 +31,6 @@ def cli(
     length_penalty: float = 1.0,
     max_time: float = None,
     no_repeat_ngram_size: int = 0,
-    optimize: bool = True,
     reuse_session: bool = False,
 ):
     colorama.init()
@@ -44,13 +43,13 @@ def cli(
     from aitg_host.util import multiline_in, get_compute_device
     from aitg_host.textgen.sliding_generator import SlidingGenerator
 
-    print(f"[{get_compute_device()}]...")
+    print(f"[{get_compute_device()[1]}]...")
 
     print(Style.DIM + Fore.RESET + f"[dbg] init in: {time.time() - start:.2f}s")
 
     start = time.time()
     print(Style.NORMAL + Fore.CYAN + "loading model...")
-    ai = load_gpt_model(MODEL_DIR, optimize)
+    ai = load_gpt_model(MODEL_DIR)
     print(
         Style.DIM
         + Fore.RESET
