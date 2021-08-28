@@ -44,7 +44,7 @@ class SlidingGenerator(BaseGenerator):
         # self.token_log.extend(prompt_tokens)
 
         # gen
-        gen_txt, gen_toks = raw_generate(
+        output = raw_generate(
             self.ai,
             max_length=max_length,
             min_length=min_length,
@@ -56,6 +56,8 @@ class SlidingGenerator(BaseGenerator):
             skip_special_tokens=skip_special_tokens,
             **kwargs,
         )
+        gen_txt = output.text
+        gen_toks = output.tokens
 
         # add the input+output sequence from the model
         # exclude context tokens (because they already are included)

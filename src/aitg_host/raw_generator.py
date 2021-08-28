@@ -7,6 +7,7 @@ import sys
 from datetime import datetime
 from random import randint
 from typing import List, Optional, Union
+from types import SimpleNamespace
 
 import torch
 import numpy as np
@@ -166,4 +167,8 @@ def raw_generate(
             reset_seed()
 
         # print('beep4')
-        return gen_texts[0], gen_tokens[0]
+        return SimpleNamespace(
+            text = gen_texts[0],
+            tokens = gen_texts[0],
+            seq = gen_seq[0],
+        )
