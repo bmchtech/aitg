@@ -1,4 +1,6 @@
 
+![icon](doc/icon.png)
+
 # aitg host
 
 aitg host ("ai text generator host")
