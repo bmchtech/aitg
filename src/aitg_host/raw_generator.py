@@ -139,9 +139,9 @@ def raw_generate(
 
         # now process the scores
         # let's stack the logits generated at each step to a tensor
-        logprobs = torch.stack(model_output.scores, dim=1)
+        logits = torch.stack(model_output.scores, dim=1)
         # transform logits to softmax probs
-        probs = logprobs.softmax(-1)
+        probs = logits.softmax(-1)
 
         # handle empty prompts, which really are bos_token under the hood
         # if prompt_num_tokens == 0:
@@ -157,7 +157,7 @@ def raw_generate(
             tok_ix = prompt_num_tokens + step_ix # token index
             chosen_tok = gen_tokens[0][tok_ix] # chosen token str
             chosen_tok_id = gen_seq[0][tok_ix] # chosen token id
-            step_probs = probs[0, step_ix, :] # list of probs at this step
+            step_probs = logits[0, step_ix, :] # list of probs at this step
             chosen_tok_prob = step_probs[chosen_tok_id] # prob of chosen token
             print(f" prob[{step_ix:03}]: {chosen_tok:<20} | {chosen_tok_prob:<20}")
 
