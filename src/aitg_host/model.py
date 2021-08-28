@@ -10,7 +10,7 @@ def import_pymodule(module_name, module_path):
     spec.loader.exec_module(loaded_module)
     return loaded_module
 
-def load_model(load_path, optimize):
+def load_gpt_model(load_path, optimize):
     ai = None
     use_gpu = get_compute_device() == "gpu"
     # check if path is remote

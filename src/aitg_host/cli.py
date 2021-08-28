@@ -40,7 +40,7 @@ def cli(
     print(Style.NORMAL + Fore.CYAN + f"initializing", end="")
 
     # imports here, because they're slow
-    from aitg_host.model import load_model
+    from aitg_host.model import load_gpt_model
     from aitg_host.util import multiline_in, get_compute_device
     from aitg_host.textgen.sliding_generator import SlidingGenerator
 
@@ -50,7 +50,7 @@ def cli(
 
     start = time.time()
     print(Style.NORMAL + Fore.CYAN + "loading model...")
-    ai = load_model(MODEL_DIR, optimize)
+    ai = load_gpt_model(MODEL_DIR, optimize)
     print(
         Style.DIM
         + Fore.RESET

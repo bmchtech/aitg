@@ -1,6 +1,5 @@
 import time
 import os
-from aitg_host.textgen.summarizer import Summarizer
 from aitg_host.util import get_compute_device
 import typer
 
@@ -11,7 +10,7 @@ import msgpack
 import lz4.frame
 
 from aitg_host import __version__
-from aitg_host.textgen.sliding_generator import SlidingGenerator
+from aitg_host.textgen.summarizer import Summarizer
 
 MODEL_DIR = os.environ["MODEL"]
 API_KEY = os.environ["KEY"]
@@ -239,7 +238,7 @@ def server(
 ):
     global AI_INSTANCE, GENERATOR
     AI_INSTANCE = ai = prepare_model(optimize)
-    GENERATOR = Summarizer()
+    GENERATOR = SlidingGenerator(ai)
 
     logger.info(f"starting server on {host}:{port}")
     run(host=host, port=port, debug=debug)
