@@ -68,7 +68,7 @@ def cli(
 
         start = time.time()
 
-        gen_txt, gen_toks, num_new = slidegen.generate(
+        output = slidegen.generate(
             prompt=prompt,
             fresh=is_fresh,
             context_amount=context_amount,
@@ -84,23 +84,16 @@ def cli(
             no_repeat_ngram_size=no_repeat_ngram_size,
         )
 
-        # gen_txt, gen_toks = slidegen.generate_rounds(
-        #     prompt,
-        #     min_length=min_length,
-        #     max_length=max_length,
-        #     temperature=temp,
-        # )
-
         generation_time = time.time() - start
-        total_gen_num = len(gen_toks)
+        total_gen_num = len(output.tokens)
         print(
             Style.DIM
             + Fore.RESET
-            + f"[{num_new}/{total_gen_num}] ({generation_time:.2f}s/{(num_new/generation_time):.2f}tps)"
+            + f"[{output.num_new}/{total_gen_num}] ({generation_time:.2f}s/{(output.num_new/generation_time):.2f}tps)"
         )
-        # print(Style.NORMAL + Fore.MAGENTA + f"{gen_toks}")
+        # print(Style.NORMAL + Fore.MAGENTA + f"{output.tokens}")
         if is_fresh:
-            print(Style.NORMAL + Fore.MAGENTA + f"{ai.filter_text(gen_txt)}", end="")
+            print(Style.NORMAL + Fore.MAGENTA + f"{ai.filter_text(output.text)}", end="")
         else:
             print(
                 Style.NORMAL
@@ -109,7 +102,7 @@ def cli(
                 end="",
             )
         print(Style.DIM + Fore.RESET + "□")
-        if num_new == 0:
+        if output.num_new == 0:
             # no more tokens
             print(Style.DIM + Fore.RED + "□ □ □")
         print("\n")
