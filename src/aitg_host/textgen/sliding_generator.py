@@ -1,6 +1,6 @@
 from math import floor
-from aitg_host.raw_generator import raw_generate
-from aitg_host.base_generator import BaseGenerator
+import aitg_host.gpt
+from aitg_host.textgen.base_generator import BaseGenerator
 
 class SlidingGenerator(BaseGenerator):
     def __init__(self, ai):
@@ -14,7 +14,7 @@ class SlidingGenerator(BaseGenerator):
         context_prompt = self.toks_to_str(context_tokens)
 
         return context_prompt, context_tokens
-    
+
     def generate(
         self,
         prompt: str = "",
@@ -29,7 +29,8 @@ class SlidingGenerator(BaseGenerator):
         skip_special_tokens: bool = True,
         **kwargs
     ):
-        context_prompt = ''
+        # determine context section of prompt
+        context_prompt = ""
         context_toks = []
         if fresh:
             self.token_log = []
@@ -40,10 +41,10 @@ class SlidingGenerator(BaseGenerator):
         full_prompt = context_prompt + prompt
 
         prompt_tokens = self.str_to_toks(full_prompt)
-        # self.token_log.extend(prompt_tokens)
 
         # gen
-        gen_txt, gen_toks = raw_generate(self.ai, 
+        output = aitg_host.gpt.generate(
+            self.ai,
             max_length=max_length,
             min_length=min_length,
             seed=seed,
@@ -55,14 +56,16 @@ class SlidingGenerator(BaseGenerator):
             **kwargs,
         )
 
-        # add the input+output sequence from the model
-        # exclude context tokens (because they already are included)
-        self.token_log.extend(gen_toks[len(context_toks):])
-        # count how many new toks were added (to see if we're at the end)
-        num_new_toks = len(gen_toks) - len(prompt_tokens)
-        return gen_txt, gen_toks, num_new_toks
+        # count how many new toks were added
+        output.num_new = len(output.tokens) - len(output.prompt_ids)
 
-    def generate_rounds(self,
+        # add the input + output sequence from the model
+        self.token_log.extend(output.tokens[len(context_toks) :])
+
+        return output
+
+    def generate_rounds(
+        self,
         max_rounds: int = 0,
         prompt: str = "",
         min_length: int = None,
@@ -82,14 +85,14 @@ class SlidingGenerator(BaseGenerator):
                 min_length=min_length,
                 max_length=max_length,
                 temperature=temperature,
-                **kwargs
+                **kwargs,
             )
-            prompt = '' # clear prompt
+            prompt = ""  # clear prompt
             if num_new == 0:
                 break
             # print(f'round {rounds}: {text}')
             rounds += 1
-            if (rounds >= max_rounds):
+            if rounds >= max_rounds:
                 break
 
         # no more new, extract the log
@@ -97,4 +100,3 @@ class SlidingGenerator(BaseGenerator):
         all_round_output = self.toks_to_str(all_round_tokens)
 
         return all_round_output, all_round_tokens
-
