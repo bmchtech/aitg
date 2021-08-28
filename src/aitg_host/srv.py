@@ -106,7 +106,7 @@ def encode_route(ext):
     global GENERATOR
     tokens = GENERATOR.str_to_toks(text)
 
-    return pack_bundle({"tokens": tokens, "num_tokens": len(tokens)}, ext)
+    return pack_bundle({"num_tokens": len(tokens), "tokens": tokens}, ext)
 
 
 @route("/decode.<ext>", method=["GET", "POST"])
