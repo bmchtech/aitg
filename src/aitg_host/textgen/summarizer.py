@@ -25,6 +25,11 @@ class SummaryGenerator(BaseGenerator):
     def __init__(self, ai):
         super().__init__(ai)
 
+    def str_to_ids(self, ai, text):
+        # custom tokenizer invocation (because of max length)
+        print('KUSTOM')
+        return self.ai.tokenizer(text=text, return_tensors="pt", max_length=1024, truncation=True).input_ids
+
     def generate(
         self,
         prompt: str = "",
@@ -34,9 +39,8 @@ class SummaryGenerator(BaseGenerator):
     ):
         # encode
         article = prompt
-        input_ids = self.ai.tokenizer.batch_encode_plus(
-            [article], return_tensors="pt", max_length=1024, truncation=True
-        )["input_ids"].to(self.ai.device)
+        article_tensors = self.ai.tokenizer(text=article, return_tensors="pt", max_length=1024, truncation=True)
+        input_ids = article_tensors.input_ids.to(self.ai.device)
 
         # generate
         output_ids = self.ai.model.generate(
