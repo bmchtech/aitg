@@ -131,6 +131,7 @@ def main():
 
 
 def download_model():
+    # download a model id from huggingface, and save to a local path
     def _download_model(model_id: str, path: str):
         model_id = model_id.replace("@", "")
         from transformers import AutoModel, AutoTokenizer
