@@ -8,7 +8,7 @@ class SummaryGenerator(BaseGenerator):
 
     def str_to_ids(self, text):
         # custom tokenizer invocation (because of max length)
-        return self.ai.tokenizer(text=text, max_length=1024, truncation=True).input_ids
+        return self.ai.tokenizer(text=text, max_length=self.ai.context_window, truncation=True).input_ids
 
     def generate(
         self,
@@ -21,7 +21,7 @@ class SummaryGenerator(BaseGenerator):
         # encode
         article = prompt
         article_tensors = self.ai.tokenizer(
-            text=article, return_tensors="pt", max_length=1024, truncation=True
+            text=article, return_tensors="pt", max_length=self.ai.context_window, truncation=True
         )
         input_ids = article_tensors.input_ids.to(self.ai.device)
 
