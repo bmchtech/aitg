@@ -156,11 +156,13 @@ def raw_generate(
 
         # print probability pairings
         print(f"probs: {len(probs_seq_0)}, toks: {num_new_tokens}")
-        for i in range(num_new_tokens):
-            chosen_tok = gen_tokens[0][prompt_num_tokens + i]
-            tok_probs = probs_seq_0[i]
-            chosen_tok_prob = 3
-            print(f" prob[{i:03}]: {chosen_tok:<20} | {chosen_tok_prob:<20}")
+        for step_ix in range(num_new_tokens):
+            tok_ix = prompt_num_tokens + step_ix # token index
+            chosen_tok = gen_tokens[0][tok_ix] # chosen token str
+            chosen_tok_id = gen_seq[0][tok_ix] # chosen token id
+            step_probs = probs_seq_0[step_ix] # list of probs at this step
+            chosen_tok_prob = step_probs[chosen_tok_id] # prob of chosen token
+            print(f" prob[{step_ix:03}]: {chosen_tok:<20} | {chosen_tok_prob:<20}")
 
         # Reset seed if used
         if seed:
