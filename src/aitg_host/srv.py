@@ -7,7 +7,7 @@ from bottle import run, route, request, response, abort
 import json
 from loguru import logger
 
-from aitg_host.sliding_generator import SlidingGenerator
+from aitg_host.textgen.sliding_generator import SlidingGenerator
 
 MODEL_DIR = os.environ["MODEL"]
 API_KEY = os.environ["KEY"]
@@ -90,11 +90,6 @@ def gen_route():
         abort(400, f"missing field {ke}")
 
     # get params
-    # mode params
-    # opt_use_rounds: bool = get_req_opt(req_json, "use_rounds", False)
-    # opt_max_rounds: int = get_req_opt(req_json, "max_rounds", 4)
-    # opt_context_amount: float = get_req_opt(req_json, "context_amount", 0.5)
-
     # option params
     opt_temp: float = get_req_opt(req_json, "temp", 0.9)
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
