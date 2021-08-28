@@ -171,4 +171,5 @@ def raw_generate(
             text = gen_texts[0],
             tokens = gen_tokens[0],
             seq = gen_seqs[0],
+            prompt_ids = prompt_tensors.input_ids.tolist()[0]
         )

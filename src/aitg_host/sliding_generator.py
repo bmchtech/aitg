@@ -59,11 +59,12 @@ class SlidingGenerator(BaseGenerator):
         gen_txt = output.text
         gen_toks = output.tokens
 
+        num_new_toks = len(gen_toks) - len(output.prompt_ids)
+
         # add the input+output sequence from the model
         # exclude context tokens (because they already are included)
         self.token_log.extend(gen_toks[len(context_toks) :])
         # count how many new toks were added (to see if we're at the end)
-        num_new_toks = len(gen_toks) - len(prompt_tokens)
         return gen_txt, gen_toks, num_new_toks
 
     def generate_rounds(
