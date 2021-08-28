@@ -17,10 +17,12 @@ wget https://github.com/xdrie/aitextgen_host/releases/download/v1.5.2/PT_GPTNEO1
 7z x /tmp/PT_GPTNEO125_ATG.7z -o/tmp
 ```
 
-run the container:
+run the container, cli:
 ```sh
 docker run -it --rm -v /tmp/PT_GPTNEO125_ATG:/app/model xdrie/aitg_host:v1.6.0 aitg_host.cli
 ```
+
+in the command line, press Ctrl+D (or whatever your eof key is) to submit a prompt.
 
 ## run from source
 
