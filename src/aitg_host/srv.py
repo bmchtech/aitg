@@ -99,6 +99,7 @@ def gen_route():
     opt_top_k: int = get_req_opt(req_json, "top_k", 0)
     opt_repetition_penalty: float = get_req_opt(req_json, "repetition_penalty", 1.0)
     opt_length_penalty: float = get_req_opt(req_json, "length_penalty", 1.0)
+    opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
     opt_no_repeat_ngram_size: int = get_req_opt(req_json, "no_repeat_ngram_size", 0)
     # lv2 params
     opt_flex_max_length: int = get_req_opt(req_json, "flex_max_length", 0)
@@ -133,7 +134,6 @@ def gen_route():
         # standard generate
         gen_txt, gen_toks, num_new = GENERATOR.generate(
             prompt=prompt,
-            fresh=True,
             temperature=opt_temp,
             max_length=opt_max_length,
             min_length=opt_min_length,
@@ -142,6 +142,7 @@ def gen_route():
             top_k=opt_top_k,
             repetition_penalty=opt_repetition_penalty,
             length_penalty=opt_length_penalty,
+            max_time=opt_max_time,
             no_repeat_ngram_size=opt_no_repeat_ngram_size,
         )
 
