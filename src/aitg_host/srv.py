@@ -48,6 +48,9 @@ def pack_bundle(bundle, ext):
     elif ext == 'mp':
         response.headers["Content-Type"] = "application/x-msgpack"
         return msgpack.dumps(bundle)
+    elif ext == 'mpz':
+        response.headers["Content-Type"] = "application/octet-stream"
+        return msgpack.dumps(bundle)
     else: # default
         return None
 
