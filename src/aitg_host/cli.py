@@ -55,7 +55,7 @@ def cli(
         + Fore.RESET
         + f"[dbg] finished loading in: {time.time() - start:.2f}s"
     )
-    print(Style.DIM + Fore.RESET + f"[dbg] model: {ai.model_name}")
+    print(Style.DIM + Fore.RESET + f"[dbg] model: {ai.model_name} ({ai.model_type})")
 
     # prompt
     slidegen = SlidingGenerator(ai)

@@ -319,7 +319,7 @@ def prepare_model(load_model_func):
     logger.info("loading model...")
     ai = load_model_func(MODEL_DIR)
     logger.info(f"finished loading in: {time.time() - start:.2f}s")
-    logger.info(f"model: {ai.model_name}")
+    logger.info(f"model: {ai.model_name} ({ai.model_type})")
 
     return ai
 

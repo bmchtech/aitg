@@ -21,11 +21,9 @@ def load_common_ext(ai, load_path):
     # try to load model name
     with open(os.path.join(load_path, "config.json")) as cfg_f:
         cfg_data = json.load(cfg_f)
-        if "model_friendly_id" in cfg_data:
-            ai.model_name = cfg_data["model_friendly_id"]
-        else:
-            # use the dirname as fallback
-            ai.model_name = os.path.basename(load_path)
+        # try getting friendly id, use the dirname as fallback
+        ai.model_name = cfg_data.get("model_friendly_id", os.path.basename(load_path))
+        ai.model_type = cfg_data.get("model_type", "unknown")
 
     ai.filter_text = lambda x: x  # default
     # try loading filter
