@@ -10,7 +10,7 @@ import msgpack
 import lz4.frame
 
 from aitg_host import __version__
-from aitg_host.textgen.summarizer import Summarizer
+from aitg_host.textgen.summarizer import SummaryGenerator
 
 MODEL_DIR = os.environ["MODEL"]
 API_KEY = os.environ["KEY"]
@@ -215,15 +215,15 @@ def gen_route(ext):
         abort(400, f"generation failed")
 
 
-def prepare_model(optimize: bool):
+def prepare_model():
     start = time.time()
-    logger.info(f"initializing[{get_compute_device()}]...")
-    from aitg_host.model import load_gpt_model
+    logger.info(f"initializing[{get_compute_device()[1]}]...")
+    from aitg_host.model import load_bart_summarizer_model
 
     logger.info(f"init in: {time.time() - start:.2f}s")
     start = time.time()
     logger.info("loading model...")
-    ai = load_gpt_model(MODEL_DIR, optimize)
+    ai = load_bart_summarizer_model(MODEL_DIR)
     logger.info(f"finished loading in: {time.time() - start:.2f}s")
     logger.info(f"model: {ai.model_name}")
 
@@ -234,11 +234,10 @@ def server(
     host: str = "localhost",
     port: int = 6000,
     debug: bool = False,
-    optimize: bool = True,
 ):
     global AI_INSTANCE, GENERATOR
-    AI_INSTANCE = ai = prepare_model(optimize)
-    GENERATOR = SlidingGenerator(ai)
+    AI_INSTANCE = ai = prepare_model()
+    GENERATOR = SummaryGenerator(ai)
 
     logger.info(f"starting server on {host}:{port}")
     run(host=host, port=port, debug=debug)

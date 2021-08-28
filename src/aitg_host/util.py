@@ -22,7 +22,7 @@ def toks_to_str(ai, toks):
 def get_compute_device():
     if torch.cuda.is_available():
         device = torch.device("cuda:0")
-        return "gpu"
+        return device, "gpu"
     else:
         device = torch.device("cpu")
-        return "cpu"
+        return device, "cpu"
