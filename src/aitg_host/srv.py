@@ -15,7 +15,7 @@ from aitg_host import __version__
 # generators
 import aitg_host.model
 from aitg_host.textgen.sliding_generator import SlidingGenerator
-from aitg_host.textgen.summarizer import SummaryGenerator
+from aitg_host.textgen.summarizer import SummarizerAI, SummaryGenerator
 
 MODEL_TYPE = None
 MODEL_DIR = os.environ["MODEL"]
@@ -223,6 +223,7 @@ def gen_route(ext):
 
         return pack_bundle(resp_bundle, ext)
     except Exception as ex:
+        raise ex
         logger.error(f"error generating: {ex}")
         abort(400, f"generation failed")
 
@@ -333,10 +334,13 @@ def server(
 
     # select model type
     load_func = None
+    generator_func = lambda ai: None
     if model_type == "gpt":
         load_func = aitg_host.model.load_gpt_model
+        generator_func = lambda ai: SlidingGenerator(ai)
     elif model_type == "bart_summarizer":
         load_func = aitg_host.model.load_bart_summarizer_model
+        generator_func = lambda ai: SummaryGenerator(ai)
     else:
         # unknown
         raise Exception(f"unknown model_type: {model_type}")
@@ -344,7 +348,7 @@ def server(
     global AI_INSTANCE, GENERATOR, MODEL_TYPE
     MODEL_TYPE = model_type
     AI_INSTANCE = ai = prepare_model(load_func)
-    GENERATOR = SummaryGenerator(ai)
+    GENERATOR = generator_func(ai)
 
     logger.info(f"starting server on {host}:{port}")
     run(host=host, port=port, debug=debug)

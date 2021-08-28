@@ -10,7 +10,7 @@ def import_pymodule(module_name, module_path):
     spec.loader.exec_module(loaded_module)
     return loaded_module
 
-def load_gpt_model(load_path, optimize):
+def load_gpt_model(load_path):
     ai = None
     use_gpu = get_compute_device()[1] == "gpu"
     # check if path is remote
@@ -47,10 +47,6 @@ def load_gpt_model(load_path, optimize):
             filter_module = import_pymodule('aitg_model.filter', filter_module_path)
             # print(filter_module.filter_text)
             ai.filter_text = filter_module.filter_text
-
-    # if optimize:
-    #     # optimize
-    #     ai.quantize()
 
     return ai
 
