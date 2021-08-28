@@ -1,3 +1,5 @@
+import re
+
 class BaseGenerator:
     def __init__(self, ai):
         self.ai = ai
@@ -19,3 +21,7 @@ class BaseGenerator:
 
     def toks_to_str(self, toks):
         return self.ai.tokenizer.convert_tokens_to_string(toks)
+
+    def lstrip_texts(self, texts):
+        # handle stripping tokenization spaces w/ regex
+        return [re.sub(r"^\s+", "", text) for text in texts]

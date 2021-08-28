@@ -64,9 +64,8 @@ class SummaryGenerator(BaseGenerator):
             for seq in output_seqs
         ]
 
-        # Handle stripping tokenization spaces w/ regex
         if lstrip:
-            output_texts = [re.sub(r"^\s+", "", text) for text in output_texts]
+            output_texts = self.lstrip_texts(output_texts)
 
         return SimpleNamespace(
             text=output_texts[0],
