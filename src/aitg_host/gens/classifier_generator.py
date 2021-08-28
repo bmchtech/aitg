@@ -23,10 +23,16 @@ class ClassifierGenerator(BaseGenerator):
     ):
         # encode
         premise = text
-        hypothesis = hypothesis_template.format(classes[0])
-        print('hypothesis', hypothesis)
+        # create text pairs
+        text_pairs = []
+        for class_ in classes:
+            hypothesis = hypothesis_template.format(class_)
+            text_pairs.append([text, hypothesis])
+
+        # create input tensors
+        print('classification in:', text_pairs[0])
         input_tensor = self.ai.tokenizer(
-            premise, hypothesis, return_tensors="pt", truncation_strategy="only_first"
+            text_pairs[0][0], text_pairs[0][1], return_tensors="pt", truncation_strategy="only_first"
         )
         input_ids = input_tensor.input_ids.to(self.ai.device)
 
