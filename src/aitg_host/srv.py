@@ -89,7 +89,8 @@ def gen_route():
     except KeyError as ke:
         abort(400, f"missing field {ke}")
 
-    # get params
+    # mode params
+    opt_include_probs: bool = get_req_opt(req_json, "include_probs", False)
     # option params
     opt_temp: float = get_req_opt(req_json, "temp", 0.9)
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
@@ -158,19 +159,26 @@ def gen_route():
 
         # success
         response.headers["Content-Type"] = "application/json"
-        return json.dumps(
-            {
-                "text": gen_txt,
-                "text_length": gen_txt_size,
-                "tokens": output.gen_toks,
-                "token_count": total_gen_num,
-                "num_new": output.num_new,
-                "num_total": total_gen_num,
-                "gen_time": generation_time,
-                "gen_tps": gen_tps,
-                "model": AI_INSTANCE.model_name,
-            }
-        )
+
+        # create base response bundle
+        resp_bundle = {
+            "text": gen_txt,
+            "text_length": gen_txt_size,
+            "tokens": output.gen_toks,
+            "token_count": total_gen_num,
+            "num_new": output.num_new,
+            "num_total": total_gen_num,
+            "gen_time": generation_time,
+            "gen_tps": gen_tps,
+            "model": AI_INSTANCE.model_name,
+        }
+
+        # add optional sections
+        if opt_include_probs:
+            resp_bundle["probs"] = output.probs
+
+        # return json
+        return json.dumps(resp_bundle)
     except Exception as ex:
         logger.error(f"error generating: {ex}")
         abort(400, f"generation failed")
