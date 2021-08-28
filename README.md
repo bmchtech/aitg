@@ -85,7 +85,7 @@ MODEL=/path/to/your_model KEY=secret poetry run aitg_host_srv
 
 then
 
-`GET /gen` with a JSON request body like the following:
+`GET /gen.json` with a JSON request body like the following:
 
 ```json
 {
@@ -102,6 +102,8 @@ then
     "no_repeat_ngram_size": 0,
 }
 ```
+
+that's the short version. see the [server docs](doc/server.md) for more details.
 
 ## docker usage
 
