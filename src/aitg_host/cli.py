@@ -133,9 +133,15 @@ def main():
 def download_model():
     def _download_model(model_id: str, path: str):
         model_id = model_id.replace("@", "")
-        from transformers import AutoModel
+        from transformers import AutoModel, AutoTokenizer
 
-        AutoModel.from_pretrained(model_id, cache_dir=path)
+        # grab both
+        model = AutoModel.from_pretrained(model_id)
+        tokenizer = AutoTokenizer.from_pretrained(model_id)
+
+        # save both
+        model.save_pretrained(save_directory=path)
+        tokenizer.save_pretrained(save_directory=path)
 
     typer.run(_download_model)
 
