@@ -107,13 +107,18 @@ def raw_generate(
         # manual decode the sequences
         gen_texts = []
         gen_tokens = []
+        gen_seq = []
         # since num_return_sequences=1, we KNOW there is only 1 sequence
         for seq in model_output.sequences:
-            decoded_sequence = ai.tokenizer.decode(
+            gen_seq.append(seq.tolist())
+
+            # convert whole sequence to string
+            decoded_sequence_text = ai.tokenizer.decode(
                 seq, skip_special_tokens=skip_special_tokens
             )
-            gen_texts.append(decoded_sequence)
+            gen_texts.append(decoded_sequence_text)
             # print(f'decoded: {seq} -> {decoded_sequence}')
+
             # convert token by token
             filtered_tokens = ai.tokenizer.convert_ids_to_tokens(
                 seq, skip_special_tokens=skip_special_tokens
@@ -152,9 +157,10 @@ def raw_generate(
         # print probability pairings
         print(f"probs: {len(probs_seq_0)}, toks: {num_new_tokens}")
         for i in range(num_new_tokens):
-            tok = gen_tokens[0][prompt_num_tokens + i]
-            prb = probs_seq_0[i]
-            print(f" prob[{i:03}]: {tok:<20} | {prb:}")
+            chosen_tok = gen_tokens[0][prompt_num_tokens + i]
+            tok_probs = probs_seq_0[i]
+            chosen_tok_prob = 3
+            print(f" prob[{i:03}]: {chosen_tok:<20} | {chosen_tok_prob:<20}")
 
         # Reset seed if used
         if seed:
