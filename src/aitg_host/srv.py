@@ -74,7 +74,7 @@ def info_route(ext):
     bundle = {
         "server": "aitg_host",
         "version": __version__,
-        "model": AI_INSTANCE.model_name
+        "model": AI_INSTANCE.model_name,
     }
 
     return pack_bundle(bundle, ext)
