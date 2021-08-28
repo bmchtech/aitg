@@ -323,6 +323,8 @@ def gen_bart_classifier_route(ext):
     # option params
     opt_text: float = get_req_opt(req_json, "text", None)
     opt_classes: float = get_req_opt(req_json, "classes", None)
+    opt_hypothesis_template: str = get_req_opt(req_json, "hypothesis_template", "This example is {}.")
+    opt_multi_label: bool = get_req_opt(req_json, "multi_label", False)
 
     logger.debug(f"requesting classification for text: {opt_text}, classes: {opt_classes}")
 
@@ -336,12 +338,14 @@ def gen_bart_classifier_route(ext):
         # standard generate
         output = GENERATOR.generate(
             text=opt_text,
-            classes=opt_classes,
+            candidate_labels=opt_classes,
+            hypothesis_template=opt_hypothesis_template,
+            multi_label=opt_multi_label
         )
 
-        gen_results = output.results
+        gen_score_pairs = list(zip(output.labels, output.scores))
         num_classes = len(opt_classes)
-        logger.debug(f"model output: {gen_results}")
+        logger.debug(f"model output: {gen_score_pairs}")
         generation_time = time.time() - start
         logger.info(
             f"generated [{num_classes} cls] ({generation_time:.2f}s)"
@@ -351,7 +355,8 @@ def gen_bart_classifier_route(ext):
 
         # create base response bundle
         resp_bundle = {
-            "results": gen_results,
+            "labels": output.labels,
+            "scores": output.scores,
             "gen_time": generation_time,
             "model": AI_INSTANCE.model_name,
         }
