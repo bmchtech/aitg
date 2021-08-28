@@ -126,7 +126,7 @@ def gen_route(ext):
     opt_temp: float = get_req_opt(req_json, "temp", 0.9)
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
     opt_min_length: int = get_req_opt(req_json, "min_length", 0)
-    opt_seed: int = get_req_opt(req_json, "seed", None)
+    # opt_seed: int = get_req_opt(req_json, "seed", None)
     opt_top_p: float = get_req_opt(req_json, "top_p", 0.9)
     opt_top_k: int = get_req_opt(req_json, "top_k", 0)
     opt_repetition_penalty: float = get_req_opt(req_json, "repetition_penalty", 1.0)
@@ -169,7 +169,7 @@ def gen_route(ext):
             temperature=opt_temp,
             max_length=opt_max_length,
             min_length=opt_min_length,
-            seed=opt_seed,
+            # seed=opt_seed,
             top_p=opt_top_p,
             top_k=opt_top_k,
             repetition_penalty=opt_repetition_penalty,
@@ -211,6 +211,7 @@ def gen_route(ext):
 
         return pack_bundle(resp_bundle, ext)
     except Exception as ex:
+        raise ex
         logger.error(f"error generating: {ex}")
         abort(400, f"generation failed")
 
