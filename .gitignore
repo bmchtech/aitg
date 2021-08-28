@@ -1,6 +1,6 @@
 requirements.txt
-models
-model
+/models
+/model
 *.tgz
 .vscode
 
