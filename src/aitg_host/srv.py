@@ -323,13 +323,6 @@ def gen_bart_classifier_route(ext):
     # option params
     opt_text: float = get_req_opt(req_json, "text", None)
     opt_classes: float = get_req_opt(req_json, "classes", None)
-    opt_max_length: int = get_req_opt(req_json, "max_length", 256)
-    opt_min_length: int = get_req_opt(req_json, "min_length", 0)
-    opt_num_beams: int = get_req_opt(req_json, "num_beams", None)
-    opt_repetition_penalty: float = get_req_opt(req_json, "repetition_penalty", 1.0)
-    opt_length_penalty: float = get_req_opt(req_json, "length_penalty", 1.0)
-    opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
-    opt_no_repeat_ngram_size: int = get_req_opt(req_json, "no_repeat_ngram_size", 0)
 
     logger.debug(f"requesting classification for text: {opt_text}, classes: {opt_classes}")
 
@@ -344,45 +337,24 @@ def gen_bart_classifier_route(ext):
         output = GENERATOR.generate(
             text=opt_text,
             classes=opt_classes,
-            # max_length=opt_max_length,
-            # min_length=opt_min_length,
-            # num_beams=opt_num_beams,
-            # repetition_penalty=opt_repetition_penalty,
-            # length_penalty=opt_length_penalty,
-            # max_time=opt_max_time,
-            # no_repeat_ngram_size=opt_no_repeat_ngram_size,
         )
 
-        gen_txt = AI_INSTANCE.filter_text(output.text)
-        gen_txt_size = len(gen_txt)
-        prompt_token_count = len(output.prompt_ids)
-        logger.debug(f"model output: {gen_txt}")
+        gen_results = output.results
+        num_classes = len(opt_classes)
+        logger.debug(f"model output: {gen_results}")
         generation_time = time.time() - start
-        total_gen_num = len(output.tokens)
-        gen_tps = output.num_new / generation_time
         logger.info(
-            f"generated [{output.num_new}/{total_gen_num}] ({generation_time:.2f}s/{(gen_tps):.2f}tps)"
+            f"generated [{num_classes} cls] ({generation_time:.2f}s)"
         )
 
         # done generating, now return the results over http
 
         # create base response bundle
         resp_bundle = {
-            "text": gen_txt,
-            "text_length": gen_txt_size,
-            "prompt_token_count": prompt_token_count,
-            "tokens": output.tokens,
-            "token_count": total_gen_num,
-            "num_new": output.num_new,
-            "num_total": total_gen_num,
+            "results": gen_results,
             "gen_time": generation_time,
-            "gen_tps": gen_tps,
             "model": AI_INSTANCE.model_name,
         }
-
-        # add optional sections
-        if opt_include_probs:
-            resp_bundle["probs"] = output.probs
 
         return pack_bundle(resp_bundle, ext)
     except Exception as ex:
