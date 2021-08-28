@@ -123,18 +123,13 @@ def gen_route(ext):
     opt_include_probs: bool = get_req_opt(req_json, "include_probs", False)
     # option params
     opt_prompt: float = get_req_opt(req_json, "prompt", "")
-    opt_temp: float = get_req_opt(req_json, "temp", 0.9)
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
     opt_min_length: int = get_req_opt(req_json, "min_length", 0)
-    # opt_seed: int = get_req_opt(req_json, "seed", None)
-    opt_top_p: float = get_req_opt(req_json, "top_p", 0.9)
-    opt_top_k: int = get_req_opt(req_json, "top_k", 0)
+    opt_num_beams: int = get_req_opt(req_json, "num_beams", None)
     opt_repetition_penalty: float = get_req_opt(req_json, "repetition_penalty", 1.0)
     opt_length_penalty: float = get_req_opt(req_json, "length_penalty", 1.0)
     opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
     opt_no_repeat_ngram_size: int = get_req_opt(req_json, "no_repeat_ngram_size", 0)
-    # lv2 params
-    opt_flex_max_length: int = get_req_opt(req_json, "flex_max_length", 0)
 
     logger.debug(f"requesting generation for prompt: {opt_prompt}")
 
@@ -147,31 +142,12 @@ def gen_route(ext):
         # prompt
         prompt_tokens = tokens = GENERATOR.str_to_toks(opt_prompt)
 
-        # apply lv2 params
-        if opt_flex_max_length > 0:
-            # we use chunked max length instead of the fixed value
-            # find out how many full buckets the prompt uses
-            prompt_num_buckets = len(prompt_tokens) // opt_flex_max_length
-            auto_max_length = (prompt_num_buckets + 1) * opt_flex_max_length
-
-            # ensure it's within the limit
-            if opt_max_length > 0:
-                max_length_limit = opt_max_length
-
-            if auto_max_length > max_length_limit:
-                opt_max_length = max_length_limit
-            else:
-                opt_max_length = auto_max_length
-
         # standard generate
         output = GENERATOR.generate(
             prompt=opt_prompt,
-            temperature=opt_temp,
             max_length=opt_max_length,
             min_length=opt_min_length,
-            # seed=opt_seed,
-            top_p=opt_top_p,
-            top_k=opt_top_k,
+            num_beams=opt_num_beams,
             repetition_penalty=opt_repetition_penalty,
             length_penalty=opt_length_penalty,
             max_time=opt_max_time,

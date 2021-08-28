@@ -30,7 +30,6 @@ class SummaryGenerator(BaseGenerator):
         prompt: str = "",
         min_length: int = None,
         max_length: int = 256,
-        temperature: float = 0.7,
         **kwargs
     ):
         # encode
@@ -44,7 +43,6 @@ class SummaryGenerator(BaseGenerator):
             input_ids,
             min_length=min_length,
             max_length=max_length,
-            temperature=temperature,
             **kwargs,
         )
 
