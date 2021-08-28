@@ -15,13 +15,17 @@ API_KEY = os.environ["KEY"]
 AI_INSTANCE = None
 GENERATOR = None
 
+def req_as_json(req):
+    try:
+        return request.json
+    except:
+        abort(400, f"invalid request json")
 
 def get_req_opt(req, name, default):
     if name in req:
         return req[name]
     else:
         return default
-
 
 def verify_key(req):
     # ensure req exists
@@ -39,7 +43,7 @@ def verify_key(req):
 
 @route("/info", method=["GET"])
 def info_route():
-    req_json = request.json
+    req_json = req_as_json(request)
     try:
         verify_key(req_json)
     except KeyError as ke:
@@ -52,7 +56,7 @@ def info_route():
 
 @route("/encode", method=["GET", "POST"])
 def encode_route():
-    req_json = request.json
+    req_json = req_as_json(request)
     try:
         verify_key(req_json)
         text = req_json["text"]
@@ -67,7 +71,7 @@ def encode_route():
 
 @route("/decode", method=["GET", "POST"])
 def decode_route():
-    req_json = request.json
+    req_json = req_as_json(request)
     try:
         verify_key(req_json)
         tokens = req_json["tokens"]
@@ -82,7 +86,7 @@ def decode_route():
 
 @route("/gen", method=["GET", "POST"])
 def gen_route():
-    req_json = request.json
+    req_json = req_as_json(request)
     try:
         verify_key(req_json)
         prompt = req_json["prompt"]
