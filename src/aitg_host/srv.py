@@ -7,6 +7,7 @@ from bottle import run, route, request, response, abort
 from loguru import logger
 import json
 import msgpack
+import lz4.frame
 
 from aitg_host.textgen.sliding_generator import SlidingGenerator
 
@@ -50,7 +51,7 @@ def pack_bundle(bundle, ext):
         return msgpack.dumps(bundle)
     elif ext == 'mpz':
         response.headers["Content-Type"] = "application/octet-stream"
-        return msgpack.dumps(bundle)
+        return lz4.frame.compress(msgpack.dumps(bundle))
     else: # default
         return None
 
