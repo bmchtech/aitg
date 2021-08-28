@@ -1,7 +1,7 @@
 import time
 import os
-from aitg_host.textgen.summarizer import Summarizer
 from aitg_host.util import get_compute_device
+
 import typer
 
 from bottle import run, route, request, response, abort
@@ -11,8 +11,13 @@ import msgpack
 import lz4.frame
 
 from aitg_host import __version__
-from aitg_host.textgen.sliding_generator import SlidingGenerator
 
+# generators
+import aitg_host.model
+from aitg_host.textgen.sliding_generator import SlidingGenerator
+from aitg_host.textgen.summarizer import SummaryGenerator
+
+MODEL_TYPE = None
 MODEL_DIR = os.environ["MODEL"]
 API_KEY = os.environ["KEY"]
 
@@ -60,6 +65,11 @@ def pack_bundle(bundle, ext):
         return lz4.frame.compress(msgpack.dumps(bundle))
     else:  # default
         return None
+
+def ensure_model_type(model_type):
+    global MODEL_TYPE
+    if MODEL_TYPE != model_type:
+        raise Exception(f'model type mismatch! expected {model_type}, but got {MODEL_TYPE}')
 
 
 @route("/info.<ext>", method=["GET"])
@@ -111,7 +121,7 @@ def decode_route(ext):
     return pack_bundle({"text": text}, ext)
 
 
-@route("/gen.<ext>", method=["GET", "POST"])
+@route("/gen_gpt.<ext>", method=["GET", "POST"])
 def gen_route(ext):
     req_json = req_as_json(request)
     try:
@@ -143,7 +153,8 @@ def gen_route(ext):
     try:
         start = time.time()
 
-        global AI_INSTANCE, GENERATOR
+        global AI_INSTANCE, GENERATOR, MODEL_TYPE
+        ensure_model_type('gpt')
 
         # prompt
         prompt_tokens = tokens = GENERATOR.str_to_toks(opt_prompt)
@@ -216,15 +227,93 @@ def gen_route(ext):
         abort(400, f"generation failed")
 
 
-def prepare_model(optimize: bool):
-    start = time.time()
-    logger.info(f"initializing[{get_compute_device()}]...")
-    from aitg_host.model import load_gpt_model
+@route("/gen_bart_summarizer.<ext>", method=["GET", "POST"])
+def gen_route(ext):
+    req_json = req_as_json(request)
+    try:
+        verify_key(req_json)
+        _ = req_json["prompt"]
+    except KeyError as ke:
+        abort(400, f"missing field {ke}")
 
-    logger.info(f"init in: {time.time() - start:.2f}s")
+    # mode params
+    opt_include_probs: bool = get_req_opt(req_json, "include_probs", False)
+    # option params
+    opt_prompt: float = get_req_opt(req_json, "prompt", "")
+    opt_max_length: int = get_req_opt(req_json, "max_length", 256)
+    opt_min_length: int = get_req_opt(req_json, "min_length", 0)
+    opt_num_beams: int = get_req_opt(req_json, "num_beams", None)
+    opt_repetition_penalty: float = get_req_opt(req_json, "repetition_penalty", 1.0)
+    opt_length_penalty: float = get_req_opt(req_json, "length_penalty", 1.0)
+    opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
+    opt_no_repeat_ngram_size: int = get_req_opt(req_json, "no_repeat_ngram_size", 0)
+
+    logger.debug(f"requesting generation for prompt: {opt_prompt}")
+
+    # generate
+    try:
+        start = time.time()
+
+        global AI_INSTANCE, GENERATOR, MODEL_TYPE
+        ensure_model_type('bart_summarizer')
+
+        # prompt
+        prompt_tokens = tokens = GENERATOR.str_to_toks(opt_prompt)
+
+        # standard generate
+        output = GENERATOR.generate(
+            prompt=opt_prompt,
+            max_length=opt_max_length,
+            min_length=opt_min_length,
+            num_beams=opt_num_beams,
+            repetition_penalty=opt_repetition_penalty,
+            length_penalty=opt_length_penalty,
+            max_time=opt_max_time,
+            no_repeat_ngram_size=opt_no_repeat_ngram_size,
+        )
+
+        gen_txt = AI_INSTANCE.filter_text(output.text)
+        gen_txt_size = len(gen_txt)
+        prompt_token_count = len(output.prompt_ids)
+        logger.debug(f"model output: {gen_txt}")
+        generation_time = time.time() - start
+        total_gen_num = len(output.tokens)
+        gen_tps = output.num_new / generation_time
+        logger.info(
+            f"generated [{output.num_new}/{total_gen_num}] ({generation_time:.2f}s/{(gen_tps):.2f}tps)"
+        )
+
+        # done generating, now return the results over http
+
+        # create base response bundle
+        resp_bundle = {
+            "text": gen_txt,
+            "text_length": gen_txt_size,
+            "prompt_token_count": prompt_token_count,
+            "tokens": output.tokens,
+            "token_count": total_gen_num,
+            "num_new": output.num_new,
+            "num_total": total_gen_num,
+            "gen_time": generation_time,
+            "gen_tps": gen_tps,
+            "model": AI_INSTANCE.model_name,
+        }
+
+        # add optional sections
+        if opt_include_probs:
+            resp_bundle["probs"] = output.probs
+
+        return pack_bundle(resp_bundle, ext)
+    except Exception as ex:
+        raise ex
+        logger.error(f"error generating: {ex}")
+        abort(400, f"generation failed")
+
+
+def prepare_model(load_model_func):
     start = time.time()
     logger.info("loading model...")
-    ai = load_gpt_model(MODEL_DIR, optimize)
+    ai = load_model_func(MODEL_DIR)
     logger.info(f"finished loading in: {time.time() - start:.2f}s")
     logger.info(f"model: {ai.model_name}")
 
@@ -232,14 +321,30 @@ def prepare_model(optimize: bool):
 
 
 def server(
+    model_type: str,
     host: str = "localhost",
     port: int = 6000,
     debug: bool = False,
-    optimize: bool = True,
 ):
-    global AI_INSTANCE, GENERATOR
-    AI_INSTANCE = ai = prepare_model(optimize)
-    GENERATOR = Summarizer()
+    # first init
+    start = time.time()
+    logger.info(f"initializing[{get_compute_device()[1]}]...")
+    logger.info(f"init in: {time.time() - start:.2f}s")
+
+    # select model type
+    load_func = None
+    if model_type == "gpt":
+        load_func = aitg_host.model.load_gpt_model
+    elif model_type == "bart_summarizer":
+        load_func = aitg_host.model.load_bart_summarizer_model
+    else:
+        # unknown
+        raise Exception(f"unknown model_type: {model_type}")
+
+    global AI_INSTANCE, GENERATOR, MODEL_TYPE
+    MODEL_TYPE = model_type
+    AI_INSTANCE = ai = prepare_model(load_func)
+    GENERATOR = SummaryGenerator(ai)
 
     logger.info(f"starting server on {host}:{port}")
     run(host=host, port=port, debug=debug)
