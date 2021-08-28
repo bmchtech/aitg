@@ -9,6 +9,11 @@ def import_pymodule(module_name, module_path):
     spec.loader.exec_module(loaded_module)
     return loaded_module
 
+def ensure_model_dir(load_path):
+    # this is a LOCAL model path
+    if not os.path.isdir(load_path):
+        raise OSError(f'model path is not a valid directory: {load_path}')
+
 def load_common_ext(ai, load_path):
     # try to load model name
     with open(os.path.join(load_path, 'config.json')) as cfg_f:
@@ -33,24 +38,13 @@ def load_gpt_model(load_path):
 
     ai = None
     use_gpu = get_compute_device()[1] == "gpu"
-    # check if path is remote
-    if load_path.startswith('@'):
-        # this is a HUGGINGFACE model path (download from repo)
-        load_path = load_path[1:]
 
-        # load model
-        ai = aitextgen(model=load_path, to_gpu=use_gpu)
-        ai.filter_text = lambda x: x # default
-        ai.model_name = load_path.replace('/', '_')
-    else:
-        # this is a LOCAL model path
-        if not os.path.isdir(load_path):
-            raise OSError(f'model path is not a valid directory: {load_path}')
+    ensure_model_dir(load_path)
 
-        # load model
-        ai = aitextgen(model_folder=load_path, to_gpu=use_gpu)
+    # load model
+    ai = aitextgen(model_folder=load_path, to_gpu=use_gpu)
 
-        load_common_ext(ai, load_path)
+    load_common_ext(ai, load_path)
 
     return ai
 
@@ -59,10 +53,8 @@ def load_bart_summarizer_model(load_path):
 
     ai = None
     device, device_type = get_compute_device()
-    
-    # this is a LOCAL model path
-    if not os.path.isdir(load_path):
-        raise OSError(f'model path is not a valid directory: {load_path}')
+
+    ensure_model_dir(load_path)
 
     # load model
     ai = SummarizerAI(model_folder=load_path, to_device=device)
