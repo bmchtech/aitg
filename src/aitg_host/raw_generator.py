@@ -132,31 +132,30 @@ def raw_generate(
         if len(gen_texts) == 0:
             continue
 
-        # # now process the scores
-        # # based on https://discuss.huggingface.co/t/generation-probabilities-how-to-compute-probabilities-of-output-scores-for-gpt2/3175
-        # proc_gen_sequences = model_output.sequences[
-        #     :, prompt_tensors.input_ids.shape[-1] :
-        # ]
-        # # let's stack the logits generated at each step to a tensor and transform
-        # probs = torch.stack(model_output.scores, dim=1).softmax(
-        #     -1
-        # )  # logits to softmax probs
-        # # handle empty prompts, which really are bos_token under the hood
-        # if prompt_num_tokens == 0:
-        #     # we need padding for our probs
-        #     # pad axis 1, for bos, to make the token count match the sequence
-        #     probs = F.pad(probs, pad=(0, 0, 0, 1), value=0)
-        # print("probs", np.asarray(probs).shape, probs)
-        # # now we need to collect the probability of the generated tokens, adding a dummy dim
-        # gen_probs = torch.gather(probs, 2, proc_gen_sequences[:, :, None]).squeeze(-1)
-        # print("gen_probs", np.asarray(gen_probs).shape, gen_probs)
+        # now process the scores
+        # based on https://discuss.huggingface.co/t/generation-probabilities-how-to-compute-probabilities-of-output-scores-for-gpt2/3175
+        proc_gen_sequences = model_output.sequences[:, prompt_tensors.input_ids.shape[-1]:]
+        # let's stack the logits generated at each step to a tensor
+        stacked_scores = torch.stack(model_output.scores, dim=1)
+        # print('stacked_scores', stacked_scores.size(), stacked_scores)
+        # transform logits to softmax probs
+        probs = stacked_scores.softmax(-1)
+        # handle empty prompts, which really are bos_token under the hood
+        if prompt_num_tokens == 0:
+            # we need padding for our probs
+            # pad axis 1, for bos, to make the token count match the sequence
+            probs = F.pad(probs, pad=(0, 0, 0, 1), value=0)
+        print("probs", probs.size(), probs)
+        # now we need to collect the probability of the generated tokens, adding a dummy dim
+        gen_probs = torch.gather(probs, 2, proc_gen_sequences[:, :, None]).squeeze(-1)
+        print("gen_probs", np.asarray(gen_probs).shape, gen_probs)
 
-        # # print probability pairings
-        # print(f"probs: {len(gen_probs[0])}, toks: {num_new_tokens}")
-        # for i in range(num_new_tokens):
-        #     tok = gen_tokens[0][prompt_num_tokens + i]
-        #     prb = gen_probs[0][i]
-        #     print(f" prob[{i:03}]: {tok:<20} | {prb:<20}")
+        # print probability pairings
+        print(f"probs: {len(gen_probs[0])}, toks: {num_new_tokens}")
+        for i in range(num_new_tokens):
+            tok = gen_tokens[0][prompt_num_tokens + i]
+            prb = gen_probs[0][i]
+            print(f" prob[{i:03}]: {tok:<20} | {prb:<20}")
 
         # Reset seed if used
         if seed:
