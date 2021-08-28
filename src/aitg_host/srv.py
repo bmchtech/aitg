@@ -9,6 +9,7 @@ import json
 import msgpack
 import lz4.frame
 
+from aitg_host import __version__
 from aitg_host.textgen.sliding_generator import SlidingGenerator
 
 MODEL_DIR = os.environ["MODEL"]
@@ -70,7 +71,13 @@ def info_route(ext):
 
     global AI_INSTANCE
 
-    return pack_bundle({"model": AI_INSTANCE.model_name}, ext)
+    bundle = {
+        "server": "aitg_host",
+        "version": __version__,
+        "model": AI_INSTANCE.model_name
+    }
+
+    return pack_bundle(bundle, ext)
 
 
 @route("/encode.<ext>", method=["GET", "POST"])
