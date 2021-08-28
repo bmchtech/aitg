@@ -25,10 +25,9 @@ class SummaryGenerator(BaseGenerator):
     def __init__(self, ai):
         super().__init__(ai)
 
-    def str_to_ids(self, ai, text):
+    def str_to_ids(self, text):
         # custom tokenizer invocation (because of max length)
-        print('KUSTOM')
-        return self.ai.tokenizer(text=text, return_tensors="pt", max_length=1024, truncation=True).input_ids
+        return self.ai.tokenizer(text=text, max_length=1024, truncation=True).input_ids
 
     def generate(
         self,

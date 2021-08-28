@@ -1,20 +1,21 @@
-from aitg_host.util import count_tokens, str_to_ids, ids_to_toks, str_to_toks, toks_to_str
-
 class BaseGenerator:
     def __init__(self, ai):
         self.ai = ai
 
     def count_tokens(self, text):
-        return count_tokens(self.ai, text)
+        return len(self.str_to_ids(text))
 
     def str_to_ids(self, text):
-        return str_to_ids(self.ai, text)
+        return self.ai.tokenizer(text=text).input_ids
 
     def ids_to_toks(self, ids, skip_special_tokens=True):
-        return ids_to_toks(self.ai, ids, skip_special_tokens=skip_special_tokens)
+        return self.ai.tokenizer.convert_ids_to_tokens(
+            ids, skip_special_tokens=skip_special_tokens
+        )
 
     def str_to_toks(self, text):
-        return str_to_toks(self.ai, text)
+        ids = self.str_to_ids(text)
+        return self.ids_to_toks(ids)
 
     def toks_to_str(self, toks):
-        return toks_to_str(self.ai, toks)
+        return self.ai.tokenizer.convert_tokens_to_string(toks)
