@@ -86,12 +86,12 @@ Options:
 run the server with:
 
 ```sh
-MODEL=/path/to/your_model KEY=secret poetry run aitg_host_srv
+MODEL=/path/to/your_model KEY=secret poetry run aitg_host_srv gpt
 ```
 
 then
 
-`GET /gen.json` with a JSON request body like the following:
+`GET /gen_gpt.json` with a JSON request body like the following:
 
 ```json
 {
