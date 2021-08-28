@@ -53,7 +53,7 @@ def load_gpt_model(load_path):
 
 
 def load_bart_summarizer_model(load_path):
-    from aitg_host.textgen.summarizer import SummarizerAI
+    from aitg_host.models.bart_summarizer import BartSummarizerAI
 
     ai = None
     device, device_type = get_compute_device()
@@ -61,7 +61,7 @@ def load_bart_summarizer_model(load_path):
     ensure_model_dir(load_path)
 
     # load model
-    ai = SummarizerAI(model_folder=load_path, to_device=device)
+    ai = BartSummarizerAI(model_folder=load_path, to_device=device)
 
     load_common_ext(ai, load_path)
 

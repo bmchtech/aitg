@@ -14,8 +14,8 @@ from aitg_host import __version__
 
 # generators
 import aitg_host.model
-from aitg_host.textgen.sliding_generator import SlidingGenerator
-from aitg_host.textgen.summarizer import SummarizerAI, SummaryGenerator
+from aitg_host.gens.sliding_generator import SlidingGenerator
+from aitg_host.gens.summary_generator import SummaryGenerator
 
 MODEL_TYPE = None
 MODEL_DIR = os.environ["MODEL"]

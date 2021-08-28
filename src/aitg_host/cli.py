@@ -41,7 +41,7 @@ def cli(
     # imports here, because they're slow
     from aitg_host.model import load_gpt_model
     from aitg_host.util import multiline_in, get_compute_device
-    from aitg_host.textgen.sliding_generator import SlidingGenerator
+    from aitg_host.gens.sliding_generator import SlidingGenerator
 
     print(f"[{get_compute_device()[1]}]...")
 
