@@ -1,15 +1,24 @@
 import time
 import os
-from aitg_host.util import multiline_in, get_compute_device
+from typing import Optional
 from math import floor
 import typer
 import colorama
 from colorama import Fore, Back, Style
-from aitg_host.textgen.sliding_generator import SlidingGenerator
+from aitg_host import __version__
 
 MODEL_DIR = os.environ["MODEL"]
 
+
+def version_callback(value: bool):
+    if value:
+        typer.echo(f"{__version__}")
+        raise typer.Exit()
+
 def cli(
+    version: Optional[bool] = typer.Option(
+        None, "-v", "--version", callback=version_callback, is_eager=True
+    ),
     temp: float = 0.9,
     max_length: int = 256,
     min_length: int = 0,
@@ -27,8 +36,14 @@ def cli(
     colorama.init()
 
     start = time.time()
-    print(Style.NORMAL + Fore.CYAN + f"initializing[{get_compute_device()}]...")
+    print(Style.NORMAL + Fore.CYAN + f"initializing", end='')
+
+    # imports here, because they're slow
     from aitg_host.model import load_model
+    from aitg_host.util import multiline_in, get_compute_device
+    from aitg_host.textgen.sliding_generator import SlidingGenerator
+
+    print(f"[{get_compute_device()}]...")
 
     print(Style.DIM + Fore.RESET + f"[dbg] init in: {time.time() - start:.2f}s")
 
@@ -93,7 +108,9 @@ def cli(
         )
         # print(Style.NORMAL + Fore.MAGENTA + f"{output.tokens}")
         if is_fresh:
-            print(Style.NORMAL + Fore.MAGENTA + f"{ai.filter_text(output.text)}", end="")
+            print(
+                Style.NORMAL + Fore.MAGENTA + f"{ai.filter_text(output.text)}", end=""
+            )
         else:
             print(
                 Style.NORMAL
