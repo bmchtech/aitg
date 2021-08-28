@@ -168,7 +168,7 @@ def gen_route():
         resp_bundle = {
             "text": gen_txt,
             "text_length": gen_txt_size,
-            "tokens": output.gen_toks,
+            "tokens": output.tokens,
             "token_count": total_gen_num,
             "num_new": output.num_new,
             "num_total": total_gen_num,
