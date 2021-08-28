@@ -1,9 +1,9 @@
-# based on https://github.com/python-poetry/poetry/issues/1879#issuecomment-592133519
+# based on https://github.com/python-poetry/poetry/discussions/1879#discussioncomment-216865
 
 # `python-base` sets up all our shared environment variables
-FROM python:3.9.1-slim as python-base
+FROM python:3.9-slim as python-base
 
-    # python
+# set our variables for python tools
 ENV PYTHONUNBUFFERED=1 \
     # prevents python creating .pyc files
     PYTHONDONTWRITEBYTECODE=1 \
@@ -29,7 +29,6 @@ ENV PYTHONUNBUFFERED=1 \
     PYSETUP_PATH="/opt/pysetup" \
     VENV_PATH="/opt/pysetup/.venv"
 
-
 # prepend poetry and venv to path
 ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 
@@ -49,9 +48,16 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
 WORKDIR $PYSETUP_PATH
 COPY poetry.lock pyproject.toml ./
 
+# freeze dependencies to a requirements.txt
+RUN poetry export --without-hashes -f requirements.txt > requirements.txt
+
+# workaround to use torch cpu
+RUN sed -i 's/torch==1.9.0/torch==1.9.0+cpu/g' requirements.txt \
+    && sed -i '/^torch==1.9.0.*/i -f https://download.pytorch.org/whl/torch_stable.html' requirements.txt
+
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
 # RUN poetry install --no-dev
-RUN poetry export -f requirements.txt > requirements.txt
+RUN poetry run pip install -r requirements.txt
 
 # `development` image is used during development / testing
 FROM python-base as development
@@ -59,7 +65,7 @@ ENV FASTAPI_ENV=development
 WORKDIR $PYSETUP_PATH
 
 # copy in our built poetry + venv
-COPY --from=builder-base $POETRY_HOME $POETRY_HOME
+# COPY --from=builder-base $POETRY_HOME $POETRY_HOME
 COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
 
 # quicker install as runtime deps are already installed

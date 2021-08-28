@@ -2,6 +2,7 @@ from aitextgen import aitextgen
 import os.path
 from aitg_host.util import get_compute_device
 import importlib.util
+import json
 
 def import_pymodule(module_name, module_path):
     spec = importlib.util.spec_from_file_location(module_name, module_path)
@@ -28,7 +29,15 @@ def load_model(load_path, optimize):
 
         # load model
         ai = aitextgen(model_folder=load_path, to_gpu=use_gpu)
-        ai.model_name = os.path.basename(load_path)
+
+        # try to load model name
+        with open(os.path.join(load_path, 'config.json')) as cfg_f:
+            cfg_data = json.load(cfg_f)
+            if 'model_friendly_id' in cfg_data:
+                ai.model_name = cfg_data['model_friendly_id']
+            else:
+                # use the dirname as fallback
+                ai.model_name = os.path.basename(load_path)
 
         ai.filter_text = lambda x: x # default
         # try loading filter

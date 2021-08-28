@@ -1,9 +1,26 @@
 
 # ai text generator host
 
-## setup
+host for running GPT-2/GPT-3 locally on the **command line** or as a **http server**
 
-### host
+## quickstart
+
+don't care about the details and just want to use GPT-2/GPT-3 super fast? this section is for you
+
+grab model (`gpt3-125m`, 171 MB):
+```sh
+wget https://github.com/xdrie/aitextgen_host/releases/download/v1.5.2/PT_GPTNEO125_ATG.7z -O /tmp/PT_GPTNEO125_ATG.7z
+7z x /tmp/PT_GPTNEO125_ATG.7z -o/tmp
+```
+
+run the container:
+```sh
+docker run -it --rm -v /tmp/PT_GPTNEO125_ATG:/app/model xdrie/aitg_host:v1.5.2 aitg_host.cli
+```
+
+## run from source
+
+### python project
 
 first, you need to install all the dependencies to run the gpt2 host (using the `aitextgen` library with the `pytorch` backend)
 
