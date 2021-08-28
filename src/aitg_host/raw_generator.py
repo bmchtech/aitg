@@ -127,8 +127,6 @@ def raw_generate(
             gen_tokens.append(filtered_tokens)
             # strred_tokens = ai.tokenizer.convert_tokens_to_string(filtered_tokens)
             # print(f'convtok: {filtered_tokens} -> {strred_tokens}')
-        
-        num_new_tokens = len(gen_tokens[0]) - prompt_num_tokens
 
         # Handle stripping tokenization spaces w/ regex
         if lstrip:
@@ -152,15 +150,16 @@ def raw_generate(
         
         # print("probs", probs.size(), probs)
 
-        # print probability pairings
-        print(f"probs: {len(probs[0])}, toks: {num_new_tokens}")
-        for step_ix in range(num_new_tokens):
-            tok_ix = prompt_num_tokens + step_ix # token index
-            chosen_tok = gen_tokens[0][tok_ix] # chosen token str
-            chosen_tok_id = gen_seqs[0][tok_ix] # chosen token id
-            step_probs = probs[0, step_ix, :] # list of probs at this step
-            chosen_tok_prob = step_probs[chosen_tok_id] # prob of chosen token
-            print(f" prob[{step_ix:03}]: {chosen_tok:<20} | {chosen_tok_prob:<20}")
+        # # print probability pairings
+        # num_new_tokens = len(gen_tokens[0]) - prompt_num_tokens
+        # print(f"probs: {len(probs[0])}, toks: {num_new_tokens}")
+        # for step_ix in range(num_new_tokens):
+        #     tok_ix = prompt_num_tokens + step_ix # token index
+        #     chosen_tok = gen_tokens[0][tok_ix] # chosen token str
+        #     chosen_tok_id = gen_seqs[0][tok_ix] # chosen token id
+        #     step_probs = probs[0, step_ix, :] # list of probs at this step
+        #     chosen_tok_prob = step_probs[chosen_tok_id] # prob of chosen token
+        #     print(f" prob[{step_ix:03}]: {chosen_tok:<20} | {chosen_tok_prob:<20}")
 
         # Reset seed if used
         if seed:
