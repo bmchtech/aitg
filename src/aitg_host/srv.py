@@ -243,7 +243,6 @@ def gen_bart_summarizer_route(ext):
         abort(400, f"missing field {ke}")
 
     # mode params
-    opt_include_probs: bool = get_req_opt(req_json, "include_probs", False)
     # option params
     opt_prompt: float = get_req_opt(req_json, "prompt", "")
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
@@ -262,9 +261,6 @@ def gen_bart_summarizer_route(ext):
 
         global AI_INSTANCE, GENERATOR, MODEL_TYPE
         ensure_model_type("bart_summarizer")
-
-        # prompt
-        prompt_tokens = tokens = GENERATOR.str_to_toks(opt_prompt)
 
         # standard generate
         output = GENERATOR.generate(
@@ -304,10 +300,6 @@ def gen_bart_summarizer_route(ext):
             "gen_tps": gen_tps,
             "model": AI_INSTANCE.model_name,
         }
-
-        # add optional sections
-        if opt_include_probs:
-            resp_bundle["probs"] = output.probs
 
         return pack_bundle(resp_bundle, ext)
     except Exception as ex:
