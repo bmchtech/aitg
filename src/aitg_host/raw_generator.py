@@ -59,7 +59,7 @@ def raw_generate(
     prompt_text = prompt
     prompt_tensors = ai.tokenizer(text=prompt, return_tensors="pt")
 
-    prompt_num_tokens = list(prompt_tensors.input_ids.shape)[1]
+    prompt_num_tokens = prompt_tensors.input_ids.size()[1]
     assert prompt_num_tokens < model_max_length(
         ai.model.config
     ), f"The prompt is too large for the model. ({prompt_num_tokens} tokens)"
@@ -108,10 +108,10 @@ def raw_generate(
         # manual decode the sequences
         gen_texts = []
         gen_tokens = []
-        gen_seq = []
+        gen_seqs = []
         # since num_return_sequences=1, we KNOW there is only 1 sequence
         for seq in model_output.sequences:
-            gen_seq.append(seq.tolist())
+            gen_seqs.append(seq.tolist()) # output sequence
 
             # convert whole sequence to string
             decoded_sequence_text = ai.tokenizer.decode(
@@ -157,7 +157,7 @@ def raw_generate(
         for step_ix in range(num_new_tokens):
             tok_ix = prompt_num_tokens + step_ix # token index
             chosen_tok = gen_tokens[0][tok_ix] # chosen token str
-            chosen_tok_id = gen_seq[0][tok_ix] # chosen token id
+            chosen_tok_id = gen_seqs[0][tok_ix] # chosen token id
             step_probs = probs[0, step_ix, :] # list of probs at this step
             chosen_tok_prob = step_probs[chosen_tok_id] # prob of chosen token
             print(f" prob[{step_ix:03}]: {chosen_tok:<20} | {chosen_tok_prob:<20}")
@@ -169,6 +169,6 @@ def raw_generate(
         # print('beep4')
         return SimpleNamespace(
             text = gen_texts[0],
-            tokens = gen_texts[0],
-            seq = gen_seq[0],
+            tokens = gen_tokens[0],
+            seq = gen_seqs[0],
         )
