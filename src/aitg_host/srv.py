@@ -40,9 +40,15 @@ def verify_key(req):
     if req_key != API_KEY:
         abort(401)
 
+def return_bundle(bundle, ext):
+    if ext == 'json':
+        response.headers["Content-Type"] = "application/json"
+        return json.dumps(bundle)
+    else: # default
+        return
 
-@route("/info", method=["GET"])
-def info_route():
+@route("/info.<ext>", method=["GET"])
+def info_route(ext):
     req_json = req_as_json(request)
     try:
         verify_key(req_json)
@@ -51,8 +57,7 @@ def info_route():
 
     global AI_INSTANCE
 
-    return json.dumps({"model": AI_INSTANCE.model_name})
-
+    return return_bundle({"model": AI_INSTANCE.model_name}, ext)
 
 @route("/encode.<ext>", method=["GET", "POST"])
 def encode_route(ext):
@@ -66,17 +71,10 @@ def encode_route(ext):
     global GENERATOR
     tokens = GENERATOR.str_to_toks(text)
 
-    bundle = {"tokens": tokens}
+    return_bundle({"tokens": tokens}, ext)
 
-    if ext == 'json':
-        response.headers["Content-Type"] = "application/json"
-        return json.dumps(bundle)
-    else:
-        return
-
-
-@route("/decode", method=["GET", "POST"])
-def decode_route():
+@route("/decode.<ext>", method=["GET", "POST"])
+def decode_route(ext):
     req_json = req_as_json(request)
     try:
         verify_key(req_json)
@@ -87,7 +85,7 @@ def decode_route():
     global GENERATOR
     text = GENERATOR.toks_to_str(tokens)
 
-    return json.dumps({"text": text})
+    return_bundle({"text": text}, ext)
 
 @route("/gen.<ext>", method=["GET", "POST"])
 def gen_route(ext):
@@ -188,11 +186,7 @@ def gen_route(ext):
         if opt_include_probs:
             resp_bundle["probs"] = output.probs
 
-        if ext == 'json':
-            response.headers["Content-Type"] = "application/json"
-            return json.dumps(resp_bundle)
-        else:
-            return
+        return_bundle(resp_bundle. ext)
     except Exception as ex:
         logger.error(f"error generating: {ex}")
         abort(400, f"generation failed")
