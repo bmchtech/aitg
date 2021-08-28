@@ -157,7 +157,7 @@ def raw_generate(
             tok_ix = prompt_num_tokens + step_ix # token index
             chosen_tok = gen_tokens[0][tok_ix] # chosen token str
             chosen_tok_id = gen_seq[0][tok_ix] # chosen token id
-            step_probs = logits[0, step_ix, :] # list of probs at this step
+            step_probs = probs[0, step_ix, :] # list of probs at this step
             chosen_tok_prob = step_probs[chosen_tok_id] # prob of chosen token
             print(f" prob[{step_ix:03}]: {chosen_tok:<20} | {chosen_tok_prob:<20}")
 
