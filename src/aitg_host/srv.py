@@ -162,13 +162,13 @@ def gen_route():
             {
                 "text": gen_txt,
                 "text_length": gen_txt_size,
-                "text_tokens": output.gen_toks,
-                "text_token_count": total_gen_num,
-                "gen_new": output.num_new,
-                "gen_total": total_gen_num,
+                "tokens": output.gen_toks,
+                "token_count": total_gen_num,
+                "num_new": output.num_new,
+                "num_total": total_gen_num,
                 "gen_time": generation_time,
                 "gen_tps": gen_tps,
-                "provider": AI_INSTANCE.model_name,
+                "model": AI_INSTANCE.model_name,
             }
         )
     except Exception as ex:
