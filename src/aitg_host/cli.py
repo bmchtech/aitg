@@ -5,7 +5,7 @@ from math import floor
 import typer
 import colorama
 from colorama import Fore, Back, Style
-from aitg_host import __version__
+from aitg_host import __version__, ICON_ART
 
 
 def version_callback(value: bool):
@@ -13,10 +13,17 @@ def version_callback(value: bool):
         typer.echo(f"{__version__}")
         raise typer.Exit()
 
+def info_callback(value: bool):
+    if value:
+        print(ICON_ART, f'\n            AITG HOST v{__version__}')
+        raise typer.Exit()
 
 def cli(
     version: Optional[bool] = typer.Option(
         None, "-v", "--version", callback=version_callback, is_eager=True
+    ),
+    info: Optional[bool] = typer.Option(
+        None, "--info", callback=info_callback, is_eager=True
     ),
     temp: float = 0.9,
     max_length: int = 256,
