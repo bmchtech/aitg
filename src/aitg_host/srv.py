@@ -477,6 +477,7 @@ def gen_question_answer_route(ext):
         # create base response bundle
         resp_bundle = {
             "answers": gen_answers,
+            "scores": output.scores,
             "gen_time": generation_time,
             "model": AI_INSTANCE.model_name,
         }
