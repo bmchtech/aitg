@@ -31,9 +31,11 @@ class EmbedGenerator(BaseGenerator):
             texts, padding=True, truncation=True, return_tensors="pt"
         )
 
+        input_ids = input_tensors.input_ids.to(self.ai.device)
+
         # Compute token embeddings
         with torch.no_grad():
-            model_output = self.ai.model(**input_tensors)
+            model_output = self.ai.model(input_ids)
 
         # print('output:', model_output)
 
