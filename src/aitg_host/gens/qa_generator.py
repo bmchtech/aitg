@@ -13,7 +13,7 @@ class QuestionAnswerGenerator(BaseGenerator):
         # custom tokenizer invocation
         return self.ai.tokenizer(text=text, add_special_tokens=True).input_ids
 
-    def generate(self, text: str, questions: List[str], **kwargs):
+    def generate(self, text: str, questions: List[str], lstrip: bool = True, **kwargs):
         gen_answers = []
         gen_answer_probs = []
         for question in questions:
@@ -59,6 +59,9 @@ class QuestionAnswerGenerator(BaseGenerator):
             answer_probs = answer_start_prob_max * answer_end_prob_max
 
             # print('answer probs:', answer_probs)
+
+            if lstrip:
+                answer = self.lstrip_texts([answer])[0]
 
             gen_answers.append(answer)
             gen_answer_probs.append(answer_probs)
