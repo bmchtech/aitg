@@ -1,5 +1,6 @@
 import time
 import os
+import sys
 from typing import Optional
 from math import floor
 import typer
@@ -15,7 +16,17 @@ def version_callback(value: bool):
 
 def info_callback(value: bool):
     if value:
-        print(ICON_ART, f'\n            AITG HOST v{__version__}')
+        from aitg_host.util import get_compute_device
+        import torch
+        device_info = get_compute_device()
+        pad = '            '
+        banner = f'AITG HOST v{__version__}'
+        underline = len(banner) * '‾'
+        print(ICON_ART, f'\n{pad}{banner}')
+        print(f'{pad}{underline}')
+        print(f'{pad} ⊦ PLATFORM: {sys.platform}')
+        print(f'{pad} ⊦ DEVICE: {device_info[0]}')
+        print(f'{pad}   ⊦ MEMORY: {device_info[2]:.2f} GB')
         raise typer.Exit()
 
 def cli(
