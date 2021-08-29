@@ -18,6 +18,7 @@ import aitg_host.model
 from aitg_host.gens.sliding_generator import SlidingGenerator
 from aitg_host.gens.summary_generator import SummaryGenerator
 from aitg_host.gens.classifier_generator import ClassifierGenerator
+from aitg_host.gens.embed_generator import EmbedGenerator
 
 MODEL_TYPE = None
 MODEL_DIR = os.environ.get("MODEL")
@@ -375,6 +376,57 @@ def gen_bart_classifier_route(ext):
         abort(400, f"generation failed")
 
 
+@route("/gen_sentence_embed.<ext>", method=["GET", "POST"])
+def gen_bart_classifier_route(ext):
+    req_json = req_as_dict(request)
+    try:
+        verify_req(req_json)
+        _ = req_json["texts"]
+    except KeyError as ke:
+        abort(400, f"missing field {ke}")
+
+    # mode params
+    # option params
+    opt_texts: List[str] = get_req_opt(req_json, "texts", None)
+
+    logger.debug(
+        f"requesting sentence embeds for texts: {opt_texts}"
+    )
+
+    # generate
+    try:
+        start = time.time()
+
+        global AI_INSTANCE, GENERATOR, MODEL_TYPE
+        ensure_model_type("sentence_embed")
+
+        # standard generate
+        output = GENERATOR.generate(
+            texts=opt_texts,
+        )
+
+        embeds = output.embeddings
+        num_embeds = len(embeds)
+        logger.debug(f"model output: embeds[{len(embeds)}]")
+        generation_time = time.time() - start
+        logger.info(f"generated [{num_embeds} vec] ({generation_time:.2f}s)")
+
+        # done generating, now return the results over http
+
+        # create base response bundle
+        resp_bundle = {
+            "embeds": embeds,
+            "num_embeds": num_embeds,
+            "gen_time": generation_time,
+            "model": AI_INSTANCE.model_name,
+        }
+
+        return pack_bundle(resp_bundle, ext)
+    except Exception as ex:
+        logger.error(f"error generating: {traceback.format_exc()}")
+        abort(400, f"generation failed")
+
+
 def prepare_model(load_model_func):
     # sanity checks
     if not MODEL_DIR:
@@ -417,6 +469,9 @@ def server(
     elif model_type == "bart_classifier":
         load_func = aitg_host.model.load_bart_classifier_model
         generator_func = lambda ai: ClassifierGenerator(ai)
+    elif model_type == "sentence_embed":
+        load_func = aitg_host.model.load_sentence_embed_model
+        generator_func = lambda ai: EmbedGenerator(ai)
     else:
         # unknown
         raise RuntimeError(f"unknown model_type: {model_type}")

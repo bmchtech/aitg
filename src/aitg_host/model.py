@@ -82,6 +82,18 @@ def load_bart_classifier_model(load_path):
 
     return ai
 
+def load_sentence_embed_model(load_path):
+    from aitg_host.models.sentence_embed import SentenceEmbedAI
+
+    ensure_model_dir(load_path)
+
+    # load model
+    ai = SentenceEmbedAI(model_folder=load_path, to_device=get_compute_device()[0])
+
+    load_common_ext(ai, load_path)
+
+    return ai
+
 
 import typer
 
