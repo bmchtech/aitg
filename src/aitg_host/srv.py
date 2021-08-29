@@ -394,6 +394,7 @@ def server(
 ):
     # first init
     start = time.time()
+    logger.info(f"aitg_host server v{__version__}")
     logger.info(f"initializing[{get_compute_device()[1]}]...")
     logger.info(f"init in: {time.time() - start:.2f}s")
 
