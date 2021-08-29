@@ -17,7 +17,8 @@ from aitg_host.util import get_compute_device
 # generators
 import aitg_host.model
 from aitg_host.gens.sliding_generator import SlidingGenerator
-from aitg_host.gens.summary_generator import SummaryGenerator
+from aitg_host.gens.bart_summary_generator import BartSummaryGenerator
+from aitg_host.gens.led_summary_generator import LedSummaryGenerator
 from aitg_host.gens.classifier_generator import ClassifierGenerator
 from aitg_host.gens.embed_generator import EmbedGenerator
 from aitg_host.gens.qa_generator import QuestionAnswerGenerator
@@ -274,7 +275,7 @@ def gen_bart_summarizer_route(ext):
 
         # standard generate
         output = GENERATOR.generate(
-            prompt=opt_text,
+            article=opt_text,
             max_length=opt_max_length,
             min_length=opt_min_length,
             num_beams=opt_num_beams,
@@ -526,7 +527,7 @@ def server(
         generator_func = lambda ai: SlidingGenerator(ai)
     elif model_type == "bart_summarizer":
         load_func = aitg_host.model.load_bart_summarizer_model
-        generator_func = lambda ai: SummaryGenerator(ai)
+        generator_func = lambda ai: BartSummaryGenerator(ai)
     elif model_type == "bart_classifier":
         load_func = aitg_host.model.load_bart_classifier_model
         generator_func = lambda ai: ClassifierGenerator(ai)

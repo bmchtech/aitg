@@ -2,7 +2,7 @@ import torch
 from aitg_host.gens.base import BaseGenerator
 from types import SimpleNamespace
 
-class SummaryGenerator(BaseGenerator):
+class BartSummaryGenerator(BaseGenerator):
     def __init__(self, ai):
         super().__init__(ai)
 
@@ -12,14 +12,13 @@ class SummaryGenerator(BaseGenerator):
 
     def generate(
         self,
-        prompt: str,
+        article: str,
         min_length: int = None,
         max_length: int = 256,
         lstrip: bool = True,
         **kwargs
     ):
         # encode
-        article = prompt
         article_tensors = self.ai.tokenizer(
             text=article, return_tensors="pt", max_length=self.ai.context_window, truncation=True
         )
