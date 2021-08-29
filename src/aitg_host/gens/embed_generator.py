@@ -42,14 +42,24 @@ class EmbedGenerator(BaseGenerator):
             model_output, input_tensors["attention_mask"]
         )
 
-        # print("sentence embeddings:".sentence_embeddings)
+        # print("sentence embeddings:", sentence_embeddings.shape(), sentence_embeddings)
 
         # # try showing similiarity
         # similarity = F.cosine_similarity(
         #     sentence_embeddings[0], sentence_embeddings[1], dim=0
         # )
-        # print("similarity:", similarity)
+        # print("similarity of first two:", similarity)
+
+        # compute similarity matrix
+        similarity_mat = F.cosine_similarity(
+            sentence_embeddings[None, :, :],
+            sentence_embeddings[:, None, :],
+            dim=-1,
+        )
+        # print("similarity mat:", similarity_mat.shape, similarity_mat)
+        # print('first two similarity:', similarity_mat[0][1])
 
         return SimpleNamespace(
+            similarity=similarity_mat.tolist(),
             embeddings=sentence_embeddings.tolist(),
         )

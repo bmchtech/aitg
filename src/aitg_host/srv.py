@@ -415,8 +415,9 @@ def gen_bart_classifier_route(ext):
 
         # create base response bundle
         resp_bundle = {
-            "embeds": embeds,
+            "similarity": output.similarity,
             "num_embeds": num_embeds,
+            "embeds": embeds,
             "gen_time": generation_time,
             "model": AI_INSTANCE.model_name,
         }
