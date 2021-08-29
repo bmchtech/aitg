@@ -8,6 +8,7 @@ from bottle import run, route, request, response, abort
 from loguru import logger
 import json
 import msgpack
+from aitg_host.models.question_answer import QuestionAnswerAI
 import lz4.frame
 
 from aitg_host import __version__, ICON_ART
@@ -19,6 +20,7 @@ from aitg_host.gens.sliding_generator import SlidingGenerator
 from aitg_host.gens.summary_generator import SummaryGenerator
 from aitg_host.gens.classifier_generator import ClassifierGenerator
 from aitg_host.gens.embed_generator import EmbedGenerator
+from aitg_host.gens.qa_generator import QuestionAnswerGenerator
 
 MODEL_TYPE = None
 MODEL_DIR = os.environ.get("MODEL")
@@ -389,9 +391,7 @@ def gen_bart_classifier_route(ext):
     # option params
     opt_texts: List[str] = get_req_opt(req_json, "texts", None)
 
-    logger.debug(
-        f"requesting sentence embeds for texts: {opt_texts}"
-    )
+    logger.debug(f"requesting sentence embeds for texts: {opt_texts}")
 
     # generate
     try:
@@ -410,7 +410,9 @@ def gen_bart_classifier_route(ext):
         logger.debug(f"model output: embeds[{len(embeds)}]")
         generation_time = time.time() - start
         gen_vecps = num_embeds / generation_time
-        logger.info(f"generated [{num_embeds} vec] ({generation_time:.2f}s/{gen_vecps:.2f} vps)")
+        logger.info(
+            f"generated [{num_embeds} vec] ({generation_time:.2f}s/{gen_vecps:.2f} vps)"
+        )
 
         # done generating, now return the results over http
 
@@ -419,6 +421,62 @@ def gen_bart_classifier_route(ext):
             "similarity": output.similarity,
             "num_embeds": num_embeds,
             "embeds": embeds,
+            "gen_time": generation_time,
+            "model": AI_INSTANCE.model_name,
+        }
+
+        return pack_bundle(resp_bundle, ext)
+    except Exception as ex:
+        logger.error(f"error generating: {traceback.format_exc()}")
+        abort(400, f"generation failed")
+
+
+@route("/gen_question_answer.<ext>", method=["GET", "POST"])
+def gen_question_answer_route(ext):
+    req_json = req_as_dict(request)
+    try:
+        verify_req(req_json)
+        _ = req_json["text"]
+        _ = req_json["questions"]
+    except KeyError as ke:
+        abort(400, f"missing field {ke}")
+
+    # mode params
+    # option params
+    opt_text: str = get_req_opt(req_json, "text", None)
+    opt_questions: List[str] = get_req_opt(req_json, "questions", None)
+
+    logger.debug(
+        f"requesting question answers for text: {opt_text}, questions: {opt_questions}"
+    )
+
+    # generate
+    try:
+        start = time.time()
+
+        global AI_INSTANCE, GENERATOR, MODEL_TYPE
+        ensure_model_type("question_answer")
+
+        # standard generate
+        output = GENERATOR.generate(
+            text=opt_text,
+            questions=opt_questions,
+        )
+
+        gen_answers = output.answers
+        num_answers = len(gen_answers)
+        logger.debug(f"model output: {gen_answers}")
+        generation_time = time.time() - start
+        gen_ansps = num_answers / generation_time
+        logger.info(
+            f"generated [{num_answers} ans] ({generation_time:.2f}s/{gen_ansps:.2f} aps)"
+        )
+
+        # done generating, now return the results over http
+
+        # create base response bundle
+        resp_bundle = {
+            "answers": gen_answers,
             "gen_time": generation_time,
             "model": AI_INSTANCE.model_name,
         }
@@ -454,7 +512,7 @@ def server(
 ):
     # first init
     start = time.time()
-    print('\n\n', ICON_ART, f'\n            AITG HOST v{__version__}\n\n')
+    print("\n\n", ICON_ART, f"\n            AITG HOST v{__version__}\n\n")
     # logger.info(f"aitg_host server v{__version__}")
     logger.info(f"initializing[{get_compute_device()[1]}]...")
     logger.info(f"init in: {time.time() - start:.2f}s")
@@ -474,6 +532,9 @@ def server(
     elif model_type == "sentence_embed":
         load_func = aitg_host.model.load_sentence_embed_model
         generator_func = lambda ai: EmbedGenerator(ai)
+    elif model_type == "question_answer":
+        load_func = aitg_host.model.load_question_answer_model
+        generator_func = lambda ai: QuestionAnswerGenerator(ai)
     else:
         # unknown
         raise RuntimeError(f"unknown model_type: {model_type}")

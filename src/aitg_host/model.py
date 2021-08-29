@@ -94,6 +94,18 @@ def load_sentence_embed_model(load_path):
 
     return ai
 
+def load_question_answer_model(load_path):
+    from aitg_host.models.question_answer import QuestionAnswerAI
+
+    ensure_model_dir(load_path)
+
+    # load model
+    ai = QuestionAnswerAI(model_folder=load_path, to_device=get_compute_device()[0])
+
+    load_common_ext(ai, load_path)
+
+    return ai
+
 
 import typer
 
