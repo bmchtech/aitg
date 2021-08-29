@@ -1,4 +1,5 @@
 import os.path
+from aitg_host.models.led__summarizer import LedSummarizerAI
 from aitg_host.util import get_compute_device
 import importlib.util
 import json
@@ -15,11 +16,11 @@ def ensure_model_dir(load_path):
     # this is a LOCAL model path
     if not os.path.isdir(load_path):
         raise NotADirectoryError(f"model path is not a valid directory: {load_path}")
-    
+
     # add checks to make sure the model files are there
-    if not os.path.exists(load_path + '/pytorch_model.bin'):
+    if not os.path.exists(load_path + "/pytorch_model.bin"):
         raise FileNotFoundError(f"model directory is missing pytorch model")
-    if not os.path.exists(load_path + '/config.json'):
+    if not os.path.exists(load_path + "/config.json"):
         raise FileNotFoundError(f"model directory is missing config file")
 
 
@@ -70,6 +71,19 @@ def load_bart_summarizer_model(load_path):
     return ai
 
 
+def load_led_summarizer_model(load_path):
+    from aitg_host.models.led__summarizer import LedSummarizerAI
+
+    ensure_model_dir(load_path)
+
+    # load model
+    ai = LedSummarizerAI(model_folder=load_path, to_device=get_compute_device()[0])
+
+    load_common_ext(ai, load_path)
+
+    return ai
+
+
 def load_bart_classifier_model(load_path):
     from aitg_host.models.bart_classifier import BartClassifierAI
 
@@ -82,6 +96,7 @@ def load_bart_classifier_model(load_path):
 
     return ai
 
+
 def load_sentence_embed_model(load_path):
     from aitg_host.models.sentence_embed import SentenceEmbedAI
 
@@ -93,6 +108,7 @@ def load_sentence_embed_model(load_path):
     load_common_ext(ai, load_path)
 
     return ai
+
 
 def load_question_answer_model(load_path):
     from aitg_host.models.question_answer import QuestionAnswerAI
@@ -127,10 +143,11 @@ def download_model(
         model_id = model_id[1:]
 
         from transformers import AutoTokenizer
-        _transformers_mod = __import__('transformers')
+
+        _transformers_mod = __import__("transformers")
         _model_class = getattr(_transformers_mod, model_arch)
 
-        print('using model architecture:', _model_class)
+        print("using model architecture:", _model_class)
 
         # grab both
         print(f"getting model: {model_id}")

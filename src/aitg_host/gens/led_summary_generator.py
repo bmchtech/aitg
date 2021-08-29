@@ -51,4 +51,5 @@ class LedSummaryGenerator(BaseGenerator):
             text=output_texts[0],
             seq=output_seqs[0],
             num_new=len(output_tokens[0]),
+            num_prompt_tokens=len(input_ids.tolist()[0]),
         )
