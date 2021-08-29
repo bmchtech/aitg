@@ -80,4 +80,4 @@ chunks = chunk_text(contents, 1000 * 4)
 for chunk in chunks:
     # print(chunk, "\n\n")
     summary = summarize(chunk, 128)
-    print(summary)
+    print(summary, '\n')
