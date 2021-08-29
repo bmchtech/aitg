@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aitg_host"
-version = "1.6.0"
+version = "2.0.0-beta1"
 description = ""
 authors = ["xdrie <xdrie@alt.icu>"]
 
@@ -29,3 +29,5 @@ build-backend = "poetry.masonry.api"
 [tool.poetry.scripts]
 aitg_host_cli = "aitg_host.cli:main"
 aitg_host_srv = "aitg_host.srv:main"
+
+aitg_host_download_model = "aitg_host.model:main"

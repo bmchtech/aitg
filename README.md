@@ -17,10 +17,12 @@ wget https://github.com/xdrie/aitextgen_host/releases/download/v1.5.2/PT_GPTNEO1
 7z x /tmp/PT_GPTNEO125_ATG.7z -o/tmp
 ```
 
-run the container:
+run the container, cli:
 ```sh
-docker run -it --rm -v /tmp/PT_GPTNEO125_ATG:/app/model xdrie/aitg_host:v1.5.2 aitg_host.cli
+docker run -it --rm -v /tmp/PT_GPTNEO125_ATG:/app/model xdrie/aitg_host:v1.6.0 aitg_host.cli
 ```
+
+in the command line, press Ctrl+D (or whatever your eof key is) to submit a prompt.
 
 ## run from source
 
@@ -84,12 +86,12 @@ Options:
 run the server with:
 
 ```sh
-MODEL=/path/to/your_model KEY=secret poetry run aitg_host_srv
+MODEL=/path/to/your_model KEY=secret poetry run aitg_host_srv gpt
 ```
 
 then
 
-`GET /gen.json` with a JSON request body like the following:
+`GET /gen_gpt.json` with a JSON request body like the following:
 
 ```json
 {

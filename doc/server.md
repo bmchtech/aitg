@@ -11,7 +11,7 @@ otherwise, you want to run the `aitg_host.srv` module.
 
 for example:
 ```sh
-KEY=secret MODEL=/tmp/PT_GPTNEO125_ATG python -m aitg_host.srv --host 127.0.0.1 --port 6000
+KEY=secret MODEL=/tmp/PT_GPTNEO125_ATG python -m aitg_host.srv gpt --host 127.0.0.1 --port 6000
 ```
 
 ## api
@@ -28,14 +28,14 @@ a very simple api that provides various methods.
 - `info` - get info about the server and model
 - `encode` - tokenize text to string
 - `decode` - turn a token sequence to a string
-- `gen` - generate text
+- `gen_gpt` - generate text
 
 ### try on your shell!
 
 give it a try with curl:
 ```sh
 curl --request GET \
-  --url http://localhost:6000/gen.json \
+  --url http://localhost:6000/gen_gpt.json \
   --header 'Content-Type: application/json' \
   --data '{
         "key": "secret",

@@ -1,6 +1,7 @@
 import time
 import os
 from aitg_host.util import get_compute_device
+
 import typer
 
 from bottle import run, route, request, response, abort
@@ -10,8 +11,14 @@ import msgpack
 import lz4.frame
 
 from aitg_host import __version__
-from aitg_host.textgen.sliding_generator import SlidingGenerator
 
+# generators
+import aitg_host.model
+from aitg_host.gens.sliding_generator import SlidingGenerator
+from aitg_host.gens.summary_generator import SummaryGenerator
+from aitg_host.gens.classifier_generator import ClassifierGenerator
+
+MODEL_TYPE = None
 MODEL_DIR = os.environ["MODEL"]
 API_KEY = os.environ["KEY"]
 
@@ -61,6 +68,14 @@ def pack_bundle(bundle, ext):
         return None
 
 
+def ensure_model_type(model_type):
+    global MODEL_TYPE
+    if MODEL_TYPE != model_type:
+        raise Exception(
+            f"model type mismatch! expected {model_type}, but got {MODEL_TYPE}"
+        )
+
+
 @route("/info.<ext>", method=["GET"])
 def info_route(ext):
     req_json = req_as_json(request)
@@ -75,6 +90,7 @@ def info_route(ext):
         "server": "aitg_host",
         "version": __version__,
         "model": AI_INSTANCE.model_name,
+        "model_type": AI_INSTANCE.model_type,
     }
 
     return pack_bundle(bundle, ext)
@@ -92,7 +108,7 @@ def encode_route(ext):
     global GENERATOR
     tokens = GENERATOR.str_to_toks(text)
 
-    return pack_bundle({"tokens": tokens}, ext)
+    return pack_bundle({"num_tokens": len(tokens), "tokens": tokens}, ext)
 
 
 @route("/decode.<ext>", method=["GET", "POST"])
@@ -110,8 +126,8 @@ def decode_route(ext):
     return pack_bundle({"text": text}, ext)
 
 
-@route("/gen.<ext>", method=["GET", "POST"])
-def gen_route(ext):
+@route("/gen_gpt.<ext>", method=["GET", "POST"])
+def gen_gpt_route(ext):
     req_json = req_as_json(request)
     try:
         verify_key(req_json)
@@ -142,7 +158,8 @@ def gen_route(ext):
     try:
         start = time.time()
 
-        global AI_INSTANCE, GENERATOR
+        global AI_INSTANCE, GENERATOR, MODEL_TYPE
+        ensure_model_type("gpt")
 
         # prompt
         prompt_tokens = tokens = GENERATOR.str_to_toks(opt_prompt)
@@ -211,34 +228,187 @@ def gen_route(ext):
 
         return pack_bundle(resp_bundle, ext)
     except Exception as ex:
+        raise ex
         logger.error(f"error generating: {ex}")
         abort(400, f"generation failed")
 
 
-def prepare_model(optimize: bool):
-    start = time.time()
-    logger.info(f"initializing[{get_compute_device()}]...")
-    from aitg_host.model import load_model
+@route("/gen_bart_summarizer.<ext>", method=["GET", "POST"])
+def gen_bart_summarizer_route(ext):
+    req_json = req_as_json(request)
+    try:
+        verify_key(req_json)
+        _ = req_json["prompt"]
+    except KeyError as ke:
+        abort(400, f"missing field {ke}")
 
-    logger.info(f"init in: {time.time() - start:.2f}s")
+    # mode params
+    # option params
+    opt_prompt: float = get_req_opt(req_json, "prompt", "")
+    opt_max_length: int = get_req_opt(req_json, "max_length", 256)
+    opt_min_length: int = get_req_opt(req_json, "min_length", 0)
+    opt_num_beams: int = get_req_opt(req_json, "num_beams", None)
+    opt_repetition_penalty: float = get_req_opt(req_json, "repetition_penalty", 1.0)
+    opt_length_penalty: float = get_req_opt(req_json, "length_penalty", 1.0)
+    opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
+    opt_no_repeat_ngram_size: int = get_req_opt(req_json, "no_repeat_ngram_size", 0)
+
+    logger.debug(f"requesting generation for prompt: {opt_prompt}")
+
+    # generate
+    try:
+        start = time.time()
+
+        global AI_INSTANCE, GENERATOR, MODEL_TYPE
+        ensure_model_type("bart_summarizer")
+
+        # standard generate
+        output = GENERATOR.generate(
+            prompt=opt_prompt,
+            max_length=opt_max_length,
+            min_length=opt_min_length,
+            num_beams=opt_num_beams,
+            repetition_penalty=opt_repetition_penalty,
+            length_penalty=opt_length_penalty,
+            max_time=opt_max_time,
+            no_repeat_ngram_size=opt_no_repeat_ngram_size,
+        )
+
+        gen_txt = AI_INSTANCE.filter_text(output.text)
+        gen_txt_size = len(gen_txt)
+        prompt_token_count = len(output.prompt_ids)
+        logger.debug(f"model output: {gen_txt}")
+        generation_time = time.time() - start
+        total_gen_num = len(output.tokens)
+        gen_tps = output.num_new / generation_time
+        logger.info(
+            f"generated [{output.num_new}/{total_gen_num}] ({generation_time:.2f}s/{(gen_tps):.2f}tps)"
+        )
+
+        # done generating, now return the results over http
+
+        # create base response bundle
+        resp_bundle = {
+            "text": gen_txt,
+            "text_length": gen_txt_size,
+            "prompt_token_count": prompt_token_count,
+            "tokens": output.tokens,
+            "token_count": total_gen_num,
+            "num_new": output.num_new,
+            "num_total": total_gen_num,
+            "gen_time": generation_time,
+            "gen_tps": gen_tps,
+            "model": AI_INSTANCE.model_name,
+        }
+
+        return pack_bundle(resp_bundle, ext)
+    except Exception as ex:
+        raise ex
+        logger.error(f"error generating: {ex}")
+        abort(400, f"generation failed")
+
+
+@route("/gen_bart_classifier.<ext>", method=["GET", "POST"])
+def gen_bart_classifier_route(ext):
+    req_json = req_as_json(request)
+    try:
+        verify_key(req_json)
+        _ = req_json["text"]
+        _ = req_json["classes"]
+    except KeyError as ke:
+        abort(400, f"missing field {ke}")
+
+    # mode params
+    opt_include_probs: bool = get_req_opt(req_json, "include_probs", False)
+    # option params
+    opt_text: float = get_req_opt(req_json, "text", None)
+    opt_classes: float = get_req_opt(req_json, "classes", None)
+    opt_hypothesis_template: str = get_req_opt(req_json, "hypothesis_template", "This example is {}.")
+    opt_multi_label: bool = get_req_opt(req_json, "multi_label", False)
+
+    logger.debug(f"requesting classification for text: {opt_text}, classes: {opt_classes}")
+
+    # generate
+    try:
+        start = time.time()
+
+        global AI_INSTANCE, GENERATOR, MODEL_TYPE
+        ensure_model_type("bart_classifier")
+
+        # standard generate
+        output = GENERATOR.generate(
+            text=opt_text,
+            candidate_labels=opt_classes,
+            hypothesis_template=opt_hypothesis_template,
+            multi_label=opt_multi_label
+        )
+
+        gen_score_pairs = list(zip(output.labels, output.scores))
+        num_classes = len(opt_classes)
+        logger.debug(f"model output: {gen_score_pairs}")
+        generation_time = time.time() - start
+        logger.info(
+            f"generated [{num_classes} cls] ({generation_time:.2f}s)"
+        )
+
+        # done generating, now return the results over http
+
+        # create base response bundle
+        resp_bundle = {
+            "labels": output.labels,
+            "scores": output.scores,
+            "gen_time": generation_time,
+            "model": AI_INSTANCE.model_name,
+        }
+
+        return pack_bundle(resp_bundle, ext)
+    except Exception as ex:
+        raise ex
+        logger.error(f"error generating: {ex}")
+        abort(400, f"generation failed")
+
+
+def prepare_model(load_model_func):
     start = time.time()
     logger.info("loading model...")
-    ai = load_model(MODEL_DIR, optimize)
+    ai = load_model_func(MODEL_DIR)
     logger.info(f"finished loading in: {time.time() - start:.2f}s")
-    logger.info(f"model: {ai.model_name}")
+    logger.info(f"model: {ai.model_name} ({ai.model_type})")
 
     return ai
 
 
 def server(
+    model_type: str,
     host: str = "localhost",
     port: int = 6000,
     debug: bool = False,
-    optimize: bool = True,
 ):
-    global AI_INSTANCE, GENERATOR
-    AI_INSTANCE = ai = prepare_model(optimize)
-    GENERATOR = SlidingGenerator(ai)
+    # first init
+    start = time.time()
+    logger.info(f"initializing[{get_compute_device()[1]}]...")
+    logger.info(f"init in: {time.time() - start:.2f}s")
+
+    # select model type
+    load_func = None
+    generator_func = lambda ai: None
+    if model_type == "gpt":
+        load_func = aitg_host.model.load_gpt_model
+        generator_func = lambda ai: SlidingGenerator(ai)
+    elif model_type == "bart_summarizer":
+        load_func = aitg_host.model.load_bart_summarizer_model
+        generator_func = lambda ai: SummaryGenerator(ai)
+    elif model_type == "bart_classifier":
+        load_func = aitg_host.model.load_bart_classifier_model
+        generator_func = lambda ai: ClassifierGenerator(ai)
+    else:
+        # unknown
+        raise Exception(f"unknown model_type: {model_type}")
+
+    global AI_INSTANCE, GENERATOR, MODEL_TYPE
+    MODEL_TYPE = model_type
+    AI_INSTANCE = ai = prepare_model(load_func)
+    GENERATOR = generator_func(ai)
 
     logger.info(f"starting server on {host}:{port}")
     run(host=host, port=port, debug=debug)

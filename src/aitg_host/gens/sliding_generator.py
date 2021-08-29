@@ -1,6 +1,6 @@
 from math import floor
-import aitg_host.gpt
-from aitg_host.textgen.base_generator import BaseGenerator
+from aitg_host.models import gpt
+from aitg_host.gens.base import BaseGenerator
 
 class SlidingGenerator(BaseGenerator):
     def __init__(self, ai):
@@ -43,7 +43,7 @@ class SlidingGenerator(BaseGenerator):
         prompt_tokens = self.str_to_toks(full_prompt)
 
         # gen
-        output = aitg_host.gpt.generate(
+        output = gpt.generate(
             self.ai,
             max_length=max_length,
             min_length=min_length,

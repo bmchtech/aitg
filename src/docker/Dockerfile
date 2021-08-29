@@ -74,6 +74,7 @@ RUN pip install -r requirements.txt
 
 # copy stuff
 COPY ./aitg_host /app/aitg_host
+COPY ./pyproject.toml /app/
 
 # vars
 ENV MODEL=/app/model
