@@ -16,7 +16,7 @@ class LedSummaryGenerator(BaseGenerator):
         article: str,
         min_length: int = None,
         max_length: int = 256,
-        lstrip: bool = True,
+        lrstrip: bool = True,
         **kwargs
     ):
         # encode
@@ -30,8 +30,14 @@ class LedSummaryGenerator(BaseGenerator):
 
         # generate
         model_output = self.ai.model.generate(
-            input_ids, global_attention_mask=global_attention_mask
+            input_ids,
+            global_attention_mask=global_attention_mask,
+            return_dict_in_generate=True,
+            min_length=min_length,
+            max_length=max_length,
         )
+
+        # print('model output:', model_output)
 
         # decode
         output_seqs = [seq for seq in model_output.sequences]
@@ -44,8 +50,9 @@ class LedSummaryGenerator(BaseGenerator):
             for seq in output_seqs
         ]
 
-        if lstrip:
+        if lrstrip:
             output_texts = self.lstrip_texts(output_texts)
+            output_texts = [text.strip() for text in output_texts]
 
         return SimpleNamespace(
             text=output_texts[0],
