@@ -9,7 +9,7 @@ import json
 import msgpack
 import lz4.frame
 
-from aitg_host import __version__
+from aitg_host import __version__, ICON_ART
 from aitg_host.util import get_compute_device
 
 # generators
@@ -394,7 +394,8 @@ def server(
 ):
     # first init
     start = time.time()
-    logger.info(f"aitg_host server v{__version__}")
+    print('\n\n', ICON_ART, f'\n            AITG HOST v{__version__}\n\n')
+    # logger.info(f"aitg_host server v{__version__}")
     logger.info(f"initializing[{get_compute_device()[1]}]...")
     logger.info(f"init in: {time.time() - start:.2f}s")
 
