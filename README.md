@@ -86,7 +86,7 @@ Options:
 run the server with:
 
 ```sh
-MODEL=/path/to/your_model KEY=secret poetry run aitg_host_srv gpt
+MODEL=/path/to/your_model poetry run aitg_host_srv gpt
 ```
 
 then

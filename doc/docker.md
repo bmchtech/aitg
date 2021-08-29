@@ -20,7 +20,7 @@ docker run -it --rm -v $(pwd)/models/YOUR_MODEL:/app/model aitg_host aitg_host.c
 
 run server:
 ```sh
-docker run -it --rm -v $(pwd)/models/YOUR_MODEL:/app/model -e KEY=secret -p 6000:6000 aitg_host aitg_host.srv gpt --host 0.0.0.0
+docker run -it --rm -v $(pwd)/models/YOUR_MODEL:/app/model -p 6000:6000 aitg_host aitg_host.srv gpt --host 0.0.0.0
 ```
 
 test the server:
