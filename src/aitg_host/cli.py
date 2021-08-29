@@ -33,8 +33,8 @@ def cli(
 ):
     colorama.init()
 
-    MODEL_DIR = os.environ.get("MODEL")
-    if not MODEL_DIR:
+    model_dir = os.environ.get("MODEL")
+    if not model_dir:
         raise RuntimeError("no model specified. please pass a path to your model in the MODEL environment variable")
 
     start = time.time()
@@ -51,7 +51,7 @@ def cli(
 
     start = time.time()
     print(Style.NORMAL + Fore.CYAN + "loading model...")
-    ai = load_gpt_model(MODEL_DIR)
+    ai = load_gpt_model(model_dir)
     print(
         Style.DIM
         + Fore.RESET

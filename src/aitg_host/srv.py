@@ -19,8 +19,8 @@ from aitg_host.gens.summary_generator import SummaryGenerator
 from aitg_host.gens.classifier_generator import ClassifierGenerator
 
 MODEL_TYPE = None
-MODEL_DIR = os.environ["MODEL"]
-API_KEY = os.environ["KEY"]
+MODEL_DIR = os.environ.get("MODEL")
+API_KEY = os.environ.get("KEY")
 
 AI_INSTANCE = None
 GENERATOR = None
@@ -40,18 +40,20 @@ def get_req_opt(req, name, default):
         return default
 
 
-def verify_key(req):
+def verify_req(req):
     # ensure req exists
     if not req:
-        abort(400, "key not provided")  # bad
-    # ensure key provided
-    key_id = "key"
-    if key_id not in req:
-        abort(401, "key not provided")
-    # ensure key correct
-    req_key = req[key_id]
-    if req_key != API_KEY:
-        abort(401)
+        abort(400, "request is empty")  # bad
+    # if key is specified, verify
+    if API_KEY:
+        # ensure key provided
+        key_id = "key"
+        if key_id not in req:
+            abort(401, "key not provided")
+        # ensure key correct
+        req_key = req[key_id]
+        if req_key != API_KEY:
+            abort(401, "key is invalid")
 
 
 def pack_bundle(bundle, ext):
@@ -80,7 +82,7 @@ def ensure_model_type(model_type):
 def info_route(ext):
     req_json = req_as_json(request)
     try:
-        verify_key(req_json)
+        verify_req(req_json)
     except KeyError as ke:
         abort(400, f"missing field {ke}")
 
@@ -100,7 +102,7 @@ def info_route(ext):
 def encode_route(ext):
     req_json = req_as_json(request)
     try:
-        verify_key(req_json)
+        verify_req(req_json)
         text = req_json["text"]
     except KeyError as ke:
         abort(400, f"missing field {ke}")
@@ -115,7 +117,7 @@ def encode_route(ext):
 def decode_route(ext):
     req_json = req_as_json(request)
     try:
-        verify_key(req_json)
+        verify_req(req_json)
         tokens = req_json["tokens"]
     except KeyError as ke:
         abort(400, f"missing field {ke}")
@@ -130,7 +132,7 @@ def decode_route(ext):
 def gen_gpt_route(ext):
     req_json = req_as_json(request)
     try:
-        verify_key(req_json)
+        verify_req(req_json)
         _ = req_json["prompt"]
     except KeyError as ke:
         abort(400, f"missing field {ke}")
@@ -237,7 +239,7 @@ def gen_gpt_route(ext):
 def gen_bart_summarizer_route(ext):
     req_json = req_as_json(request)
     try:
-        verify_key(req_json)
+        verify_req(req_json)
         _ = req_json["prompt"]
     except KeyError as ke:
         abort(400, f"missing field {ke}")
@@ -312,7 +314,7 @@ def gen_bart_summarizer_route(ext):
 def gen_bart_classifier_route(ext):
     req_json = req_as_json(request)
     try:
-        verify_key(req_json)
+        verify_req(req_json)
         _ = req_json["text"]
         _ = req_json["classes"]
     except KeyError as ke:
@@ -323,10 +325,14 @@ def gen_bart_classifier_route(ext):
     # option params
     opt_text: float = get_req_opt(req_json, "text", None)
     opt_classes: float = get_req_opt(req_json, "classes", None)
-    opt_hypothesis_template: str = get_req_opt(req_json, "hypothesis_template", "This example is {}.")
+    opt_hypothesis_template: str = get_req_opt(
+        req_json, "hypothesis_template", "This example is {}."
+    )
     opt_multi_label: bool = get_req_opt(req_json, "multi_label", False)
 
-    logger.debug(f"requesting classification for text: {opt_text}, classes: {opt_classes}")
+    logger.debug(
+        f"requesting classification for text: {opt_text}, classes: {opt_classes}"
+    )
 
     # generate
     try:
@@ -340,16 +346,14 @@ def gen_bart_classifier_route(ext):
             text=opt_text,
             candidate_labels=opt_classes,
             hypothesis_template=opt_hypothesis_template,
-            multi_label=opt_multi_label
+            multi_label=opt_multi_label,
         )
 
         gen_score_pairs = list(zip(output.labels, output.scores))
         num_classes = len(opt_classes)
         logger.debug(f"model output: {gen_score_pairs}")
         generation_time = time.time() - start
-        logger.info(
-            f"generated [{num_classes} cls] ({generation_time:.2f}s)"
-        )
+        logger.info(f"generated [{num_classes} cls] ({generation_time:.2f}s)")
 
         # done generating, now return the results over http
 
@@ -369,6 +373,13 @@ def gen_bart_classifier_route(ext):
 
 
 def prepare_model(load_model_func):
+    # sanity checks
+    if not MODEL_DIR:
+        raise RuntimeError(
+            "no model specified. please pass a path to your model in the MODEL environment variable"
+        )
+
+    # load
     start = time.time()
     logger.info("loading model...")
     ai = load_model_func(MODEL_DIR)
