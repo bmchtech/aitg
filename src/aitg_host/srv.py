@@ -3,6 +3,7 @@ import os
 import traceback
 
 import typer
+from typing import List, Dict
 from bottle import run, route, request, response, abort
 from loguru import logger
 import json
@@ -26,9 +27,14 @@ AI_INSTANCE = None
 GENERATOR = None
 
 
-def req_as_json(req):
+def req_as_dict(req):
     try:
-        return request.json
+        if request.json:
+            return request.json
+        elif request.params:
+            return request.params
+        else:
+            return None
     except:
         abort(400, f"invalid request json")
 
@@ -80,7 +86,7 @@ def ensure_model_type(model_type):
 
 @route("/info.<ext>", method=["GET"])
 def info_route(ext):
-    req_json = req_as_json(request)
+    req_json = req_as_dict(request)
     try:
         verify_req(req_json)
     except KeyError as ke:
@@ -100,7 +106,7 @@ def info_route(ext):
 
 @route("/encode.<ext>", method=["GET", "POST"])
 def encode_route(ext):
-    req_json = req_as_json(request)
+    req_json = req_as_dict(request)
     try:
         verify_req(req_json)
         text = req_json["text"]
@@ -115,7 +121,7 @@ def encode_route(ext):
 
 @route("/decode.<ext>", method=["GET", "POST"])
 def decode_route(ext):
-    req_json = req_as_json(request)
+    req_json = req_as_dict(request)
     try:
         verify_req(req_json)
         tokens = req_json["tokens"]
@@ -130,7 +136,7 @@ def decode_route(ext):
 
 @route("/gen_gpt.<ext>", method=["GET", "POST"])
 def gen_gpt_route(ext):
-    req_json = req_as_json(request)
+    req_json = req_as_dict(request)
     try:
         verify_req(req_json)
         _ = req_json["prompt"]
@@ -140,7 +146,7 @@ def gen_gpt_route(ext):
     # mode params
     opt_include_probs: bool = get_req_opt(req_json, "include_probs", False)
     # option params
-    opt_prompt: float = get_req_opt(req_json, "prompt", "")
+    opt_prompt: str = get_req_opt(req_json, "prompt", "")
     opt_temp: float = get_req_opt(req_json, "temp", 0.9)
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
     opt_min_length: int = get_req_opt(req_json, "min_length", 0)
@@ -236,16 +242,16 @@ def gen_gpt_route(ext):
 
 @route("/gen_bart_summarizer.<ext>", method=["GET", "POST"])
 def gen_bart_summarizer_route(ext):
-    req_json = req_as_json(request)
+    req_json = req_as_dict(request)
     try:
         verify_req(req_json)
-        _ = req_json["prompt"]
+        _ = req_json["text"]
     except KeyError as ke:
         abort(400, f"missing field {ke}")
 
     # mode params
     # option params
-    opt_prompt: float = get_req_opt(req_json, "prompt", "")
+    opt_text: str = get_req_opt(req_json, "text", "")
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
     opt_min_length: int = get_req_opt(req_json, "min_length", 0)
     opt_num_beams: int = get_req_opt(req_json, "num_beams", None)
@@ -254,7 +260,7 @@ def gen_bart_summarizer_route(ext):
     opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
     opt_no_repeat_ngram_size: int = get_req_opt(req_json, "no_repeat_ngram_size", 0)
 
-    logger.debug(f"requesting generation for prompt: {opt_prompt}")
+    logger.debug(f"requesting generation for text: {opt_text}")
 
     # generate
     try:
@@ -265,7 +271,7 @@ def gen_bart_summarizer_route(ext):
 
         # standard generate
         output = GENERATOR.generate(
-            prompt=opt_prompt,
+            prompt=opt_text,
             max_length=opt_max_length,
             min_length=opt_min_length,
             num_beams=opt_num_beams,
@@ -310,7 +316,7 @@ def gen_bart_summarizer_route(ext):
 
 @route("/gen_bart_classifier.<ext>", method=["GET", "POST"])
 def gen_bart_classifier_route(ext):
-    req_json = req_as_json(request)
+    req_json = req_as_dict(request)
     try:
         verify_req(req_json)
         _ = req_json["text"]
@@ -321,8 +327,8 @@ def gen_bart_classifier_route(ext):
     # mode params
     opt_include_probs: bool = get_req_opt(req_json, "include_probs", False)
     # option params
-    opt_text: float = get_req_opt(req_json, "text", None)
-    opt_classes: float = get_req_opt(req_json, "classes", None)
+    opt_text: str = get_req_opt(req_json, "text", None)
+    opt_classes: List[str] = get_req_opt(req_json, "classes", None)
     opt_hypothesis_template: str = get_req_opt(
         req_json, "hypothesis_template", "This example is {}."
     )
