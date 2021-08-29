@@ -409,7 +409,8 @@ def gen_bart_classifier_route(ext):
         num_embeds = len(embeds)
         logger.debug(f"model output: embeds[{len(embeds)}]")
         generation_time = time.time() - start
-        logger.info(f"generated [{num_embeds} vec] ({generation_time:.2f}s)")
+        gen_vecps = num_embeds / generation_time
+        logger.info(f"generated [{num_embeds} vec] ({generation_time:.2f}s/{gen_vecps:.2f} vps)")
 
         # done generating, now return the results over http
 
