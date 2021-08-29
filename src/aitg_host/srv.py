@@ -1,9 +1,8 @@
 import time
 import os
-from aitg_host.util import get_compute_device
+import traceback
 
 import typer
-
 from bottle import run, route, request, response, abort
 from loguru import logger
 import json
@@ -11,6 +10,7 @@ import msgpack
 import lz4.frame
 
 from aitg_host import __version__
+from aitg_host.util import get_compute_device
 
 # generators
 import aitg_host.model
@@ -230,8 +230,7 @@ def gen_gpt_route(ext):
 
         return pack_bundle(resp_bundle, ext)
     except Exception as ex:
-        raise ex
-        logger.error(f"error generating: {ex}")
+        logger.error(f"error generating: {traceback.format_exc()}")
         abort(400, f"generation failed")
 
 
@@ -305,8 +304,7 @@ def gen_bart_summarizer_route(ext):
 
         return pack_bundle(resp_bundle, ext)
     except Exception as ex:
-        raise ex
-        logger.error(f"error generating: {ex}")
+        logger.error(f"error generating: {traceback.format_exc()}")
         abort(400, f"generation failed")
 
 
@@ -367,8 +365,7 @@ def gen_bart_classifier_route(ext):
 
         return pack_bundle(resp_bundle, ext)
     except Exception as ex:
-        raise ex
-        logger.error(f"error generating: {ex}")
+        logger.error(f"error generating: {traceback.format_exc()}")
         abort(400, f"generation failed")
 
 
