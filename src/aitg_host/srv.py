@@ -289,7 +289,7 @@ def gen_bart_summarizer_route(ext):
         total_gen_num = len(output.tokens)
         gen_tps = output.num_new / generation_time
         logger.info(
-            f"generated [{output.num_new}/{total_gen_num}] ({generation_time:.2f}s/{(gen_tps):.2f}tps)"
+            f"generated [{prompt_token_count}->{output.num_new}] ({generation_time:.2f}s/{(gen_tps):.2f}tps)"
         )
 
         # done generating, now return the results over http
