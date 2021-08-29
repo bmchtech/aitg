@@ -99,6 +99,7 @@ import typer
 
 
 def download_model(
+    model_arch: str,
     model_id: str = typer.Argument(
         ...,
         help="the huggingface model id. usually looks like @organization/some-model",
@@ -113,11 +114,15 @@ def download_model(
         # this is a HUGGINGFACE model path (download from repo)
         model_id = model_id[1:]
 
-        from transformers import AutoModel, AutoTokenizer
+        from transformers import AutoTokenizer
+        _transformers_mod = __import__('transformers')
+        _model_class = getattr(_transformers_mod, model_arch)
+
+        print('using model architecture:', _model_class)
 
         # grab both
         print(f"getting model: {model_id}")
-        model = AutoModel.from_pretrained(model_id)
+        model = _model_class.from_pretrained(model_id)
         print(f"getting tokenizer: {model_id}")
         tokenizer = AutoTokenizer.from_pretrained(model_id)
 
