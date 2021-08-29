@@ -71,7 +71,7 @@ def pack_bundle(bundle, ext):
 def ensure_model_type(model_type):
     global MODEL_TYPE
     if MODEL_TYPE != model_type:
-        raise Exception(
+        raise RuntimeError(
             f"model type mismatch! expected {model_type}, but got {MODEL_TYPE}"
         )
 
@@ -403,7 +403,7 @@ def server(
         generator_func = lambda ai: ClassifierGenerator(ai)
     else:
         # unknown
-        raise Exception(f"unknown model_type: {model_type}")
+        raise RuntimeError(f"unknown model_type: {model_type}")
 
     global AI_INSTANCE, GENERATOR, MODEL_TYPE
     MODEL_TYPE = model_type

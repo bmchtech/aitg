@@ -7,8 +7,6 @@ import colorama
 from colorama import Fore, Back, Style
 from aitg_host import __version__
 
-MODEL_DIR = os.environ["MODEL"]
-
 
 def version_callback(value: bool):
     if value:
@@ -34,6 +32,10 @@ def cli(
     reuse_session: bool = False,
 ):
     colorama.init()
+
+    MODEL_DIR = os.environ.get("MODEL")
+    if not MODEL_DIR:
+        raise RuntimeError("no model specified. please pass a path to your model in the MODEL environment variable")
 
     start = time.time()
     print(Style.NORMAL + Fore.CYAN + f"initializing", end="")
