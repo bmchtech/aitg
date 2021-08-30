@@ -4,6 +4,7 @@ import re
 
 from summarize_me.clean import ParagraphCleaner
 
+
 class ArticleChunker:
     def __init__(self):
         self.cleaner = ParagraphCleaner()
@@ -36,6 +37,6 @@ class ArticleChunker:
                 current_chunk += sent + " "
 
         # end, do final chunk
-        chunks.append(current_chunk)
+        chunks.append(self.cleaner.clean_space(current_chunk))
 
         return chunks

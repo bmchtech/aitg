@@ -23,7 +23,7 @@ def summarize(server_uri, article, summary_size_target):
         server_uri,
         json={
             "text": article,
-            "num_beams": 6,
+            "num_beams": 4,
             "length_penalty": 2.0,
             "max_length": summary_size_target * 2,
             "min_length": summary_size_target,
