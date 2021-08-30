@@ -6,42 +6,57 @@ import re
 from sacremoses import MosesDetokenizer
 import spacy
 
-with open(sys.argv[1]) as f:
-    source_json = json.load(f)
+def spacy_sentencize(paragraph):
+    nlp = spacy.load("en_core_web_sm", exclude=["parser"])
+    nlp.enable_pipe("senter")
+    spacy_doc = nlp(paragraph)
+    return spacy_doc.sents
 
-def filter_text(text):
+def spacy_truecase(paragraph):
+    # truecase the text with spacy
+
+    sentences = spacy_sentencize(paragraph)
+
+    processed_sents = []
+    for sent in sentences:
+        # process
+        frag = sent.text
+        frag = frag.capitalize() # upcase
+        processed_sents.append(frag)
+
+    result = ' '.join(processed_sents)
+    return result
+
+def clean_text_whitespace(text):
     # clean whitespace
     text = text.strip()
     text = re.sub("\s\s+", " ", text)
     return text
 
-def filter_token(tok):
-    tok = tok.replace('Ġ', '')
-    return tok
+def clean_paragraph(source_text):
+    def clean_token(tok):
+        tok = tok.replace('Ġ', '')
+        return tok
 
-# load tokens
-source_text = filter_text(source_json["text"])
-source_tokens = source_text.split(' ')
-# print(source_tokens)
+    # prefilter text
+    source_text = clean_text_whitespace(source_text)
 
-# filter tokens
-filtered_tokens = [filter_token(token) for token in source_tokens]
+    # split into tokens rudimentarily
+    source_tokens = source_text.split(' ')
 
-# detokenize to string
-md = MosesDetokenizer(lang='en')
-detok_str = md.detokenize(filtered_tokens)
+    # filter tokens
+    filtered_tokens = [clean_token(token) for token in source_tokens]
 
-# truecase the text with spacy
-nlp = spacy.load("en_core_web_sm", exclude=["parser"])
-nlp.enable_pipe("senter")
-spacy_doc = nlp(detok_str)
+    # detokenize to string with moses
+    md = MosesDetokenizer(lang='en')
+    detok_str = md.detokenize(filtered_tokens)
 
-processed_sents = []
-for sent in spacy_doc.sents:
-    # process
-    frag = sent.text
-    frag = frag.capitalize() # upcase
-    processed_sents.append(frag)
+    result = spacy_truecase(detok_str)
 
-result = ' '.join(processed_sents)
-print(result)
+    return result
+
+if __name__ == "__main__":
+    with open(sys.argv[1]) as f:
+        source_json = json.load(f)
+    result = clean_paragraph(source_json["text"])
+    print(result)
