@@ -15,7 +15,7 @@ class LedSummaryGenerator(BaseGenerator):
         self,
         article: str,
         min_length: int = None,
-        max_length: int = 256,
+        max_length: int = None,
         lrstrip: bool = True,
         **kwargs
     ):

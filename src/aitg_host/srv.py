@@ -331,7 +331,7 @@ def gen_led_summarizer_route(ext):
     opt_include_tokens: bool = get_req_opt(req_json, "include_tokens", False)
     # option params
     opt_text: str = get_req_opt(req_json, "text", "")
-    opt_max_length: int = get_req_opt(req_json, "max_length", 256)
+    opt_max_length: int = get_req_opt(req_json, "max_length", 512)
     opt_min_length: int = get_req_opt(req_json, "min_length", 0)
     opt_num_beams: int = get_req_opt(req_json, "num_beams", None)
     opt_repetition_penalty: float = get_req_opt(req_json, "repetition_penalty", 1.0)
