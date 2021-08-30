@@ -86,6 +86,10 @@ def cli(
 
         print(f"{summary}", "\n")
 
+        # flush
+        sys.stdout.flush()
+        sys.stderr.flush()
+
 
 def main():
     typer.run(cli)
