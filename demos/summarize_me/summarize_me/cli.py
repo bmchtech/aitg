@@ -91,11 +91,11 @@ def cli(
         if DEBUG:
             eprint(f"{Fore.WHITE}", end="")
 
+        sys.stderr.flush()
+
         print(f"{summary}", "\n")
 
-        # flush
         sys.stdout.flush()
-        sys.stderr.flush()
 
 
 def main():
