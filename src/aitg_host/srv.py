@@ -383,6 +383,10 @@ def gen_led_summarizer_route(ext):
             "model": AI_INSTANCE.model_name,
         }
 
+        # add optional sections
+        if opt_include_tokens:
+            resp_bundle["tokens"] = output.tokens
+
         return pack_bundle(resp_bundle, ext)
     except Exception as ex:
         logger.error(f"error generating: {traceback.format_exc()}")
