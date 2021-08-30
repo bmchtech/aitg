@@ -9,6 +9,9 @@ from summarize_me.chunk import ArticleChunker
 
 DEBUG = False
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 # file contents
 def read_file(path):
     with open(path) as f:
@@ -35,7 +38,7 @@ def summarize(server_uri, article, summary_size_target):
         n_from = bundle["prompt_token_count"]
         n_to = bundle["token_count"]
         time = bundle["gen_time"]
-        print(f"{Fore.GREEN}summarized ({n_from}->{n_to}) in {time:.2f}s")
+        eprint(f"{Fore.GREEN}summarized ({n_from}->{n_to}) in {time:.2f}s")
 
     return bundle["text"]
 
@@ -61,9 +64,9 @@ def cli(
 
     if DEBUG:
         # print chunk overview
-        print(f"{Fore.CYAN}article chunks:")
+        eprint(f"{Fore.CYAN}article chunks:")
         for chunk in chunks:
-            print(f"  {Fore.CYAN}chunk[{len(chunk)}]")
+            eprint(f"  {Fore.CYAN}chunk[{len(chunk)}]")
             # print(chunk)
             # print()
             # print()
@@ -71,7 +74,7 @@ def cli(
     # summarize chunks
     for chunk in chunks:
         if DEBUG:
-            print(f"{Fore.CYAN}\nsummarize:", f"{Fore.BLUE}{chunk}", "\n")
+            eprint(f"{Fore.CYAN}\nsummarize:", f"{Fore.BLUE}{chunk}", "\n")
 
         # summarize api
         summary = summarize(server_uri, chunk, summary_size)
@@ -79,7 +82,7 @@ def cli(
         summary = chunker.cleaner.clean_paragraph(summary)
 
         if DEBUG:
-            print(f"{Fore.WHITE}", end="")
+            eprint(f"{Fore.WHITE}", end="")
 
         print(f"{summary}", "\n")
 
