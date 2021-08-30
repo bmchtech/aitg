@@ -2,7 +2,7 @@ import os
 import sys
 import re
 
-from clean import ParagraphCleaner
+from summarize_me.clean import ParagraphCleaner
 
 class ArticleChunker:
     def __init__(self):

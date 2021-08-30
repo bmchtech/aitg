@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "summarize_me"
+version = "0.2.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+spacy = "^3.1.2"
+sacremoses = "^0.0.45"
+requests = "^2.26.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+summarize_me = "summarize_me.cli:main"
