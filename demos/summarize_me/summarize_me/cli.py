@@ -9,8 +9,10 @@ from summarize_me.chunk import ArticleChunker
 
 DEBUG = False
 
+
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
 
 # file contents
 def read_file(path):
@@ -46,7 +48,7 @@ def summarize(server_uri, article, summary_size_target):
 def cli(
     server: str,
     in_file: str,
-    model: str = 'bart',
+    model: str = "bart",
     chunk_size: int = 4000,
     summary_size: int = 128,
     debug: bool = False,
@@ -72,9 +74,14 @@ def cli(
             # print()
 
     # summarize chunks
-    for chunk in chunks:
+    num_chunks = len(chunks)
+    for i, chunk in enumerate(chunks):
         if DEBUG:
-            eprint(f"{Fore.CYAN}\nsummarize:", f"{Fore.BLUE}{chunk}", "\n")
+            eprint(
+                f"{Fore.CYAN}\nsummarize[{i+1}/{num_chunks}]:",
+                f"{Fore.BLUE}{chunk}",
+                "\n",
+            )
 
         # summarize api
         summary = summarize(server_uri, chunk, summary_size)
