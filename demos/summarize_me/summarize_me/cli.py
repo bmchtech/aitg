@@ -27,7 +27,7 @@ def summarize(server_uri, article, summary_size_target):
             "text": article,
             "num_beams": 6,
             "length_penalty": 2.0,
-            "max_length": summary_size_target * 2,
+            # "max_length": summary_size_target * 2,
             "min_length": summary_size_target,
             "no_repeat_ngram_size": 4,
         },
@@ -67,8 +67,8 @@ def cli(
     if DEBUG:
         # print chunk overview
         eprint(f"{Fore.CYAN}article chunks:")
-        for chunk in chunks:
-            eprint(f"  {Fore.CYAN}chunk[{len(chunk)}]")
+        for i, chunk in enumerate(chunks):
+            eprint(f"  {Fore.CYAN}chunk #{i}: [{len(chunk)}]")
             # print(chunk)
             # print()
             # print()
