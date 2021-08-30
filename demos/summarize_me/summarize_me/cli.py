@@ -2,8 +2,12 @@ import os
 import sys
 import requests
 import re
+import typer
+from colorama import Fore, Style
 
 from summarize_me.chunk import ArticleChunker
+
+DEBUG = False
 
 # file contents
 def read_file(path):
@@ -27,28 +31,62 @@ def summarize(server_uri, article, summary_size_target):
 
     bundle = resp.json()
 
+    if DEBUG:
+        n_from = bundle["prompt_token_count"]
+        n_to = bundle["token_count"]
+        time = bundle["gen_time"]
+        print(f"{Fore.GREEN}summarized ({n_from}->{n_to}) in {time:.2f}s")
+
     return bundle["text"]
 
 
-def main():
-    server = os.environ["SERVER"]
-    in_file = sys.argv[1]
-
-    server_uri = server + "/gen_bart_summarizer.json"
+def cli(
+    server: str,
+    in_file: str,
+    model: str = 'bart',
+    chunk_size: int = 4000,
+    summary_size: int = 128,
+    debug: bool = False,
+):
+    server_uri = server + f"/gen_{model}_summarizer.json"
     # read full contents
     contents = read_file(in_file)
 
+    global DEBUG
+    DEBUG = debug
+
     # chunk
     chunker = ArticleChunker()
-    chunks = chunker.chunk(contents, 1000 * 4)
+    chunks = chunker.chunk(contents, chunk_size)
+
+    if DEBUG:
+        # print chunk overview
+        print(f"{Fore.CYAN}article chunks:")
+        for chunk in chunks:
+            print(f"  {Fore.CYAN}chunk[{len(chunk)}]")
+            # print(chunk)
+            # print()
+            # print()
 
     # summarize chunks
     for chunk in chunks:
+        if DEBUG:
+            print(f"{Fore.CYAN}\nsummarize:", f"{Fore.BLUE}{chunk}", "\n")
+
         # summarize api
-        summary = summarize(server_uri, chunk, 128)
+        summary = summarize(server_uri, chunk, summary_size)
         # clean summarized paragraph
         summary = chunker.cleaner.clean_paragraph(summary)
-        print(summary, "\n")
+
+        if DEBUG:
+            print(f"{Fore.WHITE}", end="")
+
+        print(f"{summary}", "\n")
+
+
+def main():
+    typer.run(cli)
+
 
 if __name__ == "__main__":
     main()

@@ -38,11 +38,4 @@ class ArticleChunker:
         # end, do final chunk
         chunks.append(current_chunk)
 
-        # # print chunk overview
-        # for chunk in chunks:
-        #     print('chunk:', len(chunk))
-        #     print(chunk)
-        #     print()
-        #     print()
-
         return chunks

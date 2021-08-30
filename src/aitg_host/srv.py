@@ -362,6 +362,7 @@ def gen_led_summarizer_route(ext):
 
         gen_txt = AI_INSTANCE.filter_text(output.text)
         gen_txt_size = len(gen_txt)
+        total_gen_num = len(output.tokens)
         prompt_token_count = output.num_prompt_tokens
         logger.debug(f"model output: {gen_txt}")
         generation_time = time.time() - start
@@ -378,6 +379,7 @@ def gen_led_summarizer_route(ext):
             "text_length": gen_txt_size,
             "prompt_token_count": prompt_token_count,
             "num_new": output.num_new,
+            "token_count": total_gen_num,
             "gen_time": generation_time,
             "gen_tps": gen_tps,
             "model": AI_INSTANCE.model_name,
