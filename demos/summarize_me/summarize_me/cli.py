@@ -27,7 +27,7 @@ def summarize(server_uri, article, summary_size_target):
             "text": article,
             "num_beams": 6,
             "length_penalty": 2.0,
-            "max_length": 1024,
+            "max_length": min(1024, summary_size_target * 2),
             "min_length": summary_size_target,
             "no_repeat_ngram_size": 4,
         },
