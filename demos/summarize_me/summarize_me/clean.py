@@ -35,8 +35,8 @@ class ParagraphCleaner:
 
     def clean_space(self, text):
         # clean whitespace
-        text = text.strip()
         text = text.replace("\n", " ")
+        text = text.strip()
         text = re.sub("\s\s+", " ", text)
         return text
 
