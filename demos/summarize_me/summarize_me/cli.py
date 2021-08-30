@@ -54,8 +54,13 @@ def cli(
     debug: bool = False,
 ):
     server_uri = server + f"/gen_{model}_summarizer.json"
-    # read full contents
-    contents = read_file(in_file)
+
+    if in_file == '-':
+        # stdin
+        contents = sys.stdin.read()
+    else:
+        # read full contents
+        contents = read_file(in_file)
 
     global DEBUG
     DEBUG = debug
