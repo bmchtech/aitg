@@ -328,6 +328,7 @@ def gen_led_summarizer_route(ext):
         abort(400, f"missing field {ke}")
 
     # mode params
+    opt_include_tokens: bool = get_req_opt(req_json, "include_tokens", False)
     # option params
     opt_text: str = get_req_opt(req_json, "text", "")
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)

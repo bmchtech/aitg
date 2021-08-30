@@ -56,7 +56,9 @@ class LedSummaryGenerator(BaseGenerator):
 
         return SimpleNamespace(
             text=output_texts[0],
+            tokens=output_tokens[0],
             seq=output_seqs[0],
             num_new=len(output_tokens[0]),
             num_prompt_tokens=len(input_ids.tolist()[0]),
+            prompt_ids=input_ids.tolist()[0],
         )
