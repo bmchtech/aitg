@@ -16,3 +16,6 @@ class LedSummarizerAI:
         self.model = LEDForConditionalGeneration.from_pretrained(
             model_folder, local_files_only=True
         ).to(to_device)
+
+        # model config
+        self.model.config.no_repeat_ngram_size = 3

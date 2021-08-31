@@ -25,11 +25,8 @@ def summarize(server_uri, article, summary_size_target):
         server_uri,
         json={
             "text": article,
-            "num_beams": 6,
-            "length_penalty": 2.0,
             "max_length": min(1024, summary_size_target * 2),
             "min_length": summary_size_target,
-            "no_repeat_ngram_size": 4,
         },
     )
     resp.raise_for_status()  # ensure
@@ -50,7 +47,7 @@ def cli(
     in_file: str,
     model: str = "bart",
     chunk_size: int = 4000,
-    summary_size: int = 128,
+    summary_size: int = 128, # recommend 128 or 256
     debug: bool = False,
 ):
     server_uri = server + f"/gen_{model}_summarizer.json"

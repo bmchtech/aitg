@@ -35,6 +35,7 @@ class LedSummaryGenerator(BaseGenerator):
             return_dict_in_generate=True,
             min_length=min_length,
             max_length=max_length,
+            early_stopping=True,
         )
 
         # print('model output:', model_output)
