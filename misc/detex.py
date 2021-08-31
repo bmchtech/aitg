@@ -6,7 +6,7 @@
 
 import re
 
-def detex(latex_text, destroy_latex=False):
+def process_latex(latex_text, destroy_latex=False):
     """Transform a latex text into a simple text"""
 
     def apply_regexps(text, regexp_list, destroy):
@@ -92,6 +92,7 @@ def detex(latex_text, destroy_latex=False):
         r"\\bibliography",
         r"\\cline",
         r"\\multicolumn",
+        r"\\frac",
     ]
 
     # replace tag with options and argument by a single space
@@ -175,7 +176,7 @@ def main():
     should_destroy = sys.argv[1] == 'destroy'
 
     # print "defining the test text\n"
-    latex_text = r"""
+    sample_latex_text = r"""
     % This paper can be formatted using the peerreviewca
     % (instead of conference) mode.
     \documentclass[twocolumn,a4paper]{article}
@@ -244,8 +245,14 @@ def main():
     \bibliography{./mabiblio}
     \end{document}
     """
+
+    # read stdin
+    # input_text = sample_latex_text
+
+    input_text = sys.stdin.read()
+
     # print '\n'.join(diff)
-    text = detex(latex_text, should_destroy)
+    text = process_latex(input_text, should_destroy)
 
     print(text)
 
