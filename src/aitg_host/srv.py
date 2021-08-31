@@ -258,11 +258,11 @@ def gen_bart_summarizer_route(ext):
     opt_text: str = get_req_opt(req_json, "text", "")
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
     opt_min_length: int = get_req_opt(req_json, "min_length", 0)
-    opt_num_beams: int = get_req_opt(req_json, "num_beams", None)
+    opt_num_beams: int = get_req_opt(req_json, "num_beams", 6)
     opt_repetition_penalty: float = get_req_opt(req_json, "repetition_penalty", 1.0)
     opt_length_penalty: float = get_req_opt(req_json, "length_penalty", 1.0)
     opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
-    opt_no_repeat_ngram_size: int = get_req_opt(req_json, "no_repeat_ngram_size", 0)
+    opt_no_repeat_ngram_size: int = get_req_opt(req_json, "no_repeat_ngram_size", 3)
 
     logger.debug(f"requesting generation for text: {opt_text}")
 
