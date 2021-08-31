@@ -1,11 +1,11 @@
 
 ![icon](doc/icon.png)
 
-# aitg host
+# aitg
 
-aitg host ("ai text generator host")
+aitg ("ai text generator")
 
-this project allows you to easily run GPT-2/GPT-3 locally on the **command line** or as a **http server**
+this project allows you to easily run GPT-2/GPT-3 (and other models) locally on the **command line** or as a **http server**
 
 ## quickstart
 
@@ -24,6 +24,20 @@ docker run -it --rm -v /tmp/PT_GPTNEO125_ATG:/app/model xdrie/aitg_host:v1.6.0 a
 
 in the command line, press Ctrl+D (or whatever your eof key is) to submit a prompt.
 
+## feature catalog
+
+models:
+- text generation (gpt)
+- text summarization (bart-cnn, longformer-encoder-decoder)
+- text classification (bart-mnli)
+- text embedding (mpnet-paraphrase)
+- question answering (minilm-squad2, roberta-squad2)
+
+deployment:
+- all of these models are available via http rest api
+- optimized model execution with huggingface transformers
+- gpu acceleration support
+
 ## run from source
 
 ### python project
@@ -38,12 +52,10 @@ poetry install
 
 ### model
 
-next, you need to grab a pytorch model.
-for more info on how to train/fine-tune, see [my blog post](https://blog.rie.icu/post/microfinetuning_gpt2/).
+next, you need a pytorch model.
 
 if you don't have your own yet, you can use a sample model:
 + [DistilGPT2-S Base](https://github.com/xdrie/aitextgen_host/releases/download/v1.0.0/PT_DistilGPT2_ATG.7z)
-+ [GPT2-S Philosophical Babbler](https://github.com/xdrie/aitextgen_host/releases/download/v1.0.0/PhilBabble_ATG_20201201_071644__snap6k.7z)
 
 ## cli usage
 
@@ -55,8 +67,6 @@ MODEL=/path/to/your_model poetry run aitg_host_cli
 ```
 
 once it's done loading, it will ask you for a prompt. when you're done typing the prompt, press Ctrl+D (sometimes twice) to send an EOF after entering your prompt, and then the model will generate text.
-
-~~by default, the quantization optimization is applied to the model on initialization. this generally sacrifices a bit of accuracy, while providing about a 20% speedup. to disable, pass `--no-optimize`.~~
 
 ```
 Usage: aitg_host_cli [OPTIONS]
@@ -110,6 +120,12 @@ then
 ```
 
 that's the short version. see the [server docs](doc/server.md) for more details.
+
+## other models
+
+obviously, gpt-2/3 get the spotlight and were the original main focus of aitg. but now an array of other models and model types are supported.
+
+more documentation on other models coming soon.
 
 ## docker usage
 
