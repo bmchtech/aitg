@@ -6,25 +6,21 @@
 
 import re
 
-test_mode = False
-
-def apply_regexps(text, regexp_list, destroy = False):
-    """Applies successively many regexps to a text"""
-    # apply all the rules in the ruleset
-    for element in regexp_list:
-        if test_mode:
-            print("processing:", element)
-        left = element["left"]
-        right = element["right"]
-        if destroy:
-            right = ' '
-        r = re.compile(left)
-        text = r.sub(right, text)
-    return text
-
-
-def detex(latex_text):
+def detex(latex_text, destroy_latex=False):
     """Transform a latex text into a simple text"""
+
+    def apply_regexps(text, regexp_list, destroy):
+        """Applies successively many regexps to a text"""
+        # apply all the rules in the ruleset
+        for element in regexp_list:
+            left = element["left"]
+            right = element["right"]
+            if destroy:
+                right = " "
+            r = re.compile(left)
+            text = r.sub(right, text)
+        return text
+
     # initialization
     regexps = []
     text = latex_text
@@ -33,7 +29,7 @@ def detex(latex_text):
 
     # remove comments
     regexps.append({r"left": r"([^\\])%.*", "right": r"\1"})
-    text = apply_regexps(text, regexps)
+    text = apply_regexps(text, regexps, destroy_latex)
     regexps = []
 
     # - replace some LaTeX commands by the contents inside curly rackets
@@ -51,7 +47,7 @@ def detex(latex_text):
     ]
     for tag in to_reduce:
         regexps.append({"left": tag + r"\{([^\}\{]*)\}", "right": r"\1"})
-    text = apply_regexps(text, regexps)
+    text = apply_regexps(text, regexps, destroy_latex)
     regexps = []
 
     # highlight
@@ -72,7 +68,7 @@ def detex(latex_text):
     to_highlight = [r"\\title", r"\\author", r"\\thanks", r"\\cite", r"\\ref"]
     for tag in to_highlight:
         regexps.append({"left": tag + r"\{([^\}\{]*)\}", "right": r"[\1]"})
-    text = apply_regexps(text, regexps)
+    text = apply_regexps(text, regexps, destroy_latex)
     regexps = []
 
     # remove LaTeX tags
@@ -102,7 +98,7 @@ def detex(latex_text):
     for tag in to_remove:
         regexps.append({"left": tag + r"(\[[^\]]*\])*(\{[^\}\{]*\})*", "right": r" "})
         # regexps.append({'left':tag+r'\{[^\}\{]*\}\[[^\]\[]*\]', 'right':r' '})
-    text = apply_regexps(text, regexps)
+    text = apply_regexps(text, regexps, destroy_latex)
     regexps = []
 
     # - replace some LaTeX commands by the contents inside curly rackets
@@ -159,16 +155,27 @@ def detex(latex_text):
     # remove consecutive blank lines
     regexps.append({"left": r"([ \t]*\n){3,}", "right": r"\n"})
     # apply all those regexps
-    text = apply_regexps(text, regexps)
+    text = apply_regexps(text, regexps, destroy_latex)
     regexps = []
+
+    # clean space
+    if destroy_latex:
+        text = re.sub(r"\s\s+", " ", text)
+        text = text.strip()
+
     # return the modified text
     return text
 
 
 def main():
     """Just for debugging"""
+
+    import sys
+
+    should_destroy = sys.argv[1] == 'destroy'
+
     # print "defining the test text\n"
-    latexText = r"""
+    latex_text = r"""
     % This paper can be formatted using the peerreviewca
     % (instead of conference) mode.
     \documentclass[twocolumn,a4paper]{article}
@@ -238,7 +245,8 @@ def main():
     \end{document}
     """
     # print '\n'.join(diff)
-    text = detex(latexText)
+    text = detex(latex_text, should_destroy)
+
     print(text)
 
 
