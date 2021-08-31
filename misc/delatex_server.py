@@ -2,12 +2,10 @@ import sys
 import os
 import subprocess
 
-# DELATEX = os.environ["DELATEX"]
-
 
 def build_delatex(cache_dir="/tmp/opendetex"):
     bin_path = cache_dir + "/delatex"
-    if os.path.isfile(bin_path):
+    if os.path.exists(cache_dir) and os.path.isfile(bin_path):
         # already made, skip
         print(f"delatex is already built at {bin_path}")
         return bin_path
@@ -57,6 +55,8 @@ def clean_scientific_text(text):
     # 2. try to remove LaTeX using delatex
     # note: process_latex is crappy, don't use it
     # text = process_latex(text, destroy_latex=True)
+    delatex_bin = build_delatex()
+    text = run_delatex(delatex_bin, text)
 
     # 3. remove citations, they are clutter
     # citations can either look like [1] [2] or [1, 2,...]
@@ -76,11 +76,12 @@ def clean_scientific_text(text):
 
 
 def main():
-    delatex_bin = build_delatex()
-
     text = sys.stdin.read()
-    output_text = run_delatex(delatex_bin, text)
-    output_text = clean_scientific_text(output_text)
+
+    # delatex_bin = build_delatex()
+    # output_text = run_delatex(delatex_bin, text)
+
+    output_text = clean_scientific_text(text)
     print("out:", output_text)
 
 
