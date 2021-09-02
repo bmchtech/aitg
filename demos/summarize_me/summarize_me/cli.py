@@ -20,13 +20,13 @@ def read_file(path):
         return f.read()
 
 
-def summarize(server_uri, article, summary_size_target):
+def summarize(server_uri, article, summary_size_min, summary_size_max):
     resp = requests.post(
         server_uri,
         json={
             "text": article,
-            "max_length": min(1024, summary_size_target * 2),
-            "min_length": summary_size_target,
+            "max_length": min(1024, summary_size_max),
+            "min_length": summary_size_min,
         },
     )
     resp.raise_for_status()  # ensure
@@ -47,7 +47,8 @@ def cli(
     in_file: str,
     model: str = "bart",
     chunk_size: int = 4000,
-    summary_size: int = 128, # recommend 128 or 256
+    summary_size_min: int = 128, # recommend 128 or 256
+    summary_size_max: int = 256,
     debug: bool = False,
 ):
     server_uri = server + f"/gen_{model}_summarizer.json"
@@ -86,7 +87,7 @@ def cli(
             )
 
         # summarize api
-        summary = summarize(server_uri, chunk, summary_size)
+        summary = summarize(server_uri, chunk, summary_size_min, summary_size_max)
         # clean summarized paragraph
         summary = chunker.cleaner.clean_paragraph(summary)
 
