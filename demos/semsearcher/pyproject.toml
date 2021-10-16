@@ -14,6 +14,7 @@ summarize_me = {path = "../summarize_me", develop = true}
 en_core_web_sm = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.1.0/en_core_web_sm-3.1.0.tar.gz#egg=en_core_web_sm"}
 typer = "^0.3.2"
 colorama = "^0.4.4"
+msgpack = "^1.0.2"
 
 [tool.poetry.dev-dependencies]
 

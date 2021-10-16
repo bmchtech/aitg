@@ -2,13 +2,16 @@ import os
 import sys
 import requests
 import re
+import json
 import itertools
 import typer
+import msgpack
 from colorama import Fore, Style
 from summarize_me.clean import ParagraphCleaner
 
 DEBUG = False
 
+app = typer.Typer()
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -45,9 +48,11 @@ def batch_list(input, size):
         yield item
         item = list(itertools.islice(it, size))
 
-def cli(
+@app.command("index")
+def index_file(
     server: str,
     in_file: str,
+    out_index: str,
     debug: bool = False,
     max_sentence_length: int = 2000,
 ):
@@ -105,10 +110,23 @@ def cli(
 
     if DEBUG:
         eprint(f"{Fore.WHITE}\ndone generating: {len(squorgled_sentences)} entries in index")
+    
+    # write index
+    with open(out_index, 'wb') as f:
+        f.write(msgpack.dumps(squorgled_sentences))
 
+
+@app.command("search")
+def search_index(
+    server: str,
+    index: str,
+    query: str,
+    debug: bool = False
+):
+    pass
 
 def main():
-    typer.run(cli)
+    app()
 
 
 if __name__ == "__main__":

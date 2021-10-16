@@ -2,6 +2,7 @@ requirements.txt
 /models
 /model
 *.tgz
+*.semix
 .vscode
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
