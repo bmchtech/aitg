@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "semsearcher"
+version = "0.2.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+spacy = "^3.1.2"
+sacremoses = "^0.0.45"
+requests = "^2.26.0"
+summarize_me = {path = "../summarize_me", develop = true}
+
+en_core_web_sm = {url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.1.0/en_core_web_sm-3.1.0.tar.gz#egg=en_core_web_sm"}
+typer = "^0.3.2"
+colorama = "^0.4.4"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+semsearcher = "semsearcher.cli:main"
