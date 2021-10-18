@@ -5,6 +5,8 @@ import re
 import json
 import itertools
 import typer
+import numpy as np
+
 import msgpack
 from colorama import Fore, Style
 from summarize_me.clean import ParagraphCleaner
@@ -113,7 +115,8 @@ def index_file(
     
     # write index
     with open(out_index, 'wb') as f:
-        f.write(msgpack.dumps(squorgled_sentences))
+        # f.write(msgpack.dumps(squorgled_sentences))
+        f.write(json.dumps(squorgled_sentences).encode())
 
 
 @app.command("search")
@@ -121,9 +124,35 @@ def search_index(
     server: str,
     index: str,
     query: str,
+    n: int = 4,
     debug: bool = False
 ):
-    pass
+    server_uri = server + f"/gen_sentence_embed.json"
+
+    # read index
+    with open(index, 'rb') as f:
+        # index_data = msgpack.loads(f.read())
+        index_data = json.loads(f.read().decode())
+    
+    # embed query
+    query_vec = create_embeddings(server_uri, [query])[0]
+
+    # calculate similarity scores for all
+    similarities = []
+    for entry in index_data:
+        sent_text = entry[0]
+        sent_vec = entry[1]
+
+        score = np.dot(query_vec, sent_vec)/(np.linalg.norm(query_vec)*np.linalg.norm(sent_vec))
+
+        similarities.append([score, sent_text])
+
+    # find top n matches
+    similarities.sort(key=(lambda x: x[0]), reverse=True)
+
+    for i in range(0, n):
+        match = similarities[i]
+        print(match)
 
 def main():
     app()

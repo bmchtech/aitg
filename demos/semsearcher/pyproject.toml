@@ -5,7 +5,7 @@ description = ""
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.11"
 spacy = "^3.1.2"
 sacremoses = "^0.0.45"
 requests = "^2.26.0"
@@ -15,6 +15,7 @@ en_core_web_sm = {url = "https://github.com/explosion/spacy-models/releases/down
 typer = "^0.3.2"
 colorama = "^0.4.4"
 msgpack = "^1.0.2"
+numpy = "^1.21.2"
 
 [tool.poetry.dev-dependencies]
 
