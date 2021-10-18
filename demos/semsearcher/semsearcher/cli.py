@@ -58,6 +58,7 @@ def index_file(
     in_file: str,
     out_index: str,
     debug: bool = False,
+    embed_batch_size: int = 16,
     max_sentence_length: int = 2000,
 ):
     server_uri = server + f"/gen_sentence_embed.json"
@@ -87,7 +88,6 @@ def index_file(
         eprint(f"{Fore.CYAN}split into {num_sents} sentences")
 
     # embed each sentence
-    embed_batch_size = 16
     in_sentenecs_batched = batch_list(in_sentences, embed_batch_size)
     for i, sent_batch in enumerate(in_sentenecs_batched):
         if DEBUG:
