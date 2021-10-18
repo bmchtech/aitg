@@ -1,7 +1,9 @@
 import os
+import os
 import sys
 import requests
 import re
+import math
 import json
 import itertools
 import typer
@@ -74,6 +76,7 @@ def index_file(
     cleaner = ParagraphCleaner()
     in_sentences = cleaner.sentencize(contents)
     in_sentences = cleaner.drop_longer_than(in_sentences, max_sentence_length)
+    in_sentences = map(lambda x: x.strip(), in_sentences)
     num_sents = len(in_sentences)
 
     # embedding index
@@ -150,9 +153,13 @@ def search_index(
     # find top n matches
     similarities.sort(key=(lambda x: x[0]), reverse=True)
 
+    eprint(f"{Fore.WHITE}\nshowing {n} top matches (searched {len(similarities)})")
+
     for i in range(0, n):
         match = similarities[i]
-        print(match)
+        score = math.floor(match[0] * 100)
+        sent = match[1].strip()
+        eprint(f"{Fore.GREEN}{score:2}%: {sent}\n")
 
 def main():
     app()
