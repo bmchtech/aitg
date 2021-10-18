@@ -76,7 +76,7 @@ def index_file(
     cleaner = ParagraphCleaner()
     in_sentences = cleaner.sentencize(contents)
     in_sentences = cleaner.drop_longer_than(in_sentences, max_sentence_length)
-    in_sentences = map(lambda x: x.strip(), in_sentences)
+    in_sentences = list(map(lambda x: x.strip(), in_sentences))
     num_sents = len(in_sentences)
 
     # embedding index
