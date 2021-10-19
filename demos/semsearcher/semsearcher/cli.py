@@ -1,5 +1,5 @@
 import os
-import os
+import time
 import sys
 import requests
 import re
@@ -74,6 +74,8 @@ def index_file(
     global DEBUG
     DEBUG = debug
 
+    start_time = time.time()
+
     # split the text into sentences
     cleaner = ParagraphCleaner()
     contents = cleaner.clean_space(contents)
@@ -117,7 +119,7 @@ def index_file(
         sys.stdout.flush()
 
     if DEBUG:
-        eprint(f"{Fore.WHITE}\ndone generating: {len(squorgled_sentences)} entries in index")
+        eprint(f"{Fore.WHITE}\ndone generating in {time.time() - start_time:.2f}s: {len(squorgled_sentences)} entries in index")
     
     # write index
     crunched_index = lz4.frame.compress(msgpack.dumps(squorgled_sentences))
