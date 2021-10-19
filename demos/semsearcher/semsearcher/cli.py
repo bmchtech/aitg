@@ -4,12 +4,13 @@ import sys
 import requests
 import re
 import math
-import json
 import itertools
 import typer
 import numpy as np
+import json
 
 import msgpack
+import lz4.frame
 from colorama import Fore, Style
 from summarize_me.clean import ParagraphCleaner
 
@@ -75,9 +76,11 @@ def index_file(
 
     # split the text into sentences
     cleaner = ParagraphCleaner()
+    contents = cleaner.clean_space(contents)
     in_sentences = cleaner.sentencize(contents)
-    in_sentences = cleaner.drop_longer_than(in_sentences, max_sentence_length)
     in_sentences = list(map(lambda x: x.strip(), in_sentences))
+    num_initial_sents = len(in_sentences)
+    in_sentences = cleaner.drop_longer_than(in_sentences, max_sentence_length)
     num_sents = len(in_sentences)
 
     # embedding index
@@ -85,7 +88,7 @@ def index_file(
 
     if DEBUG:
         # print sentence overview
-        eprint(f"{Fore.CYAN}split into {num_sents} sentences")
+        eprint(f"{Fore.CYAN}split into {num_sents} sentences ({num_initial_sents} considered)")
 
     # embed each sentence
     in_sentenecs_batched = batch_list(in_sentences, embed_batch_size)
@@ -118,14 +121,14 @@ def index_file(
     
     # write index
     with open(out_index, 'wb') as f:
-        # f.write(msgpack.dumps(squorgled_sentences))
-        f.write(json.dumps(squorgled_sentences).encode())
+        f.write(lz4.frame.compress(msgpack.dumps(squorgled_sentences)))
+        # f.write(json.dumps(squorgled_sentences).encode())
 
 
 @app.command("search")
 def search_index(
     server: str,
-    index: str,
+    in_index: str,
     query: str,
     n: int = 4,
     debug: bool = False
@@ -133,9 +136,9 @@ def search_index(
     server_uri = server + f"/gen_sentence_embed.json"
 
     # read index
-    with open(index, 'rb') as f:
-        # index_data = msgpack.loads(f.read())
-        index_data = json.loads(f.read().decode())
+    with open(in_index, 'rb') as f:
+        index_data = msgpack.loads(lz4.frame.decompress(f.read()))
+        # index_data = json.loads(f.read().decode())
     
     # embed query
     query_vec = create_embeddings(server_uri, [query])[0]
