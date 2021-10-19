@@ -123,7 +123,7 @@ def index_file(
     
     # write index
     crunched_index = lz4.frame.compress(msgpack.dumps(squorgled_sentences))
-    if in_file == '-':
+    if out_index == '-':
         sys.stdout.buffer.write(crunched_index)
         sys.stdout.flush()
     else:
