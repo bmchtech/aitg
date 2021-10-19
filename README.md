@@ -29,7 +29,7 @@ in the command line, press Ctrl+D (or whatever your eof key is) to submit a prom
 models:
 - text generation (gpt)
 - text summarization (bart-cnn, longformer-encoder-decoder)
-- text classification (bart-mnli)
+- text classification (bart-mnli, minilm2-nli)
 - text embedding (mpnet-paraphrase)
 - question answering (minilm-squad2, roberta-squad2)
 

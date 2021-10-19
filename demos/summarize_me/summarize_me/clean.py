@@ -60,3 +60,10 @@ class ParagraphCleaner:
         result = self.truecase(detokenized_str)
 
         return result
+    
+    def drop_longer_than(self, sentences, drop_length):
+        results = []
+        for sent in sentences:
+            if len(sent) <= drop_length:
+                results.append(sent)
+        return results
