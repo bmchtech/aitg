@@ -120,9 +120,14 @@ def index_file(
         eprint(f"{Fore.WHITE}\ndone generating: {len(squorgled_sentences)} entries in index")
     
     # write index
-    with open(out_index, 'wb') as f:
-        f.write(lz4.frame.compress(msgpack.dumps(squorgled_sentences)))
-        # f.write(json.dumps(squorgled_sentences).encode())
+    crunched_index = lz4.frame.compress(msgpack.dumps(squorgled_sentences))
+    if in_file == '-':
+        sys.stdout.buffer.write(crunched_index)
+        sys.stdout.flush()
+    else:
+        # write to file
+        with open(out_index, 'wb') as f:
+            f.write(crunched_index)
 
 
 @app.command("search")
@@ -136,9 +141,13 @@ def search_index(
     server_uri = server + f"/gen_sentence_embed.json"
 
     # read index
-    with open(in_index, 'rb') as f:
-        index_data = msgpack.loads(lz4.frame.decompress(f.read()))
-        # index_data = json.loads(f.read().decode())
+    if in_index == '-':
+        # stdin
+        index_data = msgpack.loads(lz4.frame.decompress(sys.stdin.buffer.read()))
+    else:
+        # read full contents
+        with open(in_index, 'rb') as f:
+            index_data = msgpack.loads(lz4.frame.decompress(f.read()))
     
     # embed query
     query_vec = create_embeddings(server_uri, [query])[0]
