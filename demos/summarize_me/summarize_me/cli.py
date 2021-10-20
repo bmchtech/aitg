@@ -5,42 +5,10 @@ import re
 import typer
 from colorama import Fore, Style
 
-from doctools.chunk import ArticleChunker
+from doctools.util import read_file
+from summarize_me.summgen import summarize_document
 
-DEBUG = False
-
-
-def eprint(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
-
-
-# file contents
-def read_file(path):
-    with open(path) as f:
-        return f.read()
-
-
-def summarize(server_uri, article, summary_size_min, summary_size_max):
-    resp = requests.post(
-        server_uri,
-        json={
-            "text": article,
-            "max_length": min(1024, summary_size_max),
-            "min_length": summary_size_min,
-        },
-    )
-    resp.raise_for_status()  # ensure
-
-    bundle = resp.json()
-
-    if DEBUG:
-        n_from = bundle["prompt_token_count"]
-        n_to = bundle["token_count"]
-        time = bundle["gen_time"]
-        eprint(f"{Fore.GREEN}summarized ({n_from}->{n_to}) in {time:.2f}s")
-
-    return bundle["text"]
-
+DEBUG = os.environ.get('DEBUG')
 
 def cli(
     server: str,
@@ -49,57 +17,20 @@ def cli(
     chunk_size: int = 4000,
     summary_size_min: int = 128, # recommend 128 or 256
     summary_size_max: int = 256,
-    debug: bool = False,
 ):
-    server_uri = server + f"/gen_{model}_summarizer.json"
-
     if in_file == '-':
         # stdin
-        contents = sys.stdin.read()
+        document = sys.stdin.read()
     else:
         # read full contents
-        contents = read_file(in_file)
+        document = read_file(in_file)
 
-    global DEBUG
-    DEBUG = debug
-
-    # chunk
-    chunker = ArticleChunker()
-    chunks = chunker.chunk(contents, chunk_size)
+    document_summary = summarize_document(server, document, model, chunk_size, summary_size_min, summary_size_max)
 
     if DEBUG:
-        # print chunk overview
-        eprint(f"{Fore.CYAN}article chunks:")
-        for i, chunk in enumerate(chunks):
-            eprint(f"  {Fore.CYAN}chunk #{i}: [{len(chunk)}]")
-            # print(chunk)
-            # print()
-            # print()
-
-    # summarize chunks
-    num_chunks = len(chunks)
-    for i, chunk in enumerate(chunks):
-        if DEBUG:
-            eprint(
-                f"{Fore.CYAN}\nsummarize[{i+1}/{num_chunks}]:",
-                f"{Fore.BLUE}{chunk}",
-                "\n",
-            )
-
-        # summarize api
-        summary = summarize(server_uri, chunk, summary_size_min, summary_size_max)
-        # clean summarized paragraph
-        summary = chunker.cleaner.clean_paragraph(summary)
-
-        if DEBUG:
-            eprint(f"{Fore.WHITE}", end="")
-
-        sys.stderr.flush()
-
-        print(f"{summary}", "\n")
-
-        sys.stdout.flush()
-
+        ratio = (len(document_summary) / len(document)) * 100
+        eprint(f"{Fore.WHITE}\nfull summary ({ratio:.0f}%):\n")
+    print(document_summary)
 
 def main():
     typer.run(cli)
