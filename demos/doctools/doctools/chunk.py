@@ -2,7 +2,7 @@ import os
 import sys
 import re
 
-from summarize_me.clean import ParagraphCleaner
+from doctools.clean import ParagraphCleaner
 
 
 class ArticleChunker:

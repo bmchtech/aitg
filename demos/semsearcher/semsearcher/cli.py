@@ -13,9 +13,8 @@ import msgpack
 import lz4.frame
 from colorama import Fore, Style
 
-from summarize_me.clean import ParagraphCleaner
+from doctools.util import eprint, read_file
 from semsearcher.semmine import create_document_index, search_document_index
-from semsearcher.util import batch_list, eprint, read_file
 
 DEBUG = os.environ.get('DEBUG')
 

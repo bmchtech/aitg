@@ -11,8 +11,8 @@ import json
 import msgpack
 import lz4.frame
 from colorama import Fore, Style
-from summarize_me.clean import ParagraphCleaner
-from semsearcher.util import batch_list, eprint
+from doctools.clean import ParagraphCleaner
+from doctools.util import batch_list, eprint
 
 DEBUG = os.environ.get('DEBUG')
 

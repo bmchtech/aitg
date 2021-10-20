@@ -5,7 +5,7 @@ import re
 import typer
 from colorama import Fore, Style
 
-from summarize_me.chunk import ArticleChunker
+from doctools.chunk import ArticleChunker
 
 DEBUG = False
 
