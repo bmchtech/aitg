@@ -53,26 +53,15 @@ def batch_list(input, size):
         yield item
         item = list(itertools.islice(it, size))
 
-@app.command("index")
 def index_file(
     server: str,
-    in_file: str,
-    out_index: str,
-    debug: bool = False,
+    document: str,
     embed_batch_size: int = 16,
     max_sentence_length: int = 2000,
 ):
     server_uri = server + f"/gen_sentence_embed.json"
-
-    if in_file == '-':
-        # stdin
-        contents = sys.stdin.read()
-    else:
-        # read full contents
-        contents = read_file(in_file)
-
-    global DEBUG
-    DEBUG = debug
+    
+    contents = document
 
     start_time = time.time()
 
@@ -86,7 +75,7 @@ def index_file(
     num_sents = len(in_sentences)
 
     # embedding index
-    squorgled_sentences = []
+    index_data = []
 
     if DEBUG:
         # print sentence overview
@@ -114,42 +103,22 @@ def index_file(
             sent = sent_batch[i]
 
             # add entry to index
-            squorgled_sentences.append([sent, embedding])
+            index_data.append([sent, embedding])
 
         sys.stdout.flush()
 
     if DEBUG:
-        eprint(f"{Fore.WHITE}\ndone generating in {time.time() - start_time:.2f}s: {len(squorgled_sentences)} entries in index")
+        eprint(f"{Fore.WHITE}\ndone generating in {time.time() - start_time:.2f}s: {len(index_data)} entries in index")
     
-    # write index
-    crunched_index = lz4.frame.compress(msgpack.dumps(squorgled_sentences))
-    if out_index == '-':
-        sys.stdout.buffer.write(crunched_index)
-        sys.stdout.flush()
-    else:
-        # write to file
-        with open(out_index, 'wb') as f:
-            f.write(crunched_index)
+    return index_data
 
-
-@app.command("search")
 def search_index(
     server: str,
-    in_index: str,
+    index_data,
     query: str,
-    n: int = typer.Option(4, '-n', '--num-results'),
-    debug: bool = False
+    n,
 ):
     server_uri = server + f"/gen_sentence_embed.json"
-
-    # read index
-    if in_index == '-':
-        # stdin
-        index_data = msgpack.loads(lz4.frame.decompress(sys.stdin.buffer.read()))
-    else:
-        # read full contents
-        with open(in_index, 'rb') as f:
-            index_data = msgpack.loads(lz4.frame.decompress(f.read()))
     
     # embed query
     query_vec = create_embeddings(server_uri, [query])[0]
@@ -167,6 +136,59 @@ def search_index(
     # find top n matches
     similarities.sort(key=(lambda x: x[0]), reverse=True)
 
+    return similarities
+
+@app.command("index")
+def index_file_cmd(
+    server: str,
+    in_file: str,
+    out_index: str,
+    debug: bool = False,
+    embed_batch_size: int = 16,
+    max_sentence_length: int = 2000,
+):
+    global DEBUG
+    DEBUG = debug
+
+    if in_file == '-':
+        # stdin
+        document = sys.stdin.read()
+    else:
+        # read full contents
+        document = read_file(in_file)
+    
+    index_data = index_file(server, document, embed_batch_size, max_sentence_length)
+
+    # write index
+    crunched_index = lz4.frame.compress(msgpack.dumps(index_data))
+    if out_index == '-':
+        sys.stdout.buffer.write(crunched_index)
+        sys.stdout.flush()
+    else:
+        # write to file
+        with open(out_index, 'wb') as f:
+            f.write(crunched_index)
+
+
+@app.command("search")
+def search_index_cmd(
+    server: str,
+    in_index: str,
+    query: str,
+    n: int = typer.Option(4, '-n', '--num-results'),
+    debug: bool = False
+):
+    # read index
+    if in_index == '-':
+        # stdin
+        index_data = msgpack.loads(lz4.frame.decompress(sys.stdin.buffer.read()))
+    else:
+        # read full contents
+        with open(in_index, 'rb') as f:
+            index_data = msgpack.loads(lz4.frame.decompress(f.read()))
+    
+    similarities = search_index(server, index_data, query, n)
+    
     eprint(f"{Fore.WHITE}\nshowing {n} top matches (searched {len(similarities)})")
 
     for i in range(0, n):
