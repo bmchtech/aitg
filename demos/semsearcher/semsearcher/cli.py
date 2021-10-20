@@ -137,7 +137,7 @@ def search_index(
     server: str,
     in_index: str,
     query: str,
-    n: int = 4,
+    n: int = typer.Option(4, '-n', '--num-results'),
     debug: bool = False
 ):
     server_uri = server + f"/gen_sentence_embed.json"
