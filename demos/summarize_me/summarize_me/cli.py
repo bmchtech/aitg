@@ -5,7 +5,7 @@ import re
 import typer
 from colorama import Fore, Style
 
-from doctools.util import read_file
+from doctools.util import read_file, eprint
 from summarize_me.summgen import summarize_document
 
 DEBUG = os.environ.get('DEBUG')

@@ -75,5 +75,5 @@ def summarize_document(
         # store summary chunk
         chunk_summaries.append(summary)
     
-    combined_summaries = ' '.join(chunk_summaries)
+    combined_summaries = '\n\n'.join(chunk_summaries)
     return combined_summaries
