@@ -39,7 +39,8 @@ def clean_file_cmd(
 
         # print sentences
         for i, sentence in enumerate(cleaned_sentences):
-            eprint(f"{Fore.CYAN}[{i+1}/{num_cleaned_sents}]: {sentence}\n")
+            eprint(f"{Fore.CYAN}[{i+1}/{num_cleaned_sents}]", end='')
+            print(f"{sentence}\n")
 
 @app.command("index")
 def index_file_cmd(
