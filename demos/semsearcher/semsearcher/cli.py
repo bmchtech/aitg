@@ -14,11 +14,32 @@ import lz4.frame
 from colorama import Fore, Style
 
 from doctools.util import eprint, read_file
-from semsearcher.semmine import create_document_index, search_document_index
+from semsearcher.semmine import create_document_index, search_document_index, clean_document_for_indexing
 
 DEBUG = os.environ.get('DEBUG')
 
 app = typer.Typer()
+
+@app.command('clean')
+def clean_file_cmd(
+    in_file: str
+):
+    if in_file == '-':
+        # stdin
+        document = sys.stdin.read()
+    else:
+        # read full contents
+        document = read_file(in_file)
+    
+    cleaned_sentences, num_initial_sents, num_cleaned_sents = clean_document_for_indexing(document)
+    
+    if DEBUG:
+        # print sentence overview
+        eprint(f"{Fore.CYAN}split into {num_cleaned_sents} sentences ({num_initial_sents} considered)")
+
+        # print sentences
+        for i, sentence in enumerate(cleaned_sentences):
+            eprint(f"{Fore.CYAN}[{i+1}/{num_cleaned_sents}]: {sentence}\n")
 
 @app.command("index")
 def index_file_cmd(

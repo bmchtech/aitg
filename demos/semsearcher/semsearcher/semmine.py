@@ -34,6 +34,18 @@ def create_embeddings(server_uri, sentences):
 
     return bundle["embeds"]
 
+def clean_document_for_indexing(contents, max_sentence_length=2000):
+    # split the text into sentences
+    cleaner = ParagraphCleaner()
+    contents = cleaner.clean_space(contents)
+    sentences = cleaner.sentencize(contents)
+    num_initial_sents = len(sentences)
+    cleaned_sentences = list(map(lambda x: x.strip(), sentences))
+    cleaned_sentences = cleaner.drop_longer_than(cleaned_sentences, max_sentence_length)
+    num_cleaned_sents = len(cleaned_sentences)
+
+    return cleaned_sentences, num_initial_sents, num_cleaned_sents
+
 def create_document_index(
     server: str,
     contents: str,
@@ -43,28 +55,22 @@ def create_document_index(
     server_uri = server + f"/gen_sentence_embed.json"
     start_time = time.time()
 
-    # split the text into sentences
-    cleaner = ParagraphCleaner()
-    contents = cleaner.clean_space(contents)
-    in_sentences = cleaner.sentencize(contents)
-    in_sentences = list(map(lambda x: x.strip(), in_sentences))
-    num_initial_sents = len(in_sentences)
-    in_sentences = cleaner.drop_longer_than(in_sentences, max_sentence_length)
-    num_sents = len(in_sentences)
+    # clean up the document
+    cleaned_sentences, num_initial_sents, num_cleaned_sents = clean_document_for_indexing(contents, max_sentence_length)
 
     # embedding index
     index_data = []
 
     if DEBUG:
         # print sentence overview
-        eprint(f"{Fore.CYAN}split into {num_sents} sentences ({num_initial_sents} considered)")
+        eprint(f"{Fore.CYAN}split into {num_cleaned_sents} sentences ({num_initial_sents} considered)")
 
     # embed each sentence
-    in_sentenecs_batched = batch_list(in_sentences, embed_batch_size)
-    for i, sent_batch in enumerate(in_sentenecs_batched):
+    in_sentence_batch = batch_list(cleaned_sentences, embed_batch_size)
+    for i, sent_batch in enumerate(in_sentence_batch):
         if DEBUG:
             eprint(
-                f"{Fore.CYAN}\nembed[{(i*embed_batch_size)+1}/{num_sents}]:",
+                f"{Fore.CYAN}\nembed[{(i*embed_batch_size)+1}/{num_cleaned_sents}]:",
                 "\n",
             )
 
