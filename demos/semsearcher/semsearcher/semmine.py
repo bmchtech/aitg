@@ -36,14 +36,11 @@ def create_embeddings(server_uri, sentences):
 
 def create_document_index(
     server: str,
-    document: str,
+    contents: str,
     embed_batch_size: int = 16,
     max_sentence_length: int = 2000,
 ):
     server_uri = server + f"/gen_sentence_embed.json"
-    
-    contents = document
-
     start_time = time.time()
 
     # split the text into sentences

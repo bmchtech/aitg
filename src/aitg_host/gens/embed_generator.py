@@ -32,6 +32,7 @@ class EmbedGenerator(BaseGenerator):
         )
 
         input_ids = input_tensors.input_ids.to(self.ai.device)
+        attention_mask = input_tensors.attention_mask.to(self.ai.device)
 
         # Compute token embeddings
         with torch.no_grad():
@@ -41,7 +42,7 @@ class EmbedGenerator(BaseGenerator):
 
         # Perform pooling. In this case, max pooling.
         sentence_embeddings = self.mean_pooling(
-            model_output, input_tensors["attention_mask"]
+            model_output, attention_mask
         )
 
         # print("sentence embeddings:", sentence_embeddings.shape(), sentence_embeddings)
