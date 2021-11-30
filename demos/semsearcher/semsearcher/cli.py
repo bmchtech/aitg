@@ -47,7 +47,7 @@ def index_file_cmd(
     server: str,
     in_file: str,
     out_index: str,
-    embed_batch_size: int = 16,
+    embed_batch_size: int = 32,
     max_sentence_length: int = 2000,
 ):
 
@@ -96,7 +96,8 @@ def search_index_cmd(
         entry, score = similarities[i]
         score = math.floor(score * 100)
         sent = entry[0].strip()
-        eprint(f"{Fore.GREEN}{score:2}%: {sent}\n")
+        eprint(f"{Fore.GREEN}", end='')
+        print(f"{score:2}%: {sent}\n")
 
 @app.command("multisearch")
 def multisearch_index_cmd(
@@ -134,7 +135,8 @@ def multisearch_index_cmd(
         score = math.floor(score * 100)
         sent = entry[0].strip()
         doc_name = entry[2]
-        eprint(f"{Fore.GREEN}{score:2}%({doc_name}): {sent}\n")
+        eprint(f"{Fore.GREEN}", end='')
+        print(f"{score:2}%({doc_name}): {sent}\n")
 
 
 def main():
