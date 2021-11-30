@@ -14,6 +14,7 @@ class ParagraphCleaner:
         # init spacy
         self.nlp = spacy.load("en_core_web_sm", exclude=["parser"])
         self.nlp.enable_pipe("senter")
+        self.nlp.max_length = 100000000 # length isn't really too badly when using sentence detection
 
     def sentencize(self, paragraph):
         spacy_doc = self.nlp(paragraph)

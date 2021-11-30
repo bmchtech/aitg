@@ -109,9 +109,9 @@ def search_document_index(
 
         score = np.dot(query_vec, sent_vec)/(np.linalg.norm(query_vec)*np.linalg.norm(sent_vec))
 
-        similarities.append([score, sent_text])
+        similarities.append((entry, score))
 
     # find top n matches
-    similarities.sort(key=(lambda x: x[0]), reverse=True)
+    similarities.sort(key=(lambda x: x[1]), reverse=True)
 
     return similarities
