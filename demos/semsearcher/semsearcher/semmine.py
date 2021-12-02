@@ -7,6 +7,7 @@ import math
 import typer
 import numpy as np
 import json
+from types import SimpleNamespace
 
 import msgpack
 import lz4.frame
@@ -42,9 +43,16 @@ def clean_document_for_indexing(contents, max_sentence_length=2000):
     num_initial_sents = len(sentences)
     cleaned_sentences = list(map(lambda x: x.strip(), sentences))
     cleaned_sentences = cleaner.drop_longer_than(cleaned_sentences, max_sentence_length)
-    num_cleaned_sents = len(cleaned_sentences)
+    cleaned_sentences, nonparagraph_sentences = cleaner.filter_non_paragraph_sentences(cleaned_sentences)
 
-    return cleaned_sentences, num_initial_sents, num_cleaned_sents
+    num_sents = len(cleaned_sentences)
+
+    return SimpleNamespace(
+        sentences=cleaned_sentences,
+        num_initial_sents=num_initial_sents,
+        num_sents=num_sents,
+        nonparagraph_sentences=nonparagraph_sentences
+    )
 
 def create_document_index(
     server: str,
@@ -56,21 +64,21 @@ def create_document_index(
     start_time = time.time()
 
     # clean up the document
-    cleaned_sentences, num_initial_sents, num_cleaned_sents = clean_document_for_indexing(contents, max_sentence_length)
+    cleaned_doc = clean_document_for_indexing(contents, max_sentence_length=max_sentence_length)
 
     # embedding index
     index_data = []
 
     if DEBUG:
         # print sentence overview
-        eprint(f"{Fore.CYAN}split into {num_cleaned_sents} sentences ({num_initial_sents} considered)")
+        eprint(f"{Fore.CYAN}split into {cleaned_doc.num_sents} sentences ({cleaned_doc.num_initial_sents} considered)")
 
     # embed each sentence
-    in_sentence_batch = batch_list(cleaned_sentences, embed_batch_size)
+    in_sentence_batch = batch_list(cleaned_doc.sentences, embed_batch_size)
     for i, sent_batch in enumerate(in_sentence_batch):
         if DEBUG:
             eprint(
-                f"{Fore.CYAN}\nembed[{(i*embed_batch_size)+1}/{num_cleaned_sents}]:",
+                f"{Fore.CYAN}\nembed[{(i*embed_batch_size)+1}/{cleaned_doc.num_sents}]:",
                 "\n",
             )
 

@@ -26,21 +26,26 @@ def clean_file_cmd(
 ):
     if in_file == '-':
         # stdin
-        document = sys.stdin.read()
+        contents = sys.stdin.read()
     else:
         # read full contents
-        document = read_file(in_file)
+        contents = read_file(in_file)
     
-    cleaned_sentences, num_initial_sents, num_cleaned_sents = clean_document_for_indexing(document)
+    cleaned_doc = clean_document_for_indexing(contents, max_sentence_length=2000)
     
     if DEBUG:
         # print sentence overview
-        eprint(f"{Fore.CYAN}split into {num_cleaned_sents} sentences ({num_initial_sents} considered)")
+        eprint(f"{Fore.CYAN}split into {cleaned_doc.num_sents} sentences ({cleaned_doc.num_initial_sents} considered)")
 
         # print sentences
-        for i, sentence in enumerate(cleaned_sentences):
-            eprint(f"{Fore.CYAN}[{i+1}/{num_cleaned_sents}]", end='')
+        eprint(f"{Fore.CYAN}\n\n==== CLEANED SENTENCES ({cleaned_doc.num_sents}) ====\n")
+        for i, sentence in enumerate(cleaned_doc.sentences):
             print(f"{sentence}\n")
+        
+        # show dropped
+        eprint(f"{Fore.CYAN}\n\n==== DROPPED NONPARA SENTENCES ====\n")
+        for i, sentence in enumerate(cleaned_doc.nonparagraph_sentences):
+            eprint(f"{sentence}\n")
 
 @app.command("index")
 def index_file_cmd(
