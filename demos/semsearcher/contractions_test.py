@@ -21,62 +21,62 @@ TAG is part of speech
 contraction_tokenizer_exceptions = {
 # do
     "don't": [
-        {ORTH: "do", LEMMA: "do"},
-        {ORTH: "n't", LEMMA: "not", NORM: "not", TAG: "RB"}],
+        {ORTH: "do"},
+        {ORTH: "n't", NORM: "not",}],
     "doesn't": [
-        {ORTH: "does", LEMMA: "do"},
-        {ORTH: "n't", LEMMA: "not", NORM: "not", TAG: "RB"}],
+        {ORTH: "does"},
+        {ORTH: "n't", NORM: "not",}],
     "didn't": [
-        {ORTH: "did", LEMMA: "do"},
-        {ORTH: "n't", LEMMA: "not", NORM: "not", TAG: "RB"}],
+        {ORTH: "did"},
+        {ORTH: "n't", NORM: "not",}],
 # can
     "can't": [
-        {ORTH: "ca", LEMMA: "can"},
-        {ORTH: "n't", LEMMA: "not", NORM: "not", TAG: "RB"}],
+        {ORTH: "ca"},
+        {ORTH: "n't", NORM: "not",}],
     "couldn't": [
-        {ORTH: "could", LEMMA: "can"},
-        {ORTH: "n't", LEMMA: "not", NORM: "not", TAG: "RB"}],
+        {ORTH: "could"},
+        {ORTH: "n't", NORM: "not",}],
 # have
     "I've'": [
-        {ORTH: "I", LEMMA: "I"},
-        {ORTH: "'ve'", LEMMA: "have", NORM: "have", TAG: "VERB"}],
+        {ORTH: "I"},
+        {ORTH: "'ve'", NORM: "have",}],
     "haven't": [
-        {ORTH: "have", LEMMA: "have"},
-        {ORTH: "n't", LEMMA: "not", NORM: "not", TAG: "RB"}],
+        {ORTH: "have"},
+        {ORTH: "n't", NORM: "not",}],
     "hasn't": [
-        {ORTH: "has", LEMMA: "have"},
-        {ORTH: "n't", LEMMA: "not", NORM: "not", TAG: "RB"}],
+        {ORTH: "has"},
+        {ORTH: "n't", NORM: "not",}],
     "hadn't": [
-        {ORTH: "had", LEMMA: "have"},
-        {ORTH: "n't", LEMMA: "not", NORM: "not", TAG: "RB"}],
+        {ORTH: "had"},
+        {ORTH: "n't", NORM: "not",}],
 # will/shall will be replaced by will
     "I'll'": [
-        {ORTH: "I", LEMMA: "I"},
-        {ORTH: "'ll'", LEMMA: "will", NORM: "will", TAG: "VERB"}],
+        {ORTH: "I"},
+        {ORTH: "'ll'", NORM: "will",}],
     "he'll'": [
-        {ORTH: "he", LEMMA: "he"},
-        {ORTH: "'ll'", LEMMA: "will", NORM: "will", TAG: "VERB"}],
+        {ORTH: "he"},
+        {ORTH: "'ll'", NORM: "will",}],
     "she'll'": [
-        {ORTH: "she", LEMMA: "she"},
-        {ORTH: "'ll'", LEMMA: "will", NORM: "will", TAG: "VERB"}],
+        {ORTH: "she"},
+        {ORTH: "'ll'", NORM: "will",}],
     "it'll'": [
-        {ORTH: "it", LEMMA: "it"},
-        {ORTH: "'ll'", LEMMA: "will", NORM: "will", TAG: "VERB"}],
+        {ORTH: "it"},
+        {ORTH: "'ll'", NORM: "will",}],
     "won't": [
-        {ORTH: "wo", LEMMA: "will"},
-        {ORTH: "n't", LEMMA: "not", NORM: "not", TAG: "RB"}],
+        {ORTH: "wo"},
+        {ORTH: "n't", NORM: "not",}],
     "wouldn't": [
-        {ORTH: "would", LEMMA: "will"},
-        {ORTH: "n't", LEMMA: "not", NORM: "not", TAG: "RB"}],
+        {ORTH: "would"},
+        {ORTH: "n't", NORM: "not",}],
 # be
     "I'm'": [
-        {ORTH: "I", LEMMA: "I"},
-        {ORTH: "'m'", LEMMA: "be", NORM: "am", TAG: "VERB"}]
+        {ORTH: "I"},
+        {ORTH: "'m'", NORM: "am",}]
 }
 
 # add special cases
-for word in contraction_tokenizer_exceptions.keys():
-    nlp.tokenizer.add_special_case(word, contraction_tokenizer_exceptions[word])
+# for word in contraction_tokenizer_exceptions.keys():
+    # nlp.tokenizer.add_special_case(word, contraction_tokenizer_exceptions[word])
 
 #testing all contractions using spaCy's update tokenizer
 doc1 = nlp(u"Oh no he didn't. I can't and I won't. I'll know what I'm gonna do.")
