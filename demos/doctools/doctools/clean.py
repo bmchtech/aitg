@@ -11,17 +11,19 @@ class ParagraphCleaner:
     def __init__(self):
         # init moses
         self.detokenizer = MosesDetokenizer(lang="en")
-        
+
         # init spacy
         # spacy for nlp senter
         spacy_model = "en_core_web_sm"
         self.nlp_senter = spacy.load(spacy_model, exclude=["parser"])
         self.nlp_senter.enable_pipe("senter")
-        self.nlp_senter.max_length = 100000000 # length isn't really too badly when using sentence detection
+        self.nlp_senter.max_length = (
+            100000000  # length isn't really too badly when using sentence detection
+        )
 
         # spacy for nlp tagger
         self.nlp_tagger = spacy.load(spacy_model, exclude=["parser", "ner"])
-        self.nlp_tagger.add_pipe('sentencizer')
+        self.nlp_tagger.add_pipe("sentencizer")
 
     def sentencize(self, paragraph):
         """
@@ -73,14 +75,14 @@ class ParagraphCleaner:
         result = self.truecase(detokenized_str)
 
         return result
-    
+
     def drop_longer_than(self, sentences, drop_length):
         results = []
         for sent in sentences:
             if len(sent) <= drop_length:
                 results.append(sent)
         return results
-    
+
     def sentence_is_paragraph_form(self, sentence):
         """
         Check if the sentence is a paragraph form
@@ -91,19 +93,40 @@ class ParagraphCleaner:
         # check this sent content
         nouns = 0
         verbs = 0
-        if sent[-1].is_punct: # make sure sentence ends with punctuation
-            for token in sent:
-                if token.pos_ in ["NOUN", "PROPN", "PRON"]:
-                    nouns += 1
-                elif token.pos_ in ["VERB", "AUX"]:
-                    verbs += 1
+        complex = 0
+        punct = 0
+        words = 0
 
-        # so we want to make sure this is a complete sentence
+        end_punct = sent[-1].is_punct
+        for token in sent:
+            words += 1
+            if token.pos_ in ["NOUN", "PROPN", "PRON"]:
+                nouns += 1
+            elif token.pos_ in ["VERB", "AUX"]:
+                verbs += 1
+            elif token.pos_ in ["ADV", "ADP", "PART"]:
+                complex += 1
+            elif token.pos_ in ["PUNCT"]:
+                punct += 1
+
         if nouns > 0 and verbs > 0:
+            # print('accept: nouns and verbs')
+            return True
+
+        if (punct >= 0.3 * words):
+            # print('reject: excessive punctuation')
+            return False
+
+        if nouns > 2 and complex > 0:
+            # print('accept: many nouns')
+            return True
+
+        if complex > 2:
+            # print('accept: complex pos')
             return True
 
         return False
-    
+
     def filter_non_paragraph_sentences(self, sentences):
         """
         Filter out non-paragraph sentences
