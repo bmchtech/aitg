@@ -6,7 +6,7 @@ authors = ["xdrie <xdrie@alt.icu>"]
 
 [tool.poetry.dependencies]
 python = ">=3.7,<4.0"
-torch = "1.9.0"
+torch = "1.9.1"
 aitextgen = "^0.5.2"
 typer = "^0.3.2"
 bottle = "^0.12.19"
@@ -20,7 +20,7 @@ single-source = "^0.2.0"
 poethepoet = "^0.10.0"
 
 [tool.poe.tasks]
-force-cpu = "pip3 install torch==1.9.0+cpu -f https://download.pytorch.org/whl/torch_stable.html"
+force-cpu = "pip3 install torch==1.9.1+cpu -f https://download.pytorch.org/whl/torch_stable.html"
 
 [build-system]
 requires = ["poetry>=1.0.0"]
