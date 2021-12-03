@@ -122,6 +122,7 @@ def multisearch_index_cmd(
     """
     
     # build a combined index of all index files
+    eprint(f"{Fore.WHITE}\nloading indexes from {in_indexes_dir}")
     index_data = []
     for fn in os.listdir(in_indexes_dir):
         if fn.endswith('.semix'):
@@ -134,12 +135,14 @@ def multisearch_index_cmd(
                     index_row = [sent, embedding, doc_name]
                     index_data.append(index_row)
     
-    # search the combined index
+    # search the combined indexserver)
+    eprint(f"{Fore.WHITE}\nsearching {len(index_data)} sentences")
     # similarity is a tuple of (entry, score)
     similarities = search_document_index(server, index_data, query, n)
     
     eprint(f"{Fore.WHITE}\nshowing {n} top matches (searched {len(similarities)})")
     
+    search_results = []
     for i in range(0, n):
         entry, score = similarities[i]
         score = math.floor(score * 100)
@@ -147,6 +150,10 @@ def multisearch_index_cmd(
         doc_name = entry[2]
         eprint(f"{Fore.GREEN}", end='')
         print(f"{score:2}%({doc_name}): {sent}\n")
+
+        search_results.append((doc_name, score, sent))
+    
+    return search_results
 
 
 def main():
