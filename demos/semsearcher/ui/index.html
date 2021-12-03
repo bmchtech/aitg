@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <link href="asset/yumsalt.css" rel="stylesheet">
+    <script src="asset/moon.min.js"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>salt</title>
+  </head>
+
+  <body>
+    <nav>
+      <a href="./text.html" class="active">text</a>
+      <a href="./image.html">image</a>
+      <a href="./video.html">video</a>
+      <a href="./table.html">table</a>
+      <a href="./email.html">email</a>
+    </nav>
+    <main>
+      <section>
+        <form>
+          <fieldset>
+            <legend>how do you like salt?</legend>
+            <label>what is your name?
+              <input type="text" name="name">
+            </label>
+
+            <br>
+            <label>what is your favorite type of salt?</label>
+            <br>
+            <input type="radio" id="tablesalt" name="favsalt"
+              value="table">
+            <label for="tablesalt">table salt</label><br>
+            <input type="radio" id="seasalt" name="favsalt"
+              value="sea">
+            <label for="seasalt">sea salt</label><br>
+            <input type="radio" id="pinksalt" name="favsalt"
+              value="pink">
+            <label for="pinksalt">pink salt</label>
+          </fieldset>
+          <input type="submit" value="submit">
+        </form>
+      </section>
+    </main>
+    <aside id="overlay" class="overlay gone">
+      <img id="overlay-img" src="" class="super-center">
+      <video id="overlay-vid" src="" class="super-center" controls></video>
+    </aside>
+    <aside class="btt gone">
+      <a href="#" onclick="document.documentElement.scrollTop= 0">top</a>
+    </aside>
+    <footer>
+      <p>
+        all of these forms are fake and just for fun.
+      </p>
+    </footer>
+  </body>
+
+</html>

@@ -1,0 +1,116 @@
+/* eb-garamond-regular - latin */
+@font-face {
+    font-family: 'EB Garamond';
+    font-style: normal;
+    font-weight: 400;
+    src: local(''), url('../fnt/eb-garamond-v14-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+    url('../fnt/eb-garamond-v14-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+/* eb-garamond-700 - latin */
+@font-face {
+    font-family: 'EB Garamond';
+    font-style: normal;
+    font-weight: 700;
+    src: local(''), url('fnt/eb-garamond-v14-latin-700.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+    url('fnt/eb-garamond-v14-latin-700.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+}
+
+body {
+    background-color: #e9e8dc;
+    color: #42373d;
+    margin: 0 auto;
+    max-width: 1200px;
+    font-family: 'EB Garamond', 'Georgia', serif;
+}
+
+a,
+a:visited,
+a:hover,
+a:active {
+    color: inherit;
+}
+
+nav {
+    margin: 32px 0;
+}
+
+nav > a {
+    padding: 8px;
+    background-color: #e1d1b4;
+    margin: 0 2px;
+}
+
+nav > a:hover {
+    background-color: #7c6a79;
+}
+
+nav > a.active {
+    background-color: #b7adaa;
+}
+
+.form {
+    display: block;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    grid-auto-rows: auto;
+    /* gap: 8px 8px; */
+}
+
+.media-grid-item > img,
+.media-grid-item > video {
+    width: 100%;
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    grid-auto-rows: auto;
+    /* gap: 8px 8px; */
+}
+
+table,
+th,
+td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 8px;
+}
+
+.overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.super-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    height: auto;
+}
+
+.gone {
+    display: none;
+}
+
+.btt {
+    position: fixed;
+    top: calc(100vh - 4rem);
+    right: 5vw;
+    padding: 8px 16px;
+    background-color: #b7adaa;
+}
