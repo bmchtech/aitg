@@ -34,7 +34,7 @@ def serve_ui(filepath="index.html"):
 def req_search(query):
     req_json = request.json
     # opt_test = get_req_opt(req_json, 'test', False)
-    opt_num_results = get_req_opt(req_json, "num_results", 16)
+    opt_num_results = int(get_req_opt(req_json, "num_results", 16))
 
     logger.debug(f"searching for: {query}")
 
