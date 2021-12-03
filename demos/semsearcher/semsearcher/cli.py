@@ -10,10 +10,10 @@ import numpy as np
 import json
 
 import msgpack
-import lz4.frame
+# import lz4.frame
 from colorama import Fore, Style
 
-from doctools.util import eprint, read_file
+from doctools.util import eprint, read_file, lzma_compress, lzma_decompress
 from semsearcher.semmine import create_document_index, search_document_index, clean_document_for_indexing
 
 DEBUG = os.environ.get('DEBUG')
@@ -66,7 +66,8 @@ def index_file_cmd(
     index_data = create_document_index(server, document, embed_batch_size, max_sentence_length)
 
     # write index
-    crunched_index = lz4.frame.compress(msgpack.dumps(index_data))
+    # crunched_index = lz4.frame.compress(msgpack.dumps(index_data))
+    crunched_index = lzma_compress(msgpack.dumps(index_data))
     if out_index == '-':
         sys.stdout.buffer.write(crunched_index)
         sys.stdout.flush()
@@ -86,11 +87,13 @@ def search_index_cmd(
     # read index
     if in_index == '-':
         # stdin
-        index_data = msgpack.loads(lz4.frame.decompress(sys.stdin.buffer.read()))
+        # index_data = msgpack.loads(lz4.frame.decompress(sys.stdin.buffer.read()))
+        index_data = msgpack.loads(lzma_decompress(sys.stdin.buffer.read()))
     else:
         # read full contents
         with open(in_index, 'rb') as f:
-            index_data = msgpack.loads(lz4.frame.decompress(f.read()))
+            # index_data = msgpack.loads(lz4.frame.decompress(f.read()))
+            index_data = msgpack.loads(lzma_decompress(f.read()))
 
     # similarity is a tuple of (entry, score)    
     similarities = search_document_index(server, index_data, query, n)
@@ -122,7 +125,7 @@ def multisearch_index_cmd(
         if fn.endswith('.semix'):
             with open(os.path.join(in_indexes_dir, fn), 'rb') as f:
                 doc_name = fn.replace('.semix', '')
-                indexed_sentences = msgpack.loads(lz4.frame.decompress(f.read()))
+                indexed_sentences = msgpack.loads(lzma_decompress(f.read()))
                 for indexed_sentence in indexed_sentences:
                     sent = indexed_sentence[0]
                     embedding = indexed_sentence[1]
