@@ -39,7 +39,7 @@
       <section class="compact">
         <h2>results</h2>
         <p m-if="result_query">searched for: "{{result_query}}"</p>
-        <p m-if="results.length">{{results.length}} results</p>
+        <p m-if="results.length">{{results.length}} results ({{result_time}} sec)</p>
 
         <table m-if="results.length">
           <tbody>

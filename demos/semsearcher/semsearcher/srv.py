@@ -68,6 +68,7 @@ def req_search(query):
     return json.dumps(
         {
             "results": dict_results,
+            "time": total_time,
         }
     )
 

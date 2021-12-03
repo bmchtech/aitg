@@ -4,6 +4,7 @@ const app = new Moon({
         query: "test",
         query_num: 16,
         result_query: "",
+        result_time: 0,
         results: [],
         selected_result: -1,
     },
@@ -41,6 +42,10 @@ const app = new Moon({
                 .then((resp_data) => {
                     // got results, apply them
                     console.log("got response data", resp_data);
+                    // round time to nearest hundredth
+                    let time = resp_data.time.toFixed(2);
+                    this.set("result_time", time);
+
                     let results = [];
                     resp_data.results.forEach((result) => {
                         let title = result.doc;
