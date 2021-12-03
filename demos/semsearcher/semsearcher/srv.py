@@ -53,12 +53,13 @@ def req_search(query):
     logger.info(f"generated {num_results} results in: {total_time}s")
 
     dict_results = []
-    for (doc_name, score, sent) in results:
+    for (doc_name, score, sent, context) in results:
         dict_results.append(
             {
                 "doc": doc_name,
                 "score": score,
                 "sent": sent,
+                "context": context,
             }
         )
 

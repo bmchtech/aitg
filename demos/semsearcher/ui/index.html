@@ -28,7 +28,7 @@
             </label>
             <br>
             <label>number of results
-              <input type="number" name="name" class="narrow-input">
+              <input type="number" name="name" class="narrow-input" m-model="query_num">
             </label>
           </fieldset>
           <input type="submit" value="search"
@@ -41,13 +41,6 @@
         <p m-if="result_query">searched for: "{{result_query}}"</p>
         <p m-if="results.length">{{results.length}} results</p>
 
-        <!-- <div>
-          <div m-for="result in results">
-            <h3>{{result.title}} ({{result.score * 100}}%)</h3>
-            <p m-html="result.match"></p>
-          </div>
-        </div> -->
-
         <table m-if="results.length">
           <tbody>
             <tr>
@@ -57,7 +50,7 @@
             </tr>
             <tr m-for="result in results">
               <td>{{result.title}}</td>
-              <td>{{result.score * 100}}%</td>
+              <td>{{result.score}}%</td>
               <td m-html="result.match"></td>
             </tr>
           </tbody>
