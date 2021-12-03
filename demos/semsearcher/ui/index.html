@@ -34,9 +34,10 @@
           <input type="submit" value="search"
             m-on:submit.prevent="submit_search"
             m-on:click.prevent="submit_search">
-        </form>
+          </form>
+          <p>{{status}}</p>
       </section>
-      <section class="compact">
+      <section class="compact" m-if="results.length">
         <h2>results</h2>
         <p m-if="result_query">searched for: "{{result_query}}"</p>
         <p m-if="results.length">{{results.length}} results ({{result_time}} sec)</p>
@@ -58,9 +59,9 @@
       </section>
     </main>
     <footer>
-      <p>
+      <!-- <p>
         semsearcher ui.
-      </p>
+      </p> -->
     </footer>
     <script src="/ui/searchui.js"></script>
   </body>

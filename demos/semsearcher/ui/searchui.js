@@ -1,12 +1,12 @@
 const app = new Moon({
     el: "#moon-app",
     data: {
-        query: "test",
+        query: "",
         query_num: 16,
         result_query: "",
         result_time: 0,
         results: [],
-        selected_result: -1,
+        status: "ready to search",
     },
     methods: {
         submit_search: function (a, b) {
@@ -17,6 +17,7 @@ const app = new Moon({
             let query = this.get("query");
             console.log("searching for: " + query);
             this.set("result_query", query);
+            this.set("status", "searching for: \"" + query + "\"");
 
             // this.set("results", [
             //     {
@@ -45,6 +46,7 @@ const app = new Moon({
                     // round time to nearest hundredth
                     let time = resp_data.time.toFixed(2);
                     this.set("result_time", time);
+                    this.set("status", "displaying results");
 
                     let results = [];
                     resp_data.results.forEach((result) => {
@@ -70,6 +72,7 @@ const app = new Moon({
                 })
                 .catch((error) => {
                     console.log("search error", error);
+                    this.set("status", "search error");
                 });
         }
     },
