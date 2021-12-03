@@ -96,3 +96,11 @@ td {
     padding: 8px 16px;
     background-color: #b7adaa;
 }
+
+input.wide-input {
+    width: 95%;
+}
+
+input.narrow-input {
+    width: 4rem;
+}

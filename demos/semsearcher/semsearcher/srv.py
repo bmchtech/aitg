@@ -1,9 +1,8 @@
 import time
 import os
-from aitg_host.util import multiline_in
 import typer
 
-from bottle import run, route, request, response, abort
+from bottle import run, route, request, response, static_file, abort
 import json
 from loguru import logger
 
@@ -15,13 +14,19 @@ def get_req_opt(req, name, default):
     else:
         return default
 
-@route('/gen', method='GET')
-def gen_route():
-    req_json = request.json
-    opt_test = get_req_opt(req_json, 'test', False)
-    opt_query = get_req_opt(req_json, 'query', '')
+# static path for ui
+@route('/ui')
+@route('/ui/<filepath:path>')
+def serve_ui(filepath='index.html'):
+    return static_file(filepath, root='ui')
 
-    logger.debug(f'searching for: {opt_query}')
+# search route with query
+@route('/search/<query>', method='GET')
+def req_search(query):
+    req_json = request.json
+    # opt_test = get_req_opt(req_json, 'test', False)
+
+    logger.debug(f'searching for: {query}')
 
     # generate
     start = time.time()
@@ -43,6 +48,7 @@ def server(
     port:int = 8442,
 ):
     logger.info(f'starting server on {host}:{port}')
+    run(host=host, port=port, debug=DEBUG)
 
 def main():
     typer.run(server)

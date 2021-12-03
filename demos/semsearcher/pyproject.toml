@@ -24,3 +24,4 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 semsearcher = "semsearcher.cli:main"
+semsearcherui = "semsearcher.srv:main"
