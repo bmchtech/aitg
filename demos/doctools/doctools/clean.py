@@ -7,6 +7,11 @@ from sacremoses import MosesDetokenizer
 import spacy
 
 
+BAD_WORDS = (
+    "chapter",
+)
+
+
 class ParagraphCleaner:
     def __init__(self):
         # init moses
@@ -94,11 +99,13 @@ class ParagraphCleaner:
         nouns = 0
         verbs = 0
         complex = 0
+        syms = 0
         punct = 0
         words = 0
+        bad_words = {bad_word: 0 for bad_word in BAD_WORDS}
 
         end_punct = sent[-1].is_punct
-        for token in sent:
+        for token in doc:
             words += 1
             if token.pos_ in ["NOUN", "PROPN", "PRON"]:
                 nouns += 1
@@ -106,8 +113,18 @@ class ParagraphCleaner:
                 verbs += 1
             elif token.pos_ in ["ADV", "ADP", "PART"]:
                 complex += 1
+            elif token.pos_ in ["X", "SYM"]:
+                syms += 1
             elif token.pos_ in ["PUNCT"]:
                 punct += 1
+
+            # check bad words
+            if token.norm_ in bad_words:
+                bad_words[token.norm_] += 1
+
+        if words - (punct + syms) < 6 and sum(bad_words.values()) >= 1:
+            # print('reject: bad words in short sentence')
+            return False
 
         if nouns > 0 and verbs > 0:
             # print('accept: nouns and verbs')
