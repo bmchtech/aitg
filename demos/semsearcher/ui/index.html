@@ -9,32 +9,59 @@
     <script src="/ui/asset/moon.min.js"></script>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>salt</title>
+    <title>semsearcherui</title>
   </head>
 
   <body>
     <nav>
       <a href="#" class="active">semsearch</a>
     </nav>
-    <main class="moon-app">
+    <main id="moon-app">
       <section>
         <h2>search</h2>
+        <!-- <p style="color: {{color}}">Change my Color!</p> -->
         <form>
           <fieldset>
             <legend>search</legend>
             <label>query
-              <input type="text" name="name" class="wide-input">
+              <input type="text" name="name" class="wide-input" m-model="query">
             </label>
             <br>
             <label>number of results
               <input type="number" name="name" class="narrow-input">
             </label>
           </fieldset>
-          <input type="submit" value="search">
+          <input type="submit" value="search"
+            m-on:submit.prevent="submit_search"
+            m-on:click.prevent="submit_search">
         </form>
       </section>
-      <section>
+      <section class="compact">
         <h2>results</h2>
+        <p m-if="result_query">searched for: "{{result_query}}"</p>
+        <p m-if="results.length">{{results.length}} results</p>
+
+        <!-- <div>
+          <div m-for="result in results">
+            <h3>{{result.title}} ({{result.score * 100}}%)</h3>
+            <p m-html="result.match"></p>
+          </div>
+        </div> -->
+
+        <table m-if="results.length">
+          <tbody>
+            <tr>
+              <td><b>document</b></td>
+              <td><b>score</b></td>
+              <td><b>match</b></td>
+            </tr>
+            <tr m-for="result in results">
+              <td>{{result.title}}</td>
+              <td>{{result.score * 100}}%</td>
+              <td m-html="result.match"></td>
+            </tr>
+          </tbody>
+        </table>
       </section>
     </main>
     <footer>
@@ -42,6 +69,6 @@
         semsearcher ui.
       </p>
     </footer>
+    <script src="/ui/searchui.js"></script>
   </body>
-
 </html>

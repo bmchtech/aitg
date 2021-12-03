@@ -104,3 +104,7 @@ input.wide-input {
 input.narrow-input {
     width: 4rem;
 }
+
+.compact > p {
+    margin: auto 0.2rem;
+}
