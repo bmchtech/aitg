@@ -6,12 +6,11 @@ from bottle import run, route, request, response, static_file, abort
 import json
 from loguru import logger
 
-from semsearcher.cli import multisearch_index_cmd
+from semsearcher.cli import multisearch_load_indexes, multisearch_search_indexes
 
 DEBUG = os.environ.get("DEBUG")
 AITG_SERVER = ""
-SEARCH_DIR = ""
-
+SEARCH_INDEX_DATA = None
 
 def get_req_opt(req, name, default):
     if not req:
@@ -42,8 +41,8 @@ def req_search(query):
     start = time.time()
 
     # search
-    global AITG_SERVER, SEARCH_DIR
-    results = multisearch_index_cmd(AITG_SERVER, SEARCH_DIR, query, n=opt_num_results)
+    global AITG_SERVER, SEARCH_INDEX_DATA
+    results = multisearch_search_indexes(AITG_SERVER, SEARCH_INDEX_DATA, query, n=opt_num_results, quiet=True)
 
     # response
     response.content_type = "application/json"
@@ -79,9 +78,11 @@ def server(
     host: str = "localhost",
     port: int = 8442,
 ):
-    global AITG_SERVER, SEARCH_DIR
+    global AITG_SERVER, SEARCH_INDEX_DATA
     AITG_SERVER = server
-    SEARCH_DIR = in_indexes_dir
+
+    logger.info(f"loading search index from: {in_indexes_dir}")
+    SEARCH_INDEX_DATA = multisearch_load_indexes(in_indexes_dir)
 
     logger.info(f"starting server on {host}:{port}")
     run(host=host, port=port, debug=DEBUG)

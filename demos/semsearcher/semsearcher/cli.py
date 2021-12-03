@@ -121,20 +121,13 @@ def search_index_cmd(
         print(f"{score:2}%: {sent}\n")
 
 
-@app.command("multisearch")
-def multisearch_index_cmd(
-    server: str,
+def multisearch_load_indexes(
     in_indexes_dir: str,
-    query: str,
-    n: int = typer.Option(4, "-n", "--num-results"),
 ):
-    """
-    Search all .semix files in a directory and show the top n results.
-    Each result is labeled with the file name of the index it came from.
-    """
-
     # build a combined index of all index files
-    eprint(f"{Fore.WHITE}\nloading indexes from {in_indexes_dir}")
+    if DEBUG:
+        eprint(f"{Fore.WHITE}\nloading indexes from {in_indexes_dir}")
+
     index_data = []
     for fn in os.listdir(in_indexes_dir):
         if fn.endswith(".semix"):
@@ -147,12 +140,20 @@ def multisearch_index_cmd(
                     index_row = [sent, embedding, doc_name]
                     index_data.append(index_row)
 
+    return index_data
+
+
+def multisearch_search_indexes(
+    server: str, index_data: list, query: str, n: int, quiet: bool = False
+):
     # search the combined indexserver)
-    eprint(f"{Fore.WHITE}\nsearching {len(index_data)} sentences")
+    if DEBUG:
+        eprint(f"{Fore.WHITE}\nsearching {len(index_data)} sentences")
     # similarity is a tuple of (entry, score)
     similarities = search_document_index(server, index_data, query, n)
 
-    eprint(f"{Fore.WHITE}\nshowing {n} top matches (searched {len(similarities)})")
+    if DEBUG:
+        eprint(f"{Fore.WHITE}\nshowing {n} top matches (searched {len(similarities)})")
 
     search_results = []
     for i in range(0, n):
@@ -160,8 +161,10 @@ def multisearch_index_cmd(
         score = math.floor(score * 100)
         sent = entry[0].strip()
         doc_name = entry[2]
-        eprint(f"{Fore.GREEN}", end="")
-        print(f"{score:2}%({doc_name}): {sent}\n")
+        if DEBUG:
+            eprint(f"{Fore.GREEN}", end="")
+        if not quiet:
+            print(f"{score:2}%({doc_name}): {sent}\n")
 
         context_size = 3
         # look up the sentence in the index, get neighboring sentences as context
@@ -176,6 +179,27 @@ def multisearch_index_cmd(
                 break
 
         search_results.append((doc_name, score, sent, context_sentences))
+
+    return search_results
+
+
+@app.command("multisearch")
+def multisearch_cmd(
+    server: str,
+    in_indexes_dir: str,
+    query: str,
+    n: int = typer.Option(4, "-n", "--num-results"),
+):
+    """
+    Search all .semix files in a directory and show the top n results.
+    Each result is labeled with the file name of the index it came from.
+    """
+
+    # load all indexes
+    index_data = multisearch_load_indexes(in_indexes_dir)
+
+    # search all indexes
+    search_results = multisearch_search_indexes(server, index_data, query, n)
 
     return search_results
 
