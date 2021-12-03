@@ -64,6 +64,8 @@ def create_document_index(
     start_time = time.time()
 
     # clean up the document
+    if DEBUG:
+        eprint(f"{Fore.GREEN}cleaning document...")
     cleaned_doc = clean_document_for_indexing(contents, max_sentence_length=max_sentence_length)
 
     # embedding index

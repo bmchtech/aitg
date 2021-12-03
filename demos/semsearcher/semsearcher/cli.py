@@ -63,6 +63,8 @@ def index_file_cmd(
         # read full contents
         document = read_file(in_file)
     
+    if DEBUG:
+        eprint(f"{Fore.GREEN}indexing document ({len(document)} bytes)")
     index_data = create_document_index(server, document, embed_batch_size, max_sentence_length)
 
     # write index
