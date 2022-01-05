@@ -13,6 +13,11 @@ def read_file(path):
     with open(path) as f:
         return f.read()
 
+def listdir_recursive(path):
+    for dirpath, dirnames, filenames in os.walk(path):
+        for filename in filenames:
+            yield os.path.join(dirpath, filename)
+
 def batch_list(input, size):
     it = iter(input)
     item = list(itertools.islice(it, size))

@@ -14,7 +14,7 @@ import msgpack
 # import lz4.frame
 from colorama import Fore, Style
 
-from doctools.util import eprint, read_file, lzma_compress, lzma_decompress
+from doctools.util import eprint, listdir_recursive, read_file, lzma_compress, lzma_decompress
 from semsearcher.semmine import (
     create_document_index,
     search_document_index,
@@ -129,7 +129,7 @@ def multisearch_load_indexes(
         eprint(f"{Fore.WHITE}\nloading indexes from {in_indexes_dir}")
 
     index_data = []
-    for fn in os.listdir(in_indexes_dir):
+    for fn in listdir_recursive(in_indexes_dir):
         if fn.endswith(".semix"):
             with open(os.path.join(in_indexes_dir, fn), "rb") as f:
                 doc_name = fn.replace(".semix", "")
