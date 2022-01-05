@@ -131,6 +131,8 @@ def multisearch_load_indexes(
     index_data = []
     for fn in listdir_recursive(in_indexes_dir):
         if fn.endswith(".semix"):
+            if DEBUG:
+                eprint(f"{Fore.WHITE}loading {fn}")
             with open(os.path.join(in_indexes_dir, fn), "rb") as f:
                 doc_name = fn.replace(".semix", "")
                 indexed_sentences = msgpack.loads(lzma_decompress(f.read()))
