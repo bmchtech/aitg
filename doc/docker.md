@@ -27,3 +27,9 @@ test the server:
 ```sh
 printf '{"key": "secret", "prompt": "%s", "max_length": %d}' "The quick brown" 16 | http GET localhost:6000/gen_gpt.json
 ```
+
+## more examples
+
+```sh
+podman run -it --rm -v ~/Downloads/PT_DistilBART_MNLI_VALHALLA_1209:/app/model -p 6402:6000 docker.io/xdrie/aitg_host:v2.0.1 aitg_host.srv bart_classifier --host 0.0.0.0                                                                  
+```
