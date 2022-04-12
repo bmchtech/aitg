@@ -122,6 +122,18 @@ def load_question_answer_model(load_path):
 
     return ai
 
+def load_t5_model(load_path):
+    from aitg_host.models.t5 import T5AI
+
+    ensure_model_dir(load_path)
+
+    # load model
+    ai = T5AI(model_folder=load_path, to_device=get_compute_device()[0])
+
+    load_common_ext(ai, load_path)
+
+    return ai
+
 
 import typer
 
