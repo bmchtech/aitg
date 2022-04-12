@@ -1,0 +1,27 @@
+name: integration test
+on: [ push, pull_request ]
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        arch: [ x86_64 ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Install Packages on Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt install -y python3 docker httpie
+      - uses: actions/checkout@v2
+      - name: Build AITG Docker Container
+        working-directory: ./src
+        run: docker build --pull -t aitg_host:dev -f docker/Dockerfile .
+      - name: Download T5 Model
+        run: |
+          mkdir -p models
+          docker run -it --rm -v $(pwd)/models:/models aitg_host:dev aitg_host.model 'T5ForConditionalGeneration' '@t5-small' /models/t5_small
+      - name: Test T5 Model
+        run: |
+          docker run -d --name t5_test -it --rm -v $(pwd)/models/t5_small:/app/model -p 6000:6000 aitg_host:dev aitg_host.srv t5
+          sleep 10
+          printf '{"text": "mnli hypothesis: The St. Louis Cardinals have always won. premise: yeah well losing is i mean i'm i'm originally from Saint Louis and Saint Louis Cardinals when they were there were uh a mostly a losing team but"}' | http POST 'http://localhost:6402/gen_t5.json'
+          docker stop t5_test
