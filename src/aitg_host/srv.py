@@ -27,6 +27,8 @@ from aitg_host.gens.t5_generator import T5Generator
 MODEL_TYPE = None
 MODEL_DIR = os.environ.get("MODEL")
 API_KEY = os.environ.get("KEY")
+AITG_SRV_HOST = os.environ.get("AITG_SRV_HOST")
+AITG_SRV_PORT = os.environ.get("AITG_SRV_PORT")
 
 AI_INSTANCE = None
 GENERATOR = None
@@ -694,6 +696,13 @@ def server(
     MODEL_TYPE = model_type
     AI_INSTANCE = ai = prepare_model(load_func)
     GENERATOR = generator_func(ai)
+
+    # environ overrides to CLI
+    global AITG_SRV_HOST, AITG_SRV_PORT
+    if AITG_SRV_HOST:
+        host = AITG_SRV_HOST
+    if AITG_SRV_PORT:
+        port = int(AITG_SRV_PORT)
 
     logger.info(f"starting server on {host}:{port}")
     run(host=host, port=port, debug=debug)
