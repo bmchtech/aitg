@@ -10,11 +10,16 @@ jobs:
     steps:
       - name: Install Packages on Ubuntu
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt install -y python3 docker httpie
+        run: sudo apt install -y python3 docker podman httpie
       - uses: actions/checkout@v2
-      - name: Build AITG Docker Container
-        working-directory: ./src
-        run: docker build --pull -t aitg_host:dev -f docker/Dockerfile .
+      - name: Build AITG Container
+        context: ./src
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: aitg_host
+          tags: dev ${{ github.sha }}
+          containerfiles: |
+            ./src/docker/Dockerfile
       - name: Download T5 Model
         run: |
           mkdir -p models
