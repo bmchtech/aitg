@@ -22,10 +22,13 @@ from aitg_host.gens.led_summary_generator import LedSummaryGenerator
 from aitg_host.gens.classifier_generator import ClassifierGenerator
 from aitg_host.gens.embed_generator import EmbedGenerator
 from aitg_host.gens.qa_generator import QuestionAnswerGenerator
+from aitg_host.gens.t5_generator import T5Generator
 
 MODEL_TYPE = None
 MODEL_DIR = os.environ.get("MODEL")
 API_KEY = os.environ.get("KEY")
+AITG_SRV_HOST = os.environ.get("AITG_SRV_HOST")
+AITG_SRV_PORT = os.environ.get("AITG_SRV_PORT")
 
 AI_INSTANCE = None
 GENERATOR = None
@@ -566,6 +569,71 @@ def gen_question_answer_route(ext):
         abort(400, f"generation failed")
 
 
+@route("/gen_t5.<ext>", method=["GET", "POST"])
+def gen_t5_route(ext):
+    req_json = req_as_dict(request)
+    try:
+        verify_req(req_json)
+        _ = req_json["text"]
+    except KeyError as ke:
+        abort(400, f"missing field {ke}")
+
+    # mode params
+    # option params
+    opt_text: str = get_req_opt(req_json, "text", "")
+    opt_max_length: int = get_req_opt(req_json, "max_length", 256)
+    opt_min_length: int = get_req_opt(req_json, "min_length", 0)
+    opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
+
+    logger.debug(f"requesting generation for text: {opt_text}")
+
+    # generate
+    try:
+        start = time.time()
+
+        global AI_INSTANCE, GENERATOR, MODEL_TYPE
+        ensure_model_type("t5")
+
+        # standard generate
+        output = GENERATOR.generate(
+            text=opt_text,
+            max_length=opt_max_length,
+            min_length=opt_min_length,
+            max_time=opt_max_time,
+        )
+
+        gen_txt = AI_INSTANCE.filter_text(output.text)
+        gen_txt_size = len(gen_txt)
+        prompt_token_count = len(output.prompt_ids)
+        logger.debug(f"model output: {gen_txt}")
+        generation_time = time.time() - start
+        total_gen_num = len(output.tokens)
+        gen_tps = output.num_new / generation_time
+        logger.info(
+            f"generated [{prompt_token_count}->{output.num_new}] ({generation_time:.2f}s/{(gen_tps):.2f}tps)"
+        )
+
+        # done generating, now return the results over http
+
+        # create base response bundle
+        resp_bundle = {
+            "text": gen_txt,
+            "text_length": gen_txt_size,
+            "prompt_token_count": prompt_token_count,
+            "tokens": output.tokens,
+            "token_count": total_gen_num,
+            "num_new": output.num_new,
+            "num_total": total_gen_num,
+            "gen_time": generation_time,
+            "gen_tps": gen_tps,
+            "model": AI_INSTANCE.model_name,
+        }
+
+        return pack_bundle(resp_bundle, ext)
+    except Exception as ex:
+        logger.error(f"error generating: {traceback.format_exc()}")
+        abort(400, f"generation failed")
+
 def prepare_model(load_model_func):
     # sanity checks
     if not MODEL_DIR:
@@ -617,6 +685,9 @@ def server(
     elif model_type == "question_answer":
         load_func = aitg_host.model.load_question_answer_model
         generator_func = lambda ai: QuestionAnswerGenerator(ai)
+    elif model_type == "t5":
+        load_func = aitg_host.model.load_t5_model
+        generator_func = lambda ai: T5Generator(ai)
     else:
         # unknown
         raise RuntimeError(f"unknown model_type: {model_type}")
@@ -625,6 +696,13 @@ def server(
     MODEL_TYPE = model_type
     AI_INSTANCE = ai = prepare_model(load_func)
     GENERATOR = generator_func(ai)
+
+    # environ overrides to CLI
+    global AITG_SRV_HOST, AITG_SRV_PORT
+    if AITG_SRV_HOST:
+        host = AITG_SRV_HOST
+    if AITG_SRV_PORT:
+        port = int(AITG_SRV_PORT)
 
     logger.info(f"starting server on {host}:{port}")
     run(host=host, port=port, debug=debug)
