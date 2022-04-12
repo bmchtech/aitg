@@ -28,5 +28,5 @@ jobs:
         run: |
           podman run -d --name t5_test -it --rm -v $(pwd)/models/t5_small:/app/model -p 6000:6000 aitg_host:dev aitg_host.srv t5
           sleep 10
-          printf '{"text": "mnli hypothesis: The St. Louis Cardinals have always won. premise: yeah well losing is i mean im im originally from Saint Louis and Saint Louis Cardinals when they were there were uh a mostly a losing team but"}' | http POST 'http://localhost:6000/gen_t5.json'
+          printf '{"text": "mnli hypothesis: The St. Louis Cardinals have always won. premise: yeah well losing is i mean im im originally from Saint Louis and Saint Louis Cardinals when they were there were uh a mostly a losing team but"}' | http POST --check-status 'http://localhost:6000/gen_t5.json'
           podman stop t5_test
