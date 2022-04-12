@@ -13,11 +13,11 @@ jobs:
         run: sudo apt install -y python3 docker podman httpie
       - uses: actions/checkout@v2
       - name: Build AITG Container
-        context: ./src
         uses: redhat-actions/buildah-build@v2
         with:
           image: aitg_host
           tags: dev ${{ github.sha }}
+          context: ./src
           containerfiles: |
             ./src/docker/Dockerfile
       - name: Download T5 Model
