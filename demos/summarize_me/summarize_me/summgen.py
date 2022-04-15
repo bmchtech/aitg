@@ -9,11 +9,13 @@ from doctools.util import eprint
 from doctools.chunk import ArticleChunker
 
 DEBUG = os.environ.get('DEBUG')
+KEY = os.environ.get('KEY') or ''
 
 def summarize(server_uri, article, summary_size_min, summary_size_max):
     resp = requests.post(
         server_uri,
         json={
+            "key": KEY,
             "text": article,
             "max_length": min(1024, summary_size_max),
             "min_length": summary_size_min,
