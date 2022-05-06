@@ -139,11 +139,15 @@ import typer
 
 
 def download_model(
-    model_arch: str,
+    model_arch: str = typer.Argument(
+        ...,
+        help="the model architecture (for example, AutoModel or T5ForConditionalGeneration)",
+    ),
     model_id: str = typer.Argument(
         ...,
         help="the huggingface model id. usually looks like @organization/some-model",
     ),
+    tokenizer_arch: str = 'AutoTokenizer',
     path: str = typer.Argument(..., help="the output path to save the model to"),
 ):
     """
@@ -154,18 +158,18 @@ def download_model(
         # this is a HUGGINGFACE model path (download from repo)
         model_id = model_id[1:]
 
-        from transformers import AutoTokenizer
-
         _transformers_mod = __import__("transformers")
         _model_class = getattr(_transformers_mod, model_arch)
+        _tokenizer_class = getattr(_transformers_mod, tokenizer_arch)
 
         print("using model architecture:", _model_class)
+        print("using tokenizer architecture:", _tokenizer_class)
 
         # grab both
         print(f"getting model: {model_id}")
         model = _model_class.from_pretrained(model_id)
         print(f"getting tokenizer: {model_id}")
-        tokenizer = AutoTokenizer.from_pretrained(model_id)
+        tokenizer = _tokenizer_class.from_pretrained(model_id)
 
         # save both
         print(f"saving to: {path}")
