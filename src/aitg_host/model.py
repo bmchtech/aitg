@@ -18,7 +18,7 @@ def ensure_model_dir(load_path):
         raise NotADirectoryError(f"model path is not a valid directory: {load_path}")
 
     # add checks to make sure the model files are there
-    if not os.path.exists(load_path + "/pytorch_model.bin"):
+    if not os.path.exists(load_path + "/pytorch_model.bin") and not os.path.exists(load_path + "/pytorch_model.bin.index.json"):
         raise FileNotFoundError(f"model directory is missing pytorch model")
     if not os.path.exists(load_path + "/config.json"):
         raise FileNotFoundError(f"model directory is missing config file")
