@@ -1,4 +1,4 @@
-# aitg_host server
+# aitg server
 
 ## intro
 
@@ -7,11 +7,11 @@ this provides a lightweight and plug-and-play http server component for utilizin
 ## run server
 
 first you want to run the server. if you want to use docker see the [docs for docker](docker.md).
-otherwise, you want to run the `aitg_host.srv` module.
+otherwise, you want to run the `aitg.srv` module.
 
 for example:
 ```sh
-KEY=secret MODEL=/tmp/PT_GPTNEO125_ATG python -m aitg_host.srv gpt --host 127.0.0.1 --port 6000
+KEY=secret MODEL=/tmp/PT_GPTNEO125_ATG python -m aitg.srv gpt --host 127.0.0.1 --port 6000
 ```
 
 ## api

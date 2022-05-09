@@ -1,38 +1,47 @@
 import torch
-from aitg_host.gens.base import BaseGenerator
+from aitg.gens.base import BaseGenerator
 from types import SimpleNamespace
 
-class T5Generator(BaseGenerator):
+
+class LedSummaryGenerator(BaseGenerator):
     def __init__(self, ai):
         super().__init__(ai)
 
     def str_to_ids(self, text):
-        return self.ai.tokenizer(text=text).input_ids
+        # custom tokenizer invocation (because of max length)
+        return self.ai.tokenizer(text, return_tensors="pt").input_ids
 
     def generate(
         self,
-        text: str,
+        article: str,
         min_length: int = None,
-        max_length: int = 256,
-        lstrip: bool = True,
+        max_length: int = None,
+        lrstrip: bool = True,
         **kwargs
     ):
         # encode
-        prompt_tensors = self.ai.tokenizer(
-            text=text, return_tensors="pt",
-        )
-        input_ids = prompt_tensors.input_ids.to(self.ai.device)
+        article_tensors = self.ai.tokenizer(article, return_tensors="pt")
+        input_ids = article_tensors.input_ids.to(self.ai.device)
+
+        # attention mask
+        global_attention_mask = torch.zeros_like(input_ids)
+        # set global_attention_mask on first token
+        global_attention_mask[:, 0] = 1
 
         # generate
-        output_ids = self.ai.model.generate(
+        model_output = self.ai.model.generate(
             input_ids,
+            global_attention_mask=global_attention_mask,
+            return_dict_in_generate=True,
             min_length=min_length,
             max_length=max_length,
-            **kwargs,
+            early_stopping=True,
         )
 
+        # print('model output:', model_output)
+
         # decode
-        output_seqs = [seq for seq in output_ids]
+        output_seqs = [seq for seq in model_output.sequences]
         output_texts = [
             self.ai.tokenizer.decode(seq, skip_special_tokens=True)
             for seq in output_seqs
@@ -42,8 +51,9 @@ class T5Generator(BaseGenerator):
             for seq in output_seqs
         ]
 
-        if lstrip:
+        if lrstrip:
             output_texts = self.lstrip_texts(output_texts)
+            output_texts = [text.strip() for text in output_texts]
 
         return SimpleNamespace(
             text=output_texts[0],
@@ -52,5 +62,4 @@ class T5Generator(BaseGenerator):
             num_new=len(output_tokens[0]),
             num_prompt_tokens=len(input_ids.tolist()[0]),
             prompt_ids=input_ids.tolist()[0],
-            # probs=probs[0, :, :].tolist(),
         )

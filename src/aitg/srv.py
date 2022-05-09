@@ -8,21 +8,21 @@ from bottle import run, route, request, response, abort
 from loguru import logger
 import json
 import msgpack
-from aitg_host.models.question_answer import QuestionAnswerAI
+from aitg.models.question_answer import QuestionAnswerAI
 import lz4.frame
 
-from aitg_host import __version__, ICON_ART
-from aitg_host.util import get_compute_device
+from aitg import __version__, ICON_ART
+from aitg.util import get_compute_device
 
 # generators
-import aitg_host.model
-from aitg_host.gens.sliding_generator import SlidingGenerator
-from aitg_host.gens.bart_summary_generator import BartSummaryGenerator
-from aitg_host.gens.led_summary_generator import LedSummaryGenerator
-from aitg_host.gens.classifier_generator import ClassifierGenerator
-from aitg_host.gens.embed_generator import EmbedGenerator
-from aitg_host.gens.qa_generator import QuestionAnswerGenerator
-from aitg_host.gens.t5_generator import T5Generator
+import aitg.model
+from aitg.gens.sliding_generator import SlidingGenerator
+from aitg.gens.bart_summary_generator import BartSummaryGenerator
+from aitg.gens.led_summary_generator import LedSummaryGenerator
+from aitg.gens.classifier_generator import ClassifierGenerator
+from aitg.gens.embed_generator import EmbedGenerator
+from aitg.gens.qa_generator import QuestionAnswerGenerator
+from aitg.gens.t5_generator import T5Generator
 
 MODEL_TYPE = None
 MODEL_DIR = os.environ.get("MODEL")
@@ -102,7 +102,7 @@ def info_route(ext):
     global AI_INSTANCE
 
     bundle = {
-        "server": "aitg_host",
+        "server": "aitg",
         "version": __version__,
         "model": AI_INSTANCE.model_name,
         "model_type": AI_INSTANCE.model_type,
@@ -660,7 +660,7 @@ def server(
     # first init
     start = time.time()
     print("\n\n", ICON_ART, f"\n            AITG HOST v{__version__}\n\n")
-    # logger.info(f"aitg_host server v{__version__}")
+    # logger.info(f"aitg server v{__version__}")
     logger.info(f"initializing[{get_compute_device()[1]}]...")
     logger.info(f"init in: {time.time() - start:.2f}s")
 
@@ -668,25 +668,25 @@ def server(
     load_func = None
     generator_func = lambda ai: None
     if model_type == "gpt":
-        load_func = aitg_host.model.load_gpt_model
+        load_func = aitg.model.load_gpt_model
         generator_func = lambda ai: SlidingGenerator(ai)
     elif model_type == "bart_summarizer":
-        load_func = aitg_host.model.load_bart_summarizer_model
+        load_func = aitg.model.load_bart_summarizer_model
         generator_func = lambda ai: BartSummaryGenerator(ai)
     elif model_type == "led_summarizer":
-        load_func = aitg_host.model.load_led_summarizer_model
+        load_func = aitg.model.load_led_summarizer_model
         generator_func = lambda ai: LedSummaryGenerator(ai)
     elif model_type == "bart_classifier":
-        load_func = aitg_host.model.load_bart_classifier_model
+        load_func = aitg.model.load_bart_classifier_model
         generator_func = lambda ai: ClassifierGenerator(ai)
     elif model_type == "sentence_embed":
-        load_func = aitg_host.model.load_sentence_embed_model
+        load_func = aitg.model.load_sentence_embed_model
         generator_func = lambda ai: EmbedGenerator(ai)
     elif model_type == "question_answer":
-        load_func = aitg_host.model.load_question_answer_model
+        load_func = aitg.model.load_question_answer_model
         generator_func = lambda ai: QuestionAnswerGenerator(ai)
     elif model_type == "t5":
-        load_func = aitg_host.model.load_t5_model
+        load_func = aitg.model.load_t5_model
         generator_func = lambda ai: T5Generator(ai)
     else:
         # unknown

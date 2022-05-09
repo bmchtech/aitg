@@ -1,5 +1,5 @@
 import torch
-from aitg_host.gens.base import BaseGenerator
+from aitg.gens.base import BaseGenerator
 from typing import List
 from types import SimpleNamespace
 import numpy as np

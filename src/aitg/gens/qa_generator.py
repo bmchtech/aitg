@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from aitg_host.gens.base import BaseGenerator
+from aitg.gens.base import BaseGenerator
 from types import SimpleNamespace
 from typing import List
 

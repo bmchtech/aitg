@@ -1,6 +1,6 @@
 from math import floor
-from aitg_host.models import gpt
-from aitg_host.gens.base import BaseGenerator
+from aitg.models import gpt
+from aitg.gens.base import BaseGenerator
 
 class SlidingGenerator(BaseGenerator):
     def __init__(self, ai):

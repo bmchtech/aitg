@@ -19,7 +19,7 @@ wget https://github.com/xdrie/aitextgen_host/releases/download/v1.5.2/PT_GPTNEO1
 
 run the container, cli:
 ```sh
-docker run -it --rm -v /tmp/PT_GPTNEO125_ATG:/app/model xdrie/aitg_host:v1.6.0 aitg_host.cli
+docker run -it --rm -v /tmp/PT_GPTNEO125_ATG:/app/model xdrie/aitg:v1.6.0 aitg.cli
 ```
 
 in the command line, press Ctrl+D (or whatever your eof key is) to submit a prompt.
@@ -63,13 +63,13 @@ point your host to a model and run; usually this is a model directory with `conf
 
 cli:
 ```sh
-MODEL=/path/to/your_model poetry run aitg_host_cli
+MODEL=/path/to/your_model poetry run aitg_cli
 ```
 
 once it's done loading, it will ask you for a prompt. when you're done typing the prompt, press Ctrl+D (sometimes twice) to send an EOF after entering your prompt, and then the model will generate text.
 
 ```
-Usage: aitg_host_cli [OPTIONS]
+Usage: aitg_cli [OPTIONS]
 
 Options:
   --temp FLOAT                    [default: 0.9]
@@ -96,7 +96,7 @@ Options:
 run the server with:
 
 ```sh
-MODEL=/path/to/your_model poetry run aitg_host_srv gpt
+MODEL=/path/to/your_model poetry run aitg_srv gpt
 ```
 
 then

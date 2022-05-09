@@ -1,6 +1,6 @@
 import os.path
-from aitg_host.models.led__summarizer import LedSummarizerAI
-from aitg_host.util import get_compute_device
+from aitg.models.led__summarizer import LedSummarizerAI
+from aitg.util import get_compute_device
 import importlib.util
 import json
 
@@ -59,7 +59,7 @@ def load_gpt_model(load_path):
 
 
 def load_bart_summarizer_model(load_path):
-    from aitg_host.models.bart_summarizer import BartSummarizerAI
+    from aitg.models.bart_summarizer import BartSummarizerAI
 
     ensure_model_dir(load_path)
 
@@ -72,7 +72,7 @@ def load_bart_summarizer_model(load_path):
 
 
 def load_led_summarizer_model(load_path):
-    from aitg_host.models.led__summarizer import LedSummarizerAI
+    from aitg.models.led__summarizer import LedSummarizerAI
 
     ensure_model_dir(load_path)
 
@@ -85,7 +85,7 @@ def load_led_summarizer_model(load_path):
 
 
 def load_bart_classifier_model(load_path):
-    from aitg_host.models.bart_classifier import BartClassifierAI
+    from aitg.models.bart_classifier import BartClassifierAI
 
     ensure_model_dir(load_path)
 
@@ -98,7 +98,7 @@ def load_bart_classifier_model(load_path):
 
 
 def load_sentence_embed_model(load_path):
-    from aitg_host.models.sentence_embed import SentenceEmbedAI
+    from aitg.models.sentence_embed import SentenceEmbedAI
 
     ensure_model_dir(load_path)
 
@@ -111,7 +111,7 @@ def load_sentence_embed_model(load_path):
 
 
 def load_question_answer_model(load_path):
-    from aitg_host.models.question_answer import QuestionAnswerAI
+    from aitg.models.question_answer import QuestionAnswerAI
 
     ensure_model_dir(load_path)
 
@@ -123,7 +123,7 @@ def load_question_answer_model(load_path):
     return ai
 
 def load_t5_model(load_path):
-    from aitg_host.models.t5 import T5AI
+    from aitg.models.t5 import T5AI
 
     ensure_model_dir(load_path)
 

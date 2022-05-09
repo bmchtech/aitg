@@ -1,28 +1,27 @@
 import torch
-from aitg_host.gens.base import BaseGenerator
+from aitg.gens.base import BaseGenerator
 from types import SimpleNamespace
 
-class BartSummaryGenerator(BaseGenerator):
+class T5Generator(BaseGenerator):
     def __init__(self, ai):
         super().__init__(ai)
 
     def str_to_ids(self, text):
-        # custom tokenizer invocation (because of max length)
-        return self.ai.tokenizer(text=text, max_length=self.ai.context_window, truncation=True).input_ids
+        return self.ai.tokenizer(text=text).input_ids
 
     def generate(
         self,
-        article: str,
+        text: str,
         min_length: int = None,
         max_length: int = 256,
         lstrip: bool = True,
         **kwargs
     ):
         # encode
-        article_tensors = self.ai.tokenizer(
-            text=article, return_tensors="pt", max_length=self.ai.context_window, truncation=True
+        prompt_tensors = self.ai.tokenizer(
+            text=text, return_tensors="pt",
         )
-        input_ids = article_tensors.input_ids.to(self.ai.device)
+        input_ids = prompt_tensors.input_ids.to(self.ai.device)
 
         # generate
         output_ids = self.ai.model.generate(

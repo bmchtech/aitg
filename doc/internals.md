@@ -1,5 +1,5 @@
 
-# internals of aitg_host
+# internals of aitg
 
 ## enhancements to huggingface models
 

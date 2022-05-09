@@ -5,22 +5,22 @@
 
 build the cli image:
 ```sh
-docker build --pull -t aitg_host -f docker/Dockerfile .
+docker build --pull -t aitg -f docker/Dockerfile .
 
 # optionally, save
-docker save -o /tmp/aitg_host_$(git describe --long --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g')__docker.tar aitg_host
+docker save -o /tmp/aitg_$(git describe --long --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g')__docker.tar aitg
 ```
 
 ## run images
 
 run cli:
 ```sh
-docker run -it --rm -v $(pwd)/models/YOUR_MODEL:/app/model aitg_host aitg_host.cli
+docker run -it --rm -v $(pwd)/models/YOUR_MODEL:/app/model aitg aitg.cli
 ```
 
 run server:
 ```sh
-docker run -it --rm -v $(pwd)/models/YOUR_MODEL:/app/model -p 6000:6000 aitg_host aitg_host.srv gpt --host 0.0.0.0
+docker run -it --rm -v $(pwd)/models/YOUR_MODEL:/app/model -p 6000:6000 aitg aitg.srv gpt --host 0.0.0.0
 ```
 
 test the server:
@@ -31,5 +31,5 @@ printf '{"key": "secret", "prompt": "%s", "max_length": %d}' "The quick brown" 1
 ## more examples
 
 ```sh
-podman run -it --rm -v ~/Downloads/PT_DistilBART_MNLI_VALHALLA_1209:/app/model -p 6402:6000 docker.io/xdrie/aitg_host:v2.0.1 aitg_host.srv bart_classifier --host 0.0.0.0                                                                  
+podman run -it --rm -v ~/Downloads/PT_DistilBART_MNLI_VALHALLA_1209:/app/model -p 6402:6000 docker.io/xdrie/aitg:v2.0.1 aitg.srv bart_classifier --host 0.0.0.0                                                                  
 ```

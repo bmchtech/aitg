@@ -6,7 +6,7 @@ from math import floor
 import typer
 import colorama
 from colorama import Fore, Back, Style
-from aitg_host import __version__, ICON_ART
+from aitg import __version__, ICON_ART
 
 
 def version_callback(value: bool):
@@ -16,7 +16,7 @@ def version_callback(value: bool):
 
 def info_callback(value: bool):
     if value:
-        from aitg_host.util import get_compute_device
+        from aitg.util import get_compute_device
         import torch
         device_info = get_compute_device()
         pad = '            '
@@ -59,9 +59,9 @@ def cli(
     print(Style.NORMAL + Fore.CYAN + f"initializing", end="")
 
     # imports here, because they're slow
-    from aitg_host.model import load_gpt_model
-    from aitg_host.util import multiline_in, get_compute_device
-    from aitg_host.gens.sliding_generator import SlidingGenerator
+    from aitg.model import load_gpt_model
+    from aitg.util import multiline_in, get_compute_device
+    from aitg.gens.sliding_generator import SlidingGenerator
 
     print(f"[{get_compute_device()[1]}]...")
 

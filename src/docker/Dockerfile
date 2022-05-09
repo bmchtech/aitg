@@ -73,7 +73,7 @@ COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
 RUN pip install -r requirements.txt
 
 # copy stuff
-COPY ./aitg_host /app/aitg_host
+COPY ./aitg /app/aitg
 COPY ./pyproject.toml /app/
 
 # vars
