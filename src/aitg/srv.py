@@ -158,8 +158,7 @@ def gen_gpt_route(ext):
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
     opt_min_length: int = get_req_opt(req_json, "min_length", 0)
     opt_seed: int = get_req_opt(req_json, "seed", None)
-    opt_top_p: float = get_req_opt(req_json, "top_p", 0.9)
-    opt_top_k: int = get_req_opt(req_json, "top_k", 0)
+    opt_typical_p: float = get_req_opt(req_json, "typical_p", 0.9)
     opt_repetition_penalty: float = get_req_opt(req_json, "repetition_penalty", 1.0)
     opt_length_penalty: float = get_req_opt(req_json, "length_penalty", 1.0)
     opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
@@ -202,8 +201,7 @@ def gen_gpt_route(ext):
             max_length=opt_max_length,
             min_length=opt_min_length,
             seed=opt_seed,
-            top_p=opt_top_p,
-            top_k=opt_top_k,
+            typical_p=opt_typical_p,
             repetition_penalty=opt_repetition_penalty,
             length_penalty=opt_length_penalty,
             max_time=opt_max_time,
