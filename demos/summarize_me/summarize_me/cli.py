@@ -17,6 +17,7 @@ def cli(
     chunk_size: int = 4000,
     summary_size_min: int = 128, # recommend 128 or 256
     summary_size_max: int = 256,
+    typical_p: float = 0.9,
 ):
     if in_file == '-':
         # stdin
@@ -25,7 +26,7 @@ def cli(
         # read full contents
         document = read_file(in_file)
 
-    document_summary = summarize_document(server, document, model, chunk_size, summary_size_min, summary_size_max)
+    document_summary = summarize_document(server, document, model, chunk_size, summary_size_min, summary_size_max, typical_p)
 
     if DEBUG:
         ratio = (len(document_summary) / len(document)) * 100

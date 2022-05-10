@@ -11,7 +11,7 @@ from doctools.chunk import ArticleChunker
 DEBUG = os.environ.get('DEBUG')
 KEY = os.environ.get('KEY') or ''
 
-def summarize(server_uri, article, summary_size_min, summary_size_max):
+def summarize(server_uri, article, summary_size_min, summary_size_max, typical_p):
     resp = requests.post(
         server_uri,
         json={
@@ -19,6 +19,7 @@ def summarize(server_uri, article, summary_size_min, summary_size_max):
             "text": article,
             "max_length": min(1024, summary_size_max),
             "min_length": summary_size_min,
+            "typical_p": typical_p,
         },
     )
     resp.raise_for_status()  # ensure
@@ -36,10 +37,11 @@ def summarize(server_uri, article, summary_size_min, summary_size_max):
 def summarize_document(
     server: str,
     document: str,
-    model: str = "bart",
-    chunk_size: int = 4000,
-    summary_size_min: int = 128, # recommend 128 or 256
-    summary_size_max: int = 256,
+    model,
+    chunk_size,
+    summary_size_min,
+    summary_size_max,
+    typical_p,
 ):
     server_uri = server + f"/gen_{model}_summarizer.json"
 
@@ -65,7 +67,7 @@ def summarize_document(
             )
 
         # summarize api
-        summary = summarize(server_uri, chunk, summary_size_min, summary_size_max)
+        summary = summarize(server_uri, chunk, summary_size_min, summary_size_max, typical_p)
         # clean summarized paragraph
         summary = chunker.cleaner.clean_paragraph(summary)
 
