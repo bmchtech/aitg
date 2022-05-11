@@ -2,7 +2,7 @@ import os
 import sys
 import re
 
-from doctools.clean import ParagraphCleaner
+from aitg_doctools.clean import ParagraphCleaner
 
 
 class ArticleChunker:

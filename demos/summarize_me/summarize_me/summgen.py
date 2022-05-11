@@ -5,8 +5,8 @@ import re
 import typer
 from colorama import Fore, Style
 
-from doctools.util import eprint
-from doctools.chunk import ArticleChunker
+from aitg_doctools.util import eprint
+from aitg_doctools.chunk import ArticleChunker
 
 DEBUG = os.environ.get('DEBUG')
 KEY = os.environ.get('KEY') or ''

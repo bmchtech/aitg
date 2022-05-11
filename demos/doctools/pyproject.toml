@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "doctools"
-version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
+name = "aitg_doctools"
+version = "0.2.0"
+description = "a library for cleaning and chunking documents"
+authors = ["redthing1 <redthing1@alt.icu>"]
 
 [tool.poetry.dependencies]
 python = ">=3.7,<3.11"

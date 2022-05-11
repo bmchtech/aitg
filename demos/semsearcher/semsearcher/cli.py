@@ -14,7 +14,7 @@ import msgpack
 # import lz4.frame
 from colorama import Fore, Style
 
-from doctools.util import eprint, listdir_recursive, read_file, lzma_compress, lzma_decompress
+from aitg_doctools.util import eprint, listdir_recursive, read_file, lzma_compress, lzma_decompress
 from semsearcher.semmine import (
     create_document_index,
     search_document_index,

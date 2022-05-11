@@ -12,8 +12,8 @@ from types import SimpleNamespace
 import msgpack
 import lz4.frame
 from colorama import Fore, Style
-from doctools.clean import ParagraphCleaner
-from doctools.util import batch_list, eprint
+from aitg_doctools.clean import ParagraphCleaner
+from aitg_doctools.util import batch_list, eprint
 
 DEBUG = os.environ.get('DEBUG')
 
