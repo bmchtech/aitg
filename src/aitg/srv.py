@@ -23,7 +23,7 @@ from aitg.gens.classifier_generator import ClassifierGenerator
 from aitg.gens.embed_generator import EmbedGenerator
 from aitg.gens.qa_generator import QuestionAnswerGenerator
 from aitg.gens.t5_generator import T5Generator
-from aitg.gens.sfcodegen_generator import SfCodegenGenerator
+from aitg.gens.sfcodegen_generator import SFCodegenGenerator
 
 MODEL_TYPE = None
 MODEL_DIR = os.environ.get("MODEL")
@@ -635,7 +635,7 @@ def gen_t5_route(ext):
         logger.error(f"error generating: {traceback.format_exc()}")
         abort(400, f"generation failed")
 
-@route("/gen_t5.<ext>", method=["GET", "POST"])
+@route("/gen_sfcodegen.<ext>", method=["GET", "POST"])
 def gen_sfcodegen_route(ext):
     req_json = req_as_dict(request)
     try:
@@ -756,7 +756,7 @@ def server(
         generator_func = lambda ai: T5Generator(ai)
     elif model_type == "sfcodegen":
         load_func = aitg.model.load_sfcodegen_model
-        generator_func = lambda ai: SfCodegenGenerator(ai)
+        generator_func = lambda ai: SFCodegenGenerator(ai)
     else:
         # unknown
         raise RuntimeError(f"unknown model_type: {model_type}")
