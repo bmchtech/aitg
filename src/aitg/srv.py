@@ -23,6 +23,7 @@ from aitg.gens.classifier_generator import ClassifierGenerator
 from aitg.gens.embed_generator import EmbedGenerator
 from aitg.gens.qa_generator import QuestionAnswerGenerator
 from aitg.gens.t5_generator import T5Generator
+from aitg.gens.sfcodegen_generator import SfCodegenGenerator
 
 MODEL_TYPE = None
 MODEL_DIR = os.environ.get("MODEL")
@@ -634,6 +635,71 @@ def gen_t5_route(ext):
         logger.error(f"error generating: {traceback.format_exc()}")
         abort(400, f"generation failed")
 
+@route("/gen_t5.<ext>", method=["GET", "POST"])
+def gen_sfcodegen_route(ext):
+    req_json = req_as_dict(request)
+    try:
+        verify_req(req_json)
+        _ = req_json["context"]
+    except KeyError as ke:
+        abort(400, f"missing field {ke}")
+
+    # mode params
+    # option params
+    opt_context: str = get_req_opt(req_json, "context", "")
+    opt_max_length: int = get_req_opt(req_json, "max_length", 2048)
+    opt_max_length_sample: int = get_req_opt(req_json, "max_length_sample", 128)
+    opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
+
+    logger.debug(f"requesting generation for context: {opt_context}")
+
+    # generate
+    try:
+        start = time.time()
+
+        global AI_INSTANCE, GENERATOR, MODEL_TYPE
+        ensure_model_type("sfcodegen")
+
+        # standard generate
+        output = GENERATOR.generate(
+            context=opt_context,
+            max_length=opt_max_length,
+            max_length_sample=opt_max_length_sample,
+            max_time=opt_max_time,
+        )
+
+        gen_txt = AI_INSTANCE.filter_text(output.text)
+        gen_txt_size = len(gen_txt)
+        prompt_token_count = len(output.prompt_ids)
+        logger.debug(f"model output: {gen_txt}")
+        generation_time = time.time() - start
+        total_gen_num = len(output.tokens)
+        gen_tps = output.num_new / generation_time
+        logger.info(
+            f"generated [{prompt_token_count}->{output.num_new}] ({generation_time:.2f}s/{(gen_tps):.2f}tps)"
+        )
+
+        # done generating, now return the results over http
+
+        # create base response bundle
+        resp_bundle = {
+            "text": gen_txt,
+            "text_length": gen_txt_size,
+            "prompt_token_count": prompt_token_count,
+            "tokens": output.tokens,
+            "token_count": total_gen_num,
+            "num_new": output.num_new,
+            "num_total": total_gen_num,
+            "gen_time": generation_time,
+            "gen_tps": gen_tps,
+            "model": AI_INSTANCE.model_name,
+        }
+
+        return pack_bundle(resp_bundle, ext)
+    except Exception as ex:
+        logger.error(f"error generating: {traceback.format_exc()}")
+        abort(400, f"generation failed")
+
 def prepare_model(load_model_func):
     # sanity checks
     if not MODEL_DIR:
@@ -688,6 +754,9 @@ def server(
     elif model_type == "t5":
         load_func = aitg.model.load_t5_model
         generator_func = lambda ai: T5Generator(ai)
+    elif model_type == "sfcodegen":
+        load_func = aitg.model.load_sfcodegen_model
+        generator_func = lambda ai: SfCodegenGenerator(ai)
     else:
         # unknown
         raise RuntimeError(f"unknown model_type: {model_type}")

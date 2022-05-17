@@ -134,6 +134,18 @@ def load_t5_model(load_path):
 
     return ai
 
+def load_sfcodegen_model(load_path):
+    from aitg.models.sfcodegen import SFCodegenAI
+
+    ensure_model_dir(load_path)
+
+    # load model
+    ai = SFCodegenAI(model_folder=load_path, to_device=get_compute_device()[0])
+
+    load_common_ext(ai, load_path)
+
+    return ai
+
 
 import typer
 
