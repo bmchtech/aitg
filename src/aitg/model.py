@@ -1,5 +1,4 @@
 import os.path
-from aitg.models.led__summarizer import LedSummarizerAI
 from aitg.util import get_compute_device
 import importlib.util
 import json
