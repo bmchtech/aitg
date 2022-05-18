@@ -5,7 +5,7 @@
 
 aitg ("ai text generator")
 
-this project allows you to easily run GPT-2/GPT-3 (and other models) locally on the **command line** or as a **http server**
+this project allows you to easily run many transformers models locally on the **command line** or as a **http server**
 
 ## quickstart
 
@@ -28,6 +28,8 @@ in the command line, press Ctrl+D (or whatever your eof key is) to submit a prom
 
 models:
 - text generation (gpt)
+- sequence to sequence generation (t5)
+- code generation (sfcodegen)
 - text summarization (bart-cnn, longformer-encoder-decoder)
 - text classification (bart-mnli, minilm2-nli)
 - text embedding (mpnet-paraphrase)
