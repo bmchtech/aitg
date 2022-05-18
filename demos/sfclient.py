@@ -28,7 +28,7 @@ def main():
         json={
             "context": prompt_text,
             "max_length": max_length,
-            "max_length_sample": sample_length,
+            "sample_length": sample_length,
             "temperature": temp,
         }
     )

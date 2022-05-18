@@ -47,7 +47,7 @@ class SFCodegenGenerator(BaseGenerator):
         self,
         context: str,
         max_length: int = 2048,
-        max_length_sample: int = 128,
+        sample_length: int = 128,
         num_seqs: int = 1,
         temp: float = 0.2,
         top_p: float = 0.95,
@@ -55,7 +55,7 @@ class SFCodegenGenerator(BaseGenerator):
     ):
         
         # sample
-        # completion = self.sample(context, num_return_sequences=num_seqs, temp=temp, top_p=top_p, max_length=max_length, max_length_sample=max_length_sample)[0]
+        # completion = self.sample(context, num_return_sequences=num_seqs, temp=temp, top_p=top_p, max_length=max_length, sample_length=sample_length)[0]
         # tokenize and send tensor to device
         input_ids = self.ai.tokenizer(
             context,
@@ -77,7 +77,7 @@ class SFCodegenGenerator(BaseGenerator):
                 do_sample=True,
                 num_return_sequences=num_seqs,
                 temperature=temp,
-                max_length=input_ids_len + max_length_sample,
+                max_length=input_ids_len + sample_length,
                 top_p=top_p,
                 pad_token_id=50256,
                 use_cache=True,

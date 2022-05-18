@@ -651,7 +651,7 @@ def gen_sfcodegen_route(ext):
     # option params
     opt_context: str = get_req_opt(req_json, "context", "")
     opt_max_length: int = get_req_opt(req_json, "max_length", 2048)
-    opt_max_length_sample: int = get_req_opt(req_json, "max_length_sample", 128)
+    opt_sample_length: int = get_req_opt(req_json, "sample_length", 128)
     opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
     opt_num_seqs: int = get_req_opt(req_json, "num_seqs", 1)
     opt_temperature: float = get_req_opt(req_json, "temperature", 0.2)
@@ -670,7 +670,7 @@ def gen_sfcodegen_route(ext):
         output = GENERATOR.generate(
             context=opt_context,
             max_length=opt_max_length,
-            max_length_sample=opt_max_length_sample,
+            sample_length=opt_sample_length,
             max_time=opt_max_time,
             num_seqs=opt_num_seqs,
             temp=opt_temperature,
@@ -691,6 +691,8 @@ def gen_sfcodegen_route(ext):
         # create base response bundle
         resp_bundle = {
             "texts": output.texts,
+            "seqs": output.seqs,
+            "prompt_tokens": output.prompt_ids,
             "prompt_token_count": output.num_prompt_tokens,
             "token_count": total_gen_num,
             "num_new": output.num_new,
