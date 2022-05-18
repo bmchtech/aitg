@@ -33,4 +33,4 @@ aitg_srv = "aitg.srv:main"
 aitg_gpt_cli = "aitg.gpt_cli:main"
 aitg_t5_cli = "aitg.t5_cli:main"
 
-aitg_download_model = "aitg.model:main"
+aitg_download_model = "aitg.model:download_model_main"

@@ -190,12 +190,5 @@ def download_model(
         print("preface huggingface model id with @")
 
 
-# main
-
-
-def main():
+def download_model_main():
     typer.run(download_model)
-
-
-if __name__ == "__main__":
-    main()
