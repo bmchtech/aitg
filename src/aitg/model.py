@@ -178,7 +178,7 @@ def download_model(
 
         # grab both
         print(f"getting model: {model_id}")
-        model = _model_class.from_pretrained(model_id)
+        model = _model_class.from_pretrained(model_id, trust_remote_code=True)
         print(f"getting tokenizer: {model_id}")
         tokenizer = _tokenizer_class.from_pretrained(model_id)
 
