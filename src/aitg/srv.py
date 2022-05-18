@@ -704,7 +704,7 @@ def gen_sfcodegen_route(ext):
         logger.error(f"error generating: {traceback.format_exc()}")
         abort(400, f"generation failed")
 
-def prepare_model(load_model_func, quantize=False):
+def prepare_model(load_model_func, quantize=0):
     # sanity checks
     if not MODEL_DIR:
         raise RuntimeError(
@@ -718,11 +718,11 @@ def prepare_model(load_model_func, quantize=False):
     logger.info(f"finished loading in: {time.time() - start:.2f}s")
     logger.info(f"model: {ai.model_name} ({ai.model_type})")
 
-    if quantize:
+    if quantize > 0:
         start = time.time()
-        logger.info("quantizing model...")
+        logger.info(f"quantizing model to {quantize} bits...")
         # quantize the model
-        ai = quantize_ai_model(ai)
+        ai = quantize_ai_model(ai, quantize)
         logger.info(f"finished quantizing in: {time.time() - start:.2f}s")
 
     return ai
@@ -733,7 +733,7 @@ def server(
     host: str = "localhost",
     port: int = 6000,
     debug: bool = False,
-    quantize_model: bool = False,
+    quantize_model: int = 0,
 ):
     # first init
     start = time.time()
