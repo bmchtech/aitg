@@ -83,7 +83,7 @@ class SFCodegenGenerator(BaseGenerator):
                 use_cache=True,
                 **kwargs,
             )
-        output_seqs = output_seqs = [seq for seq in output_ids]
+        output_seqs = [seq for seq in output_ids]
         output_texts = [
             self.ai.tokenizer.decode(seq)
             for seq in output_seqs
