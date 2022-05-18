@@ -678,7 +678,8 @@ def gen_sfcodegen_route(ext):
         )
 
         prompt_token_count = len(output.prompt_ids)
-        logger.debug(f"model output: {output.texts}")
+        all_texts = '======== SAMPLE ========\n'.join(output.texts)
+        logger.debug(f"model output: {all_texts}")
         generation_time = time.time() - start
         total_gen_num = output.total_gen_tokens
         gen_tps = output.num_new / generation_time
