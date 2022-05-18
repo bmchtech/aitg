@@ -691,8 +691,8 @@ def gen_sfcodegen_route(ext):
         # create base response bundle
         resp_bundle = {
             "texts": output.texts,
-            "seqs": output.seqs,
-            "prompt_tokens": output.prompt_ids,
+            "tokens": output.tokens,
+            "prompt_tokens": output.prompt_tokens,
             "prompt_token_count": output.num_prompt_tokens,
             "token_count": total_gen_num,
             "num_new": output.num_new,
