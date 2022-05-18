@@ -25,6 +25,9 @@ from aitg.gens.qa_generator import QuestionAnswerGenerator
 from aitg.gens.t5_generator import T5Generator
 from aitg.gens.sfcodegen_generator import SFCodegenGenerator
 
+# optimization
+from aitg.optimize import quantize_ai_model
+
 MODEL_TYPE = None
 MODEL_DIR = os.environ.get("MODEL")
 API_KEY = os.environ.get("KEY")
@@ -701,7 +704,7 @@ def gen_sfcodegen_route(ext):
         logger.error(f"error generating: {traceback.format_exc()}")
         abort(400, f"generation failed")
 
-def prepare_model(load_model_func):
+def prepare_model(load_model_func, quantize=False):
     # sanity checks
     if not MODEL_DIR:
         raise RuntimeError(
@@ -715,6 +718,13 @@ def prepare_model(load_model_func):
     logger.info(f"finished loading in: {time.time() - start:.2f}s")
     logger.info(f"model: {ai.model_name} ({ai.model_type})")
 
+    if quantize:
+        start = time.time()
+        logger.info("quantizing model...")
+        # quantize the model
+        ai = quantize_ai_model(ai)
+        logger.info(f"finished quantizing in: {time.time() - start:.2f}s")
+
     return ai
 
 
@@ -723,6 +733,7 @@ def server(
     host: str = "localhost",
     port: int = 6000,
     debug: bool = False,
+    quantize_model: bool = False,
 ):
     # first init
     start = time.time()
@@ -764,7 +775,7 @@ def server(
 
     global AI_INSTANCE, GENERATOR, MODEL_TYPE
     MODEL_TYPE = model_type
-    AI_INSTANCE = ai = prepare_model(load_func)
+    AI_INSTANCE = ai = prepare_model(load_func, quantize=quantize_model)
     GENERATOR = generator_func(ai)
 
     # environ overrides to CLI
