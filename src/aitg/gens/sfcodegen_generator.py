@@ -92,19 +92,24 @@ class SFCodegenGenerator(BaseGenerator):
             self.ai.tokenizer.convert_ids_to_tokens(seq, skip_special_tokens=True)
             for seq in output_seqs
         ]
-        # output_texts = self.ai.tokenizer.batch_decode(output_ids[:, input_ids_len:, ...])
-        # print('output_texts:', output_texts)
-        # print('output_tokens:', output_tokens)
-        # truncation = self.truncate(output_texts[0])
+
+        total_token_num = sum([len(seq) for seq in output_tokens])
+
+        # count new tokens
+        new_tokens = [
+            seq[input_ids_len:]
+            for seq in output_seqs
+        ]
+
+        total_new_token_num = sum([len(seq) for seq in new_tokens])
         
         # return
 
         return SimpleNamespace(
-            # text=context + truncation,
-            text=output_texts[0],
-            tokens=output_tokens[0],
-            seq=output_seqs[0],
-            num_new=len(output_tokens[0]),
+            texts=output_texts,
+            seqs=output_seqs,
+            total_gen_tokens=total_token_num,
+            num_new=total_new_token_num,
             num_prompt_tokens=len(input_ids.tolist()[0]),
             prompt_ids=input_ids.tolist()[0],
             # probs=probs[0, :, :].tolist(),
