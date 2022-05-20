@@ -13,5 +13,6 @@ class SFCodegenAI:
             model_folder, local_files_only=True
         )
         self.model = AutoModelForCausalLM.from_pretrained(
-            model_folder, local_files_only=True, trust_remote_code=True
+            model_folder, local_files_only=True, trust_remote_code=True,
+            low_cpu_mem_usage=True,
         ).to(to_device)
