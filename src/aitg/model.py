@@ -192,3 +192,6 @@ def download_model(
 
 def download_model_main():
     typer.run(download_model)
+
+if __name__ == "__main__":
+    download_model_main()
