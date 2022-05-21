@@ -13,6 +13,5 @@ class T5AI:
             model_folder, local_files_only=True
         )
         self.model = T5ForConditionalGeneration.from_pretrained(
-            model_folder, local_files_only=True,
-            low_cpu_mem_usage=True,
+            model_folder, local_files_only=True
         ).to(to_device)
