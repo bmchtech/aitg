@@ -160,6 +160,8 @@ def download_model(
     ),
     tokenizer_arch: str = 'AutoTokenizer',
     path: str = typer.Argument(..., help="the output path to save the model to"),
+    trust_remote: bool = False,
+    low_mem: bool = False,
 ):
     """
     download a model id from huggingface, and save to a local path
@@ -178,7 +180,12 @@ def download_model(
 
         # grab both
         print(f"getting model: {model_id}")
-        model = _model_class.from_pretrained(model_id, trust_remote_code=True)
+        if trust_remote:
+            model = _model_class.from_pretrained(model_id, trust_remote_code=True)
+        elif low_mem:
+            model = _model_class.from_pretrained(model_id, low_cpu_mem_usage=True)
+        else:
+            model = _model_class.from_pretrained(model_id)
         print(f"getting tokenizer: {model_id}")
         tokenizer = _tokenizer_class.from_pretrained(model_id)
 
