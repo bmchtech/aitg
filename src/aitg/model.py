@@ -145,6 +145,18 @@ def load_sfcodegen_model(load_path):
 
     return ai
 
+def load_bloom_model(load_path):
+    from aitg.models.bloom import BloomAI
+
+    ensure_model_dir(load_path)
+
+    # load model
+    ai = BloomAI(model_folder=load_path, to_device=get_compute_device()[0])
+
+    load_common_ext(ai, load_path)
+
+    return ai
+
 
 import typer
 

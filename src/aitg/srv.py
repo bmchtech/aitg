@@ -24,6 +24,7 @@ from aitg.gens.embed_generator import EmbedGenerator
 from aitg.gens.qa_generator import QuestionAnswerGenerator
 from aitg.gens.t5_generator import T5Generator
 from aitg.gens.sfcodegen_generator import SFCodegenGenerator
+from aitg.gens.bloom_generator import BloomGenerator
 
 # optimization
 from aitg.optimize import quantize_ai_model
@@ -707,6 +708,75 @@ def gen_sfcodegen_route(ext):
         logger.error(f"error generating: {traceback.format_exc()}")
         abort(400, f"generation failed")
 
+@route("/gen_bloom.<ext>", method=["GET", "POST"])
+def gen_bloom_route(ext):
+    req_json = req_as_dict(request)
+    try:
+        verify_req(req_json)
+        _ = req_json["context"]
+    except KeyError as ke:
+        abort(400, f"missing field {ke}")
+
+    # mode params
+    # option params
+    opt_context: str = get_req_opt(req_json, "context", "")
+    opt_max_length: int = get_req_opt(req_json, "max_length", 2048)
+    opt_sample_length: int = get_req_opt(req_json, "sample_length", 128)
+    opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
+    opt_num_seqs: int = get_req_opt(req_json, "num_seqs", 1)
+    opt_temperature: float = get_req_opt(req_json, "temperature", 0.9)
+    opt_top_p: float = get_req_opt(req_json, "top_p", 0.9)
+
+    logger.debug(f"requesting generation for context: {opt_context}")
+
+    # generate
+    try:
+        start = time.time()
+
+        global AI_INSTANCE, GENERATOR, MODEL_TYPE
+        ensure_model_type("bloom")
+
+        # standard generate
+        output = GENERATOR.generate(
+            context=opt_context,
+            max_length=opt_max_length,
+            sample_length=opt_sample_length,
+            max_time=opt_max_time,
+            num_seqs=opt_num_seqs,
+            temp=opt_temperature,
+            top_p=opt_top_p,
+        )
+
+        prompt_token_count = len(output.prompt_ids)
+        all_texts = '======== SAMPLE ========\n'.join(output.texts)
+        logger.debug(f"model output: {all_texts}")
+        generation_time = time.time() - start
+        total_gen_num = output.total_gen_tokens
+        gen_tps = output.num_new / generation_time
+        logger.info(
+            f"generated {opt_num_seqs}x [{prompt_token_count}->{output.num_new}] ({generation_time:.2f}s/{(gen_tps):.2f}tps)"
+        )
+
+        # done generating, now return the results over http
+
+        # create base response bundle
+        resp_bundle = {
+            "texts": output.texts,
+            "tokens": output.tokens,
+            "prompt_tokens": output.prompt_tokens,
+            "prompt_token_count": output.num_prompt_tokens,
+            "token_count": total_gen_num,
+            "num_new": output.num_new,
+            "gen_time": generation_time,
+            "gen_tps": gen_tps,
+            "model": AI_INSTANCE.model_name,
+        }
+
+        return pack_bundle(resp_bundle, ext)
+    except Exception as ex:
+        logger.error(f"error generating: {traceback.format_exc()}")
+        abort(400, f"generation failed")
+
 def prepare_model(load_model_func, quantize=0):
     # sanity checks
     if not MODEL_DIR:
@@ -772,6 +842,9 @@ def server(
     elif model_type == "sfcodegen":
         load_func = aitg.model.load_sfcodegen_model
         generator_func = lambda ai: SFCodegenGenerator(ai)
+    elif model_type == "bloom":
+        load_func = aitg.model.load_bloom_model
+        generator_func = lambda ai: BloomGenerator(ai)
     else:
         # unknown
         raise RuntimeError(f"unknown model_type: {model_type}")
