@@ -713,21 +713,23 @@ def gen_bloom_route(ext):
     req_json = req_as_dict(request)
     try:
         verify_req(req_json)
-        _ = req_json["context"]
+        _ = req_json["prompt"]
     except KeyError as ke:
         abort(400, f"missing field {ke}")
 
     # mode params
     # option params
-    opt_context: str = get_req_opt(req_json, "context", "")
-    opt_max_length: int = get_req_opt(req_json, "max_length", 2048)
-    opt_sample_length: int = get_req_opt(req_json, "sample_length", 128)
+    opt_prompt: str = get_req_opt(req_json, "prompt", "")
+    opt_min_length: int = get_req_opt(req_json, "min_length", 0)
+    opt_max_length: int = get_req_opt(req_json, "max_length", 256)
     opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
     opt_num_seqs: int = get_req_opt(req_json, "num_seqs", 1)
     opt_temperature: float = get_req_opt(req_json, "temperature", 0.9)
-    opt_top_p: float = get_req_opt(req_json, "top_p", 0.9)
+    opt_top_p: float = get_req_opt(req_json, "top_p", None)
+    opt_typical_p: float = get_req_opt(req_json, "typical_p", None)
+    opt_seed: int = get_req_opt(req_json, "seed", None)
 
-    logger.debug(f"requesting generation for context: {opt_context}")
+    logger.debug(f"requesting generation for prompt: {opt_prompt}")
 
     # generate
     try:
@@ -738,13 +740,15 @@ def gen_bloom_route(ext):
 
         # standard generate
         output = GENERATOR.generate(
-            context=opt_context,
+            prompt=opt_prompt,
+            min_length=opt_min_length,
             max_length=opt_max_length,
-            sample_length=opt_sample_length,
             max_time=opt_max_time,
             num_seqs=opt_num_seqs,
             temp=opt_temperature,
             top_p=opt_top_p,
+            typical_p=opt_typical_p,
+            seed=opt_seed,
         )
 
         prompt_token_count = len(output.prompt_ids)

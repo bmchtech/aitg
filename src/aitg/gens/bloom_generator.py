@@ -13,29 +13,28 @@ class BloomGenerator(BaseGenerator):
 
     def generate(
         self,
-        context: str,
-        max_length: int = 2048,
-        sample_length: int = 128,
+        prompt: str,
+        max_length: int = 256,
+        min_length: int = 0,
         num_seqs: int = 1,
         temp: float = 0.2,
-        top_p: float = 0.95,
         **kwargs
     ):
 
         # sample
-        # completion = self.sample(context, num_return_sequences=num_seqs, temp=temp, top_p=top_p, max_length=max_length, sample_length=sample_length)[0]
         # tokenize and send tensor to device
+        MODEL_MAXLEN = 2048
         input_ids = self.ai.tokenizer(
-            context,
+            prompt,
             truncation=True,
             padding=True,
-            max_length=max_length,
+            max_length=MODEL_MAXLEN,
             return_tensors="pt",
         ).input_ids.to(self.ai.device)
 
         # verify tokenization
         input_ids_len = input_ids.shape[1]
-        assert input_ids_len < max_length
+        assert input_ids_len -- MODEL_MAXLEN, "input ids length does not match model maxlen"
 
         # sample from the model
         output_ids = None
@@ -45,8 +44,8 @@ class BloomGenerator(BaseGenerator):
                 do_sample=True,
                 num_return_sequences=num_seqs,
                 temperature=temp,
-                max_length=input_ids_len + sample_length,
-                top_p=top_p,
+                min_length=min_length,
+                max_length=max_length,
                 pad_token_id=50256,
                 use_cache=True,
                 **kwargs,
