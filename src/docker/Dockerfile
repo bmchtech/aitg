@@ -52,8 +52,8 @@ COPY poetry.lock pyproject.toml ./
 RUN poetry export --without-hashes -f requirements.txt > requirements.txt
 
 # workaround to use torch cpu
-RUN sed -i 's/torch==1.11.0/torch==1.11.0+cpu/g' requirements.txt \
-    && sed -i '/^torch==1.11.0.*/i -f https://download.pytorch.org/whl/torch_stable.html' requirements.txt
+RUN sed -i 's/torch==1.12.0/torch==1.12.0+cpu/g' requirements.txt \
+    && sed -i '/^torch==1.12.0.*/i -f https://download.pytorch.org/whl/torch_stable.html' requirements.txt
 
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
 # RUN poetry install --no-dev
