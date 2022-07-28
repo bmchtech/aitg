@@ -12,19 +12,13 @@ def cli(
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     model = ORTModelForCausalLM.from_pretrained(model_path)
     print(f"loaded model")
-
-    # inputs = tokenizer("My name is Philipp and I live in Germany.", return_tensors="pt")
-    # gen_tokens = model.generate(
-    #     **inputs, do_sample=True, temperature=0.9, min_length=20, max_length=20
-    # )
-    # tokenizer.batch_decode(gen_tokens)
     
     user_input = input("prompt: ")
     while user_input.strip() != "":
         # do inference
         inputs = tokenizer(user_input, return_tensors="pt")
         gen_tokens = model.generate(
-            **inputs, do_sample=True, temperature=0.9, max_length=32
+            **inputs, do_sample=True, temperature=0.9, min_length=32, max_length=32
         )
         print(tokenizer.batch_decode(gen_tokens))
         user_input = input("prompt: ")
