@@ -1,10 +1,12 @@
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from optimum.onnxruntime import ORTModelForCausalLM
+from optimum.onnxruntime import ORTOptimizer
+from optimum.onnxruntime.configuration import OptimizationConfig
 import torch
 import typer
 
 def cli(
-    model_path: str
+    model_path: str,
 ):
     print(f"loading model from {model_path}")
     tokenizer = AutoTokenizer.from_pretrained(model_path)
