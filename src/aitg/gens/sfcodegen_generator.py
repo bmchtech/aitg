@@ -7,6 +7,26 @@ class SFCodegenGenerator(BaseGenerator):
     def __init__(self, ai):
         super().__init__(ai)
 
+        self.upgrade_tokenizer()
+    
+    def upgrade_tokenizer(self):
+        # add features to the tokenizer
+
+        # 1. set pad token
+        self.ai.tokenizer.pad_token = self.ai.tokenizer.eos_token
+
+        # 2. add special tokens
+        def include_whitespace(n_min=2, n_max=20, as_special_tokens=False):
+            self.ai.tokenizer.add_tokens([' ' * n for n in reversed(range(n_min, n_max))], special_tokens=as_special_tokens)
+
+
+        def include_tabs(n_min=2, n_max=20, as_special_tokens=False):
+            self.ai.tokenizer.add_tokens(['\t' * n for n in reversed(range(n_min, n_max))], special_tokens=as_special_tokens)
+        
+        # add tokens for whitespace and tabs
+        include_whitespace(n_min=2, n_max=32, as_special_tokens=False)
+        include_tabs(n_min=2, n_max=10, as_special_tokens=False)
+
     def str_to_ids(self, text):
         return self.ai.tokenizer(text=text).input_ids
 
@@ -57,7 +77,6 @@ class SFCodegenGenerator(BaseGenerator):
         # sample
         # completion = self.sample(context, num_return_sequences=num_seqs, temp=temp, top_p=top_p, max_length=max_length, sample_length=sample_length)[0]
         # tokenize and send tensor to device
-        self.ai.tokenizer.pad_token = self.ai.tokenizer.eos_token
         input_ids = self.ai.tokenizer(
             context,
             truncation=True,
