@@ -57,6 +57,7 @@ class SFCodegenGenerator(BaseGenerator):
         # sample
         # completion = self.sample(context, num_return_sequences=num_seqs, temp=temp, top_p=top_p, max_length=max_length, sample_length=sample_length)[0]
         # tokenize and send tensor to device
+        self.ai.tokenizer.pad_token = self.ai.tokenizer.eos_token
         input_ids = self.ai.tokenizer(
             context,
             truncation=True,

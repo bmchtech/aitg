@@ -1,4 +1,4 @@
-from transformers import GPT2Tokenizer, AutoModelForCausalLM, logging
+from transformers import AutoTokenizer, AutoModelForCausalLM, logging
 
 class SFCodegenAI:
     def __init__(self, model_folder: str, to_device, verbose=False):
@@ -9,7 +9,7 @@ class SFCodegenAI:
             logging.set_verbosity_warning()
 
         # load model
-        self.tokenizer = GPT2Tokenizer.from_pretrained(
+        self.tokenizer = AutoTokenizer.from_pretrained(
             model_folder, local_files_only=True
         )
         self.model = AutoModelForCausalLM.from_pretrained(
