@@ -27,7 +27,7 @@ from aitg.gens.sfcodegen_generator import SFCodegenGenerator
 from aitg.gens.bloom_generator import BloomGenerator
 
 # optimization
-from aitg.optimize import quantize_ai_model
+from aitg.optimize import quantize_ai_model, convert_ai_params
 
 MODEL_TYPE = None
 MODEL_DIR = os.environ.get("MODEL")
@@ -781,7 +781,7 @@ def gen_bloom_route(ext):
         logger.error(f"error generating: {traceback.format_exc()}")
         abort(400, f"generation failed")
 
-def prepare_model(load_model_func, quantize=0):
+def prepare_model(load_model_func, quantize=0, fp16=False):
     # sanity checks
     if not MODEL_DIR:
         raise RuntimeError(
@@ -801,6 +801,13 @@ def prepare_model(load_model_func, quantize=0):
         # quantize the model
         ai = quantize_ai_model(ai, quantize)
         logger.info(f"finished quantizing in: {time.time() - start:.2f}s")
+    
+    if fp16:
+        start = time.time()
+        logger.info(f"converting model to fp16...")
+        # convert to fp16
+        ai = convert_ai_params(ai, fp16=True)
+        logger.info(f"finished converting in: {time.time() - start:.2f}s")
 
     return ai
 
@@ -811,6 +818,7 @@ def server(
     port: int = 6000,
     debug: bool = False,
     quantize_model: int = 0,
+    fp16: bool = False,
 ):
     # first init
     start = time.time()
@@ -855,7 +863,7 @@ def server(
 
     global AI_INSTANCE, GENERATOR, MODEL_TYPE
     MODEL_TYPE = model_type
-    AI_INSTANCE = ai = prepare_model(load_func, quantize=quantize_model)
+    AI_INSTANCE = ai = prepare_model(load_func, quantize=quantize_model, fp16=fp16)
     GENERATOR = generator_func(ai)
 
     # environ overrides to CLI
