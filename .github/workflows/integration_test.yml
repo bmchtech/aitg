@@ -27,7 +27,7 @@ jobs:
       - name: Test T5 Model
         run: |
           podman run -d --name t5_test -it --rm -v $(pwd)/models/t5_small:/app/model -p 6000:6000 aitg:dev aitg.srv t5
-          sleep 10
+          sleep 20
           printf '{"text": "mnli hypothesis: The St. Louis Cardinals have always won. premise: yeah well losing is i mean im im originally from Saint Louis and Saint Louis Cardinals when they were there were uh a mostly a losing team but"}' | http --check-status POST 'http://localhost:6000/gen_t5.json'
           podman stop t5_test
       - name: Download GPTNeo Model
@@ -36,7 +36,7 @@ jobs:
           podman run -it --rm -v $(pwd)/models:/models aitg:dev aitg.model 'AutoModelForCausalLM' '@xhyi/PT_GPTNEO350_ATG' /models/gptn350
       - name: Test GPTNeo Model
         run: |
-          podman run --name gpt_test -it --rm -v $(pwd)/models/gptn350:/app/model -p 6000:6000 aitg:dev aitg.srv gpt
-          sleep 20
+          podman run -d --name gpt_test -it --rm -v $(pwd)/models/gptn350:/app/model -p 6000:6000 aitg:dev aitg.srv gpt
+          sleep 40
           printf '{"prompt": "My mom once told me this story: One of my favorite foods is"}' | http --check-status POST 'http://localhost:6000/gen_gpt.json'
           podman stop gpt_test
