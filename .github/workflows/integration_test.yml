@@ -36,7 +36,7 @@ jobs:
           podman run -it --rm -v $(pwd)/models:/models aitg:dev aitg.model 'AutoModelForCausalLM' '@xhyi/PT_GPTNEO350_ATG' /models/gptn350
       - name: Test GPTNeo Model
         run: |
-          podman run -d --name gpt_test -it --rm -v $(pwd)/models/gptn350:/app/model -p 6000:6000 aitg:dev aitg.srv gpt
+          podman run --name gpt_test -it --rm -v $(pwd)/models/gptn350:/app/model -p 6000:6000 aitg:dev aitg.srv gpt
           sleep 20
           printf '{"prompt": "My mom once told me this story: One of my favorite foods is"}' | http --check-status POST 'http://localhost:6000/gen_gpt.json'
           podman stop gpt_test
