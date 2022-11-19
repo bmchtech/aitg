@@ -720,6 +720,7 @@ def gen_bloom_route(ext):
     # mode params
     # option params
     opt_prompt: str = get_req_opt(req_json, "prompt", "")
+    opt_answer_only: bool = get_req_opt(req_json, "answer_only", False)
     opt_min_length: int = get_req_opt(req_json, "min_length", 0)
     opt_max_length: int = get_req_opt(req_json, "max_length", 256)
     opt_max_time: float = get_req_opt(req_json, "opt_max_time", None)
@@ -741,6 +742,7 @@ def gen_bloom_route(ext):
         # standard generate
         output = GENERATOR.generate(
             prompt=opt_prompt,
+            answer_only=opt_answer_only,
             min_length=opt_min_length,
             max_length=opt_max_length,
             max_time=opt_max_time,

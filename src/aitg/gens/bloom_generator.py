@@ -14,6 +14,7 @@ class BloomGenerator(BaseGenerator):
     def generate(
         self,
         prompt: str,
+        answer_only: bool = False,
         max_length: int = 256,
         min_length: int = 0,
         num_seqs: int = 1,
@@ -51,7 +52,16 @@ class BloomGenerator(BaseGenerator):
                 **kwargs,
             )
         output_seqs = [seq for seq in output_ids]
-        output_texts = [self.ai.tokenizer.decode(seq) for seq in output_seqs]
+        
+        if answer_only:
+            # remove prompt tokens from output
+            output_seqs = [seq[input_ids_len:] for seq in output_seqs]
+        
+        # decode
+        # output_texts = [self.ai.tokenizer.decode(seq) for seq in output_seqs]
+        output_texts = [self.ai.tokenizer.decode(seq, skip_special_tokens=True) for seq in output_seqs]
+        # strip text
+        output_texts = self.lstrip_texts(output_texts)
 
         # decode seqs and prompts
         output_tokens = [
