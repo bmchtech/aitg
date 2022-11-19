@@ -7,7 +7,7 @@ authors = ["redthing1 <redthing1@alt.icu>"]
 [tool.poetry.dependencies]
 python = ">=3.7,<4.0"
 torch = "^1.12.0"
-transformers = "^4.21.0"
+transformers = "^4.24.0"
 aitextgen = "^0.5.2"
 typer = "^0.4.1"
 bottle = "^0.12.19"
