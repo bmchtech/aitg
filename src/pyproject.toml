@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aitg"
-version = "3.4.0"
+version = "3.6.0"
 description = "aitg is a multitool for working with transformer models"
 authors = ["redthing1 <redthing1@alt.icu>"]
 
