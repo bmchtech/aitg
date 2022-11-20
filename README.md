@@ -132,3 +132,20 @@ more documentation on other models coming soon.
 ## docker usage
 
 see [instructions](doc/docker.md) for running in Docker.
+
+## bloomz zero-shot
+
+model:
+```sh
+podman run -it --rm -v $(pwd):/stf docker.io/xdrie/aitg:v3.6.0 aitg.model 'AutoModelForCausalLM' '@bigscience/bloomz-560m' /stf/PT_BLOOMZ_560M
+```
+
+server:
+```sh
+podman run -it --rm -v ~/Downloads/PT_BLOOMZ_560M:/app/model -p 24401:6000 xdrie/aitg:v3.6.0 aitg.srv bloom
+```
+
+query:
+```sh
+(export M='Explain in 1 sentence what is backpropagation in neural networks. Explanation:' && printf '{ "prompt": "%s", "answer_only": true }' $M | http POST 'http://localhost:24401/gen_bloom.json') | jq -r '.texts[0]'
+```
