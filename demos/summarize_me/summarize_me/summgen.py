@@ -51,6 +51,7 @@ def summarize_openai_v2(article, headline):
     openai_prompt += "\n"
     openai_prompt += "Input:\n"
     openai_prompt += article
+    openai_prompt += "\n"
     openai_prompt += "Output:\n"
 
     if DEBUG:
