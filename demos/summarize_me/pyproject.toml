@@ -5,11 +5,12 @@ description = ""
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.7,<3.11"
+python = ">=3.8,<3.11"
 aitg_doctools = {path = "../doctools", develop = true}
 requests = "^2.26.0"
 typer = "^0.3.2"
 colorama = "^0.4.4"
+openai = "^0.26.3"
 
 [tool.poetry.dev-dependencies]
 

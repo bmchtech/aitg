@@ -8,19 +8,30 @@ from colorama import Fore, Style
 from aitg_doctools.util import eprint
 from aitg_doctools.chunk import ArticleChunker
 
-DEBUG = os.environ.get('DEBUG')
-KEY = os.environ.get('KEY') or ''
+DEBUG = os.environ.get("DEBUG")
+KEY = os.environ.get("KEY") or ""
 
-def summarize(server_uri, article, summary_size_min, summary_size_max, typical_p):
+
+def summarize_local_v1(
+    server_uri, article, summary_size_min, summary_size_max, gen_params
+):
+    req_bundle = {
+        "key": KEY,
+        "text": article,
+        "max_length": min(1024, summary_size_max),
+        "min_length": summary_size_min,
+    }
+
+    # add gen params
+    for k, v in gen_params.__dict__.items():
+        if v is not None:
+            req_bundle[k] = v
+    if DEBUG:
+        eprint(f"{Fore.CYAN}requesting {server_uri}, min={summary_size_min}, max={summary_size_max}, gen_params={gen_params}")
+
     resp = requests.post(
         server_uri,
-        json={
-            "key": KEY,
-            "text": article,
-            "max_length": min(1024, summary_size_max),
-            "min_length": summary_size_min,
-            "typical_p": typical_p,
-        },
+        json=req_bundle,
     )
     resp.raise_for_status()  # ensure
 
@@ -34,20 +45,28 @@ def summarize(server_uri, article, summary_size_min, summary_size_max, typical_p
 
     return bundle["text"]
 
+
 def summarize_document(
     server: str,
     document: str,
+    headline: str,
     model,
     chunk_size,
     summary_size_min,
     summary_size_max,
-    typical_p,
+    gen_params,
 ):
     server_uri = server + f"/gen_{model}_summarizer.json"
 
     # chunk
     chunker = ArticleChunker()
     chunks = chunker.chunk(document, chunk_size)
+
+    # edit chunks, add headlines
+    for i, chunk in enumerate(chunks):
+        if headline:
+            # prepend headline to each chunk
+            chunks[i] = headline + "\n\n" + chunk
 
     if DEBUG:
         # print chunk overview
@@ -59,6 +78,8 @@ def summarize_document(
     num_chunks = len(chunks)
     chunk_summaries = []
     for i, chunk in enumerate(chunks):
+        # for all chunks
+
         if DEBUG:
             eprint(
                 f"{Fore.CYAN}\nsummarize[{i+1}/{num_chunks}]:",
@@ -67,7 +88,9 @@ def summarize_document(
             )
 
         # summarize api
-        summary = summarize(server_uri, chunk, summary_size_min, summary_size_max, typical_p)
+        summary = summarize_local_v1(
+            server_uri, chunk, summary_size_min, summary_size_max, gen_params
+        )
         # clean summarized paragraph
         summary = chunker.cleaner.clean_paragraph(summary)
 
@@ -78,6 +101,6 @@ def summarize_document(
 
         # store summary chunk
         chunk_summaries.append(summary)
-    
-    combined_summaries = '\n\n'.join(chunk_summaries)
+
+    combined_summaries = "\n\n".join(chunk_summaries)
     return combined_summaries
