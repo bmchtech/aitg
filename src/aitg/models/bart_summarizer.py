@@ -11,10 +11,15 @@ class BartSummarizerAI:
 
         # load model
         self.tokenizer = AutoTokenizer.from_pretrained(
-            model_folder, local_files_only=True
+            model_folder, local_files_only=True, trust_remote_code=True
         )
+        # self.model = AutoModelForSeq2SeqLM.from_pretrained(
+        #     model_folder, local_files_only=True
+        # ).to(to_device)
+
+        # make it also trust remote code
         self.model = AutoModelForSeq2SeqLM.from_pretrained(
-            model_folder, local_files_only=True
+            model_folder, local_files_only=True, trust_remote_code=True
         ).to(to_device)
 
-        self.context_window = 1024
+        self.context_window = self.tokenizer.model_max_length
