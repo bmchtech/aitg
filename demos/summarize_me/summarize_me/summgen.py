@@ -11,15 +11,34 @@ from aitg_doctools.chunk import ArticleChunker
 DEBUG = os.environ.get('DEBUG')
 KEY = os.environ.get('KEY') or ''
 
-def summarize(server_uri, article, summary_size_min, summary_size_max, typical_p):
+def summarize_local_v1(server_uri, article, headline, summary_size_min, summary_size_max, typical_p):
+    # if there is a headline, prepend it to the article
+    if headline:
+        article = headline + "\n\n" + article
     resp = requests.post(
         server_uri,
         json={
             "key": KEY,
             "text": article,
-            "max_length": min(1024, summary_size_max),
-            "min_length": summary_size_min,
-            "typical_p": typical_p,
+           "max_length": min(1024, summary_size_max),
+           "min_length": summary_size_min,
+            "no_repeat_ngram_size": 7,
+            "num_beams": 2,
+            # "typical_p": typical_p,
+# min_length=16,
+# max_length=256,
+# no_repeat_ngram_size=3,
+# encoder_no_repeat_ngram_size=3,
+# repetition_penalty=3.5,
+# num_beams=4,
+# early_stopping=True,
+            # "min_length": 16,
+            # "max_length": 256,
+            # "no_repeat_ngram_size": 3,
+            # "encoder_no_repeat_ngram_size": 3,
+            # "repetition_penalty": 3.5,
+            # "num_beams": 4,
+            # "early_stopping": True,
         },
     )
     resp.raise_for_status()  # ensure
@@ -34,9 +53,44 @@ def summarize(server_uri, article, summary_size_min, summary_size_max, typical_p
 
     return bundle["text"]
 
+def summarize_openai_v2(article, headline):
+    # create prompt
+    openai_prompt = 'Summarize this chunk of text from {}. Do not reference the text with words like "this text", but reference the author when relevant to explaining their point of view. The goal is to simply create an information-dense, concise version of the input text.'.format(headline)
+    openai_prompt += "\n"
+    openai_prompt += "Input:\n"
+    openai_prompt += article
+    openai_prompt += "Output:\n"
+
+    if DEBUG:
+        eprint(f"{Fore.GREEN}openai prompt:\n{openai_prompt}\n")
+
+    import openai
+
+    # summarize
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=openai_prompt,
+        temperature=0.7,
+        max_tokens=256,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
+    )
+
+    # extract summary
+    summary = response["choices"][0]["text"]
+
+    if DEBUG:
+        eprint(f"{Fore.GREEN}openai summary:\n{summary}\n")
+
+    return summary
+
 def summarize_document(
     server: str,
     document: str,
+    headline: str,
     model,
     chunk_size,
     summary_size_min,
@@ -59,6 +113,8 @@ def summarize_document(
     num_chunks = len(chunks)
     chunk_summaries = []
     for i, chunk in enumerate(chunks):
+        # for all chunks
+        
         if DEBUG:
             eprint(
                 f"{Fore.CYAN}\nsummarize[{i+1}/{num_chunks}]:",
@@ -67,7 +123,8 @@ def summarize_document(
             )
 
         # summarize api
-        summary = summarize(server_uri, chunk, summary_size_min, summary_size_max, typical_p)
+        # summary = summarize_local_v1(server_uri, chunk, headline, summary_size_min, summary_size_max, typical_p)
+        summary = summarize_openai_v2(chunk, headline)
         # clean summarized paragraph
         summary = chunker.cleaner.clean_paragraph(summary)
 
